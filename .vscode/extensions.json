@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+	"davidanson.vscode-markdownlint",
+	"hbenl.vscode-mocha-test-adapter",
+	"esbenp.prettier-vscode",
+  ]
+}
