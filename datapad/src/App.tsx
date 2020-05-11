@@ -7,7 +7,7 @@ import './App.css';
  */
 const App: React.FC = () => {
 	return (
-		<div className="App">
+		<body className="App">
 			<header className="App-header">
 				<img
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
@@ -24,10 +24,10 @@ const App: React.FC = () => {
 					/>
 				</a>
 			</header>
-			<div className="App-container">
+			<body className="App-container">
 				<Datapad />
-			</div>
-		</div>
+			</body>
+		</body>
 	);
 };
 
