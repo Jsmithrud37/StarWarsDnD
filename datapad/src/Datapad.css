@@ -1,0 +1,16 @@
+.Datapad {
+	text-align: center;
+	display: inline-block;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	height: 100%;
+}
+
+.Datapad-menu {
+	width: 200px;
+}
+
+.Datapad-view {
+	width: 100%;
+}
