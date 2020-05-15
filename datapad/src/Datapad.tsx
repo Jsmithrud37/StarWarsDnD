@@ -1,4 +1,5 @@
 import React from 'react';
+import GalaxyMap from './GalaxyMap';
 import './Datapad.css';
 
 /**
@@ -13,7 +14,9 @@ const Datapad: React.FC = () => {
 					<div>Contacts List</div>
 				</div>
 			</div>
-			<div className="Datapad-view">TODO: App view here</div>
+			<div className="Datapad-view">
+				<GalaxyMap />
+			</div>
 		</div>
 	);
 };
