@@ -1,7 +1,7 @@
 .Datapad {
-	text-align: center;
+	display: flex;
 	flex-direction: row;
-	align-items: flex-start;
+	text-align: center;
 	min-height: 500px;
 	height: 100%;
 }
@@ -15,7 +15,7 @@
 }
 
 .Datapad-menu-item {
-	width: 190px;
+	width: 100%;
 	height: 50px;
 	border: 5px;
 	border-color: aqua;
@@ -24,4 +24,5 @@
 .Datapad-view {
 	text-align: center;
 	float: right;
+	flex: 1;
 }
