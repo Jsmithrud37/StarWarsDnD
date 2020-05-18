@@ -11,10 +11,8 @@ const GalaxyMap: React.FC = () => {
 			width="100%"
 			height="100%"
 			id="galaxy-map-frame"
-			position="relative"
 		/>
 	);
 };
 
 export default GalaxyMap;
-//<iframe src="" width="100%" height="600" frameborder="0"></iframe>;
