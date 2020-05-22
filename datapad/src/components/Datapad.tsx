@@ -67,14 +67,14 @@ class Menu extends React.Component<{}, MenuState, any> {
 						Shops
 					</Accordion.Toggle>
 					<Accordion.Collapse eventKey={shopsId}>
-						<Card.Body>
+						<div>
 							<Card bg="dark" text="light">
 								Equipment
 							</Card>
 							<Card bg="dark" text="light" border="primary">
 								Apothicary
 							</Card>
-						</Card.Body>
+						</div>
 					</Accordion.Collapse>
 				</Card>
 				<Card bg={this.bgColor(contactsId)} text="light">
@@ -86,11 +86,9 @@ class Menu extends React.Component<{}, MenuState, any> {
 						Contacts
 					</Accordion.Toggle>
 					<Accordion.Collapse eventKey={contactsId}>
-						<Card.Body>
-							<Card bg="dark" text="light">
-								TODO
-							</Card>
-						</Card.Body>
+						<Card bg="dark" text="light">
+							TODO
+						</Card>
 					</Accordion.Collapse>
 				</Card>
 			</Accordion>
