@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Accordion from 'react-bootstrap/accordion';
 import Card from 'react-bootstrap/card';
 import GalaxyMap from './GalaxyMap';
@@ -6,19 +6,50 @@ import './Datapad.css';
 
 type CardColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'dark' | 'light' | undefined;
 
+interface AppState {
+	appSelection: string;
+}
+
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-const Datapad: React.FC = () => {
-	return (
-		<div className="Datapad">
-			<Menu />
-			<div className="Datapad-view">
-				<GalaxyMap />
+export class Datapad extends React.Component<{}, AppState, any> {
+	public constructor(props: {}) {
+		super(props);
+		this.state = {
+			appSelection: galaxyMapId,
+		};
+	}
+
+	private changeApp(appId: string): void {
+		this.setState({
+			appSelection: appId,
+		});
+	}
+
+	public render() {
+		return (
+			<div className="Datapad">
+				<Menu onSelectionChange={(appId: string) => this.changeApp(appId)} />
+				<div className="Datapad-view">{this.renderApp()}</div>
 			</div>
-		</div>
-	);
-};
+		);
+	}
+
+	private renderApp(): ReactNode {
+		const selection = this.state.appSelection;
+		switch (selection) {
+			case galaxyMapId:
+				return <GalaxyMap />;
+			case contactsId:
+				return <div>TODO: Contacts App</div>;
+			case shopsId:
+				return <div>TODO: Shops App</div>;
+			default:
+				throw new Error(`Unrecognized app selection: ${selection}`);
+		}
+	}
+}
 
 const galaxyMapId = '0';
 const shopsId = '1';
@@ -28,8 +59,12 @@ interface MenuState {
 	selection: string;
 }
 
-class Menu extends React.Component<{}, MenuState, any> {
-	constructor(props: {}) {
+interface MenuProps {
+	onSelectionChange: (selectionId: string) => void;
+}
+
+class Menu extends React.Component<MenuProps, MenuState, any> {
+	constructor(props: MenuProps) {
 		super(props);
 		this.state = {
 			selection: galaxyMapId,
@@ -40,14 +75,11 @@ class Menu extends React.Component<{}, MenuState, any> {
 		this.setState({
 			selection: id,
 		});
+		this.props.onSelectionChange(id);
 	}
 
 	private isSelected(id: string): boolean {
 		return id === this.state.selection;
-	}
-
-	private bgColor(id: string): CardColors {
-		return this.isSelected(id) ? 'primary' : 'dark';
 	}
 
 	render() {
