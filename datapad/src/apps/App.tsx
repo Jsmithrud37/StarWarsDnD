@@ -1,5 +1,5 @@
 import React from 'react';
-import { Datapad } from './Datapad';
+import { Datapad } from './Datapad/Datapad';
 import './App.css';
 
 /**
@@ -16,6 +16,7 @@ export class App extends React.Component {
 						alt="Campaign logo"
 						height="75"
 					/>
+					<div>Datapad</div>
 					<a className="App-link" href="https://sw5e.com/" target="_blank" rel="noopener noreferrer">
 						<img
 							src="https://sw5e.com/img/sw5e-logo.84b4d7ed.png"
