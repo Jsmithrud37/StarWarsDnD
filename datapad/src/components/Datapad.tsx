@@ -76,15 +76,15 @@ class Menu extends React.Component<{}, MenuState, any> {
 				<CollapsableMenuItem
 					title="Shops"
 					id={shopsId}
-					isSelected={this.isSelected(contactsId)}
-					onClick={() => this.setSelection(contactsId)}
+					isSelected={this.isSelected(shopsId)}
+					onClick={() => this.setSelection(shopsId)}
 					content={<InventorySubMenu />}
 				></CollapsableMenuItem>
 				<MenuItem
 					title="Contacts"
 					id={contactsId}
-					isSelected={this.isSelected(shopsId)}
-					onClick={() => this.setSelection(shopsId)}
+					isSelected={this.isSelected(contactsId)}
+					onClick={() => this.setSelection(contactsId)}
 				/>
 			</Accordion>
 		);
