@@ -53,20 +53,6 @@ class Menu extends React.Component<{}, MenuState, any> {
 	render() {
 		return (
 			<Accordion className="Datapad-menu">
-				{/* <Card bg={this.bgColor(contactsId)} text="light">
-					<Accordion.Toggle
-						as={Card.Header}
-						eventKey={contactsId}
-						onClick={() => this.setSelection(contactsId)}
-					>
-						Contacts
-					</Accordion.Toggle>
-					<Accordion.Collapse eventKey={contactsId}>
-						<Card bg="dark" text="light">
-							TODO
-						</Card>
-					</Accordion.Collapse>
-				</Card> */}
 				<MenuItem
 					title="Galaxy Map"
 					id={galaxyMapId}
