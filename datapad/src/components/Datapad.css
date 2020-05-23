@@ -21,5 +21,9 @@
 	text-align: center;
 	float: right;
 	flex: 1;
-	overflow: hidden; /* We see scroll bars if we don't do this. Not sure why :/ */
+
+	/*
+	 * We see scroll bars if we don't do this. Not sure why :/
+	 */
+	overflow: hidden;
 }
