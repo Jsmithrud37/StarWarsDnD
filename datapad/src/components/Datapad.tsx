@@ -3,11 +3,21 @@ import Accordion from 'react-bootstrap/accordion';
 import Card from 'react-bootstrap/card';
 import GalaxyMap from './GalaxyMap';
 import './Datapad.css';
+import { Shop, ShopId } from './Shop';
 
 type CardColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'dark' | 'light' | undefined;
 
+enum AppId {
+	GalaxyMap,
+	Shops,
+	Contacts,
+}
+
+type AppSelectionChangeFunction = (appSelection: AppId, appArguments: unknown) => void;
+
 interface AppState {
-	appSelection: string;
+	appSelection: AppId;
+	appArguments: unknown;
 }
 
 /**
@@ -17,20 +27,22 @@ export class Datapad extends React.Component<{}, AppState, any> {
 	public constructor(props: {}) {
 		super(props);
 		this.state = {
-			appSelection: galaxyMapId,
+			appSelection: AppId.GalaxyMap,
+			appArguments: undefined,
 		};
 	}
 
-	private changeApp(appId: string): void {
+	private changeApp(appSelection: AppId, appArguments: unknown = undefined): void {
 		this.setState({
-			appSelection: appId,
+			appSelection,
+			appArguments,
 		});
 	}
 
 	public render() {
 		return (
 			<div className="Datapad">
-				<Menu onSelectionChange={(appId: string) => this.changeApp(appId)} />
+				<Menu onSelectionChange={(a, b) => this.changeApp(a, b)} />
 				<div className="Datapad-view">{this.renderApp()}</div>
 			</div>
 		);
@@ -39,47 +51,46 @@ export class Datapad extends React.Component<{}, AppState, any> {
 	private renderApp(): ReactNode {
 		const selection = this.state.appSelection;
 		switch (selection) {
-			case galaxyMapId:
+			case AppId.GalaxyMap:
 				return <GalaxyMap />;
-			case contactsId:
+			case AppId.Contacts:
 				return <div>TODO: Contacts App</div>;
-			case shopsId:
-				return <div>TODO: Shops App</div>;
+			case AppId.Shops:
+				return <Shop shopId={this.state.appArguments as ShopId} />;
 			default:
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}
 	}
 }
 
-const galaxyMapId = '0';
-const shopsId = '1';
-const contactsId = '2';
-
-interface MenuState {
-	selection: string;
+interface MenuState<TSelectionId extends number> {
+	appSelection: TSelectionId;
+	appArguments: unknown;
 }
 
 interface MenuProps {
-	onSelectionChange: (selectionId: string) => void;
+	onSelectionChange: AppSelectionChangeFunction;
 }
 
-class Menu extends React.Component<MenuProps, MenuState, any> {
+class Menu extends React.Component<MenuProps, MenuState<AppId>, any> {
 	constructor(props: MenuProps) {
 		super(props);
 		this.state = {
-			selection: galaxyMapId,
+			appSelection: AppId.GalaxyMap,
+			appArguments: undefined,
 		};
 	}
 
-	private setSelection(id: string) {
+	private setSelection(appSelection: AppId, appArguments: unknown) {
 		this.setState({
-			selection: id,
+			appSelection,
+			appArguments,
 		});
-		this.props.onSelectionChange(id);
+		this.props.onSelectionChange(appSelection, appArguments);
 	}
 
-	private isSelected(id: string): boolean {
-		return id === this.state.selection;
+	private isSelected(id: AppId): boolean {
+		return id === this.state.appSelection;
 	}
 
 	render() {
@@ -87,37 +98,41 @@ class Menu extends React.Component<MenuProps, MenuState, any> {
 			<Accordion className="Datapad-menu">
 				<MenuItem
 					title="Galaxy Map"
-					id={galaxyMapId}
-					isSelected={this.isSelected(galaxyMapId)}
-					onClick={() => this.setSelection(galaxyMapId)}
+					id={AppId.GalaxyMap}
+					isSelected={this.isSelected(AppId.GalaxyMap)}
+					onClick={() => this.setSelection(AppId.GalaxyMap, undefined)}
 				/>
 				<CollapsableMenuItem
 					title="Shops"
-					id={shopsId}
-					isSelected={this.isSelected(shopsId)}
-					onClick={() => this.setSelection(shopsId)}
-					content={<InventorySubMenu />}
+					id={AppId.Shops}
+					isSelected={this.isSelected(AppId.Shops)}
+					onClick={() => this.setSelection(AppId.Shops, undefined)} // TODO: set correct initial state?
+					content={
+						<InventorySubMenu
+							onSelectionChange={appArguments => this.setSelection(AppId.Shops, appArguments)}
+						/>
+					}
 				></CollapsableMenuItem>
 				<MenuItem
 					title="Contacts"
-					id={contactsId}
-					isSelected={this.isSelected(contactsId)}
-					onClick={() => this.setSelection(contactsId)}
+					id={AppId.Contacts}
+					isSelected={this.isSelected(AppId.Contacts)}
+					onClick={() => this.setSelection(AppId.Contacts, undefined)}
 				/>
 			</Accordion>
 		);
 	}
 }
 
-interface MenuItemParameters {
+interface MenuItemParameters<TSelectionId extends number> {
 	title: string;
-	id: string;
+	id: TSelectionId;
 	isSelected: boolean;
 	onClick: () => void;
 }
 
-class MenuItem extends React.Component<MenuItemParameters> {
-	public constructor(props: MenuItemParameters) {
+class MenuItem<TSelectionId extends number> extends React.Component<MenuItemParameters<TSelectionId>> {
+	public constructor(props: MenuItemParameters<TSelectionId>) {
 		super(props);
 	}
 
@@ -128,7 +143,11 @@ class MenuItem extends React.Component<MenuItemParameters> {
 	render() {
 		return (
 			<Card bg={this.backgroundColor()} text="light">
-				<Accordion.Toggle as={Card.Header} eventKey={this.props.id} onClick={() => this.props.onClick()}>
+				<Accordion.Toggle
+					as={Card.Header}
+					eventKey={this.props.id.toString()}
+					onClick={() => this.props.onClick()}
+				>
 					{this.props.title}
 				</Accordion.Toggle>
 			</Card>
@@ -136,12 +155,14 @@ class MenuItem extends React.Component<MenuItemParameters> {
 	}
 }
 
-interface CollapsableMenuItemParameters extends MenuItemParameters {
+interface CollapsableMenuItemParameters<TSelectionId extends number> extends MenuItemParameters<TSelectionId> {
 	content: any; // TODO: sub-items
 }
 
-class CollapsableMenuItem extends React.Component<CollapsableMenuItemParameters> {
-	public constructor(props: CollapsableMenuItemParameters) {
+class CollapsableMenuItem<TSelectionId extends number> extends React.Component<
+	CollapsableMenuItemParameters<TSelectionId>
+> {
+	public constructor(props: CollapsableMenuItemParameters<TSelectionId>) {
 		super(props);
 	}
 
@@ -152,10 +173,14 @@ class CollapsableMenuItem extends React.Component<CollapsableMenuItemParameters>
 	render() {
 		return (
 			<Card bg={this.backgroundColor()} text="light">
-				<Accordion.Toggle as={Card.Header} eventKey={this.props.id} onClick={() => this.props.onClick()}>
+				<Accordion.Toggle
+					as={Card.Header}
+					eventKey={this.props.id.toString()}
+					onClick={() => this.props.onClick()}
+				>
 					{this.props.title}
 				</Accordion.Toggle>
-				<Accordion.Collapse eventKey={this.props.id}>
+				<Accordion.Collapse eventKey={this.props.id.toString()}>
 					<Card bg="dark" text="light">
 						{this.props.content}
 					</Card>
@@ -165,25 +190,28 @@ class CollapsableMenuItem extends React.Component<CollapsableMenuItemParameters>
 	}
 }
 
-const equipmentId = '3';
-const apothicaryId = '4';
+interface InventoryMenuProps<TSelectionId extends number> {
+	onSelectionChange: (selection: TSelectionId) => void;
+}
 
-class InventorySubMenu extends React.Component<{}, MenuState, any> {
-	public constructor(props: {}) {
+class InventorySubMenu extends React.Component<InventoryMenuProps<ShopId>, MenuState<ShopId>, any> {
+	public constructor(props: InventoryMenuProps<ShopId>) {
 		super(props);
 		this.state = {
-			selection: equipmentId,
+			appSelection: ShopId.Equipment,
+			appArguments: undefined,
 		};
 	}
 
-	private setSelection(id: string) {
+	private setSelection(selection: ShopId) {
 		this.setState({
-			selection: id,
+			appSelection: selection,
 		});
+		this.props.onSelectionChange(selection);
 	}
 
-	private isSelected(id: string): boolean {
-		return id === this.state.selection;
+	private isSelected(id: ShopId): boolean {
+		return id === this.state.appSelection;
 	}
 
 	render() {
@@ -191,19 +219,17 @@ class InventorySubMenu extends React.Component<{}, MenuState, any> {
 			<Accordion>
 				<MenuItem
 					title="Equipment"
-					id={equipmentId}
-					isSelected={this.isSelected(equipmentId)}
-					onClick={() => this.setSelection(equipmentId)}
+					id={ShopId.Equipment}
+					isSelected={this.isSelected(ShopId.Equipment)}
+					onClick={() => this.setSelection(ShopId.Equipment)}
 				/>
 				<MenuItem
 					title="Apothicary"
-					id={apothicaryId}
-					isSelected={this.isSelected(apothicaryId)}
-					onClick={() => this.setSelection(apothicaryId)}
+					id={ShopId.Apothicary}
+					isSelected={this.isSelected(ShopId.Apothicary)}
+					onClick={() => this.setSelection(ShopId.Apothicary)}
 				/>
 			</Accordion>
 		);
 	}
 }
-
-export default Datapad;

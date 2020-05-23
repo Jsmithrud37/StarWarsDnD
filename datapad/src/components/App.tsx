@@ -1,5 +1,5 @@
 import React from 'react';
-import Datapad from './Datapad';
+import { Datapad } from './Datapad';
 import './App.css';
 
 /**
