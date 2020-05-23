@@ -8,7 +8,7 @@ import './App.css';
 export class App extends React.Component {
 	render() {
 		return (
-			<body className="App">
+			<div className="App">
 				<header className="App-header">
 					<img
 						src="images/Order-Of-The-Fallen-Logo-Long.png"
@@ -26,10 +26,10 @@ export class App extends React.Component {
 						/>
 					</a>
 				</header>
-				<body className="App-container">
+				<div className="App-container">
 					<Datapad />
-				</body>
-			</body>
+				</div>
+			</div>
 		);
 	}
 }
