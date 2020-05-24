@@ -23,7 +23,10 @@ export class Datapad extends React.Component<{}, AppState, any> {
 		};
 	}
 
-	private changeApp(appSelection: AppId, appArguments: unknown = undefined): void {
+	private changeApp(
+		appSelection: AppId,
+		appArguments: unknown = undefined,
+	): void {
 		this.setState({
 			appSelection,
 			appArguments,

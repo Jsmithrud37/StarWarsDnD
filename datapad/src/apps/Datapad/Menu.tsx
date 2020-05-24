@@ -44,7 +44,9 @@ export class Menu extends React.Component<MenuProps, MenuState<AppId>, any> {
 					title="Galaxy Map"
 					id={AppId.GalaxyMap}
 					isSelected={this.isSelected(AppId.GalaxyMap)}
-					onClick={() => this.setSelection(AppId.GalaxyMap, undefined)}
+					onClick={() =>
+						this.setSelection(AppId.GalaxyMap, undefined)
+					}
 				/>
 				<CollapsableMenuItem
 					title="Shops"
@@ -53,7 +55,9 @@ export class Menu extends React.Component<MenuProps, MenuState<AppId>, any> {
 					onClick={() => this.setSelection(AppId.Shops, undefined)} // TODO: set correct initial state?
 					content={
 						<InventorySubMenu
-							onSelectionChange={appArguments => this.setSelection(AppId.Shops, appArguments)}
+							onSelectionChange={(appArguments) =>
+								this.setSelection(AppId.Shops, appArguments)
+							}
 						/>
 					}
 				></CollapsableMenuItem>
@@ -75,7 +79,9 @@ interface MenuItemParameters<TSelectionId extends number> {
 	onClick: () => void;
 }
 
-class MenuItem<TSelectionId extends number> extends React.Component<MenuItemParameters<TSelectionId>> {
+class MenuItem<TSelectionId extends number> extends React.Component<
+	MenuItemParameters<TSelectionId>
+> {
 	public constructor(props: MenuItemParameters<TSelectionId>) {
 		super(props);
 	}
@@ -99,7 +105,8 @@ class MenuItem<TSelectionId extends number> extends React.Component<MenuItemPara
 	}
 }
 
-interface CollapsableMenuItemParameters<TSelectionId extends number> extends MenuItemParameters<TSelectionId> {
+interface CollapsableMenuItemParameters<TSelectionId extends number>
+	extends MenuItemParameters<TSelectionId> {
 	content: any; // TODO: sub-items
 }
 
@@ -138,7 +145,11 @@ interface InventoryMenuProps<TSelectionId extends number> {
 	onSelectionChange: (selection: TSelectionId) => void;
 }
 
-class InventorySubMenu extends React.Component<InventoryMenuProps<ShopId>, MenuState<ShopId>, any> {
+class InventorySubMenu extends React.Component<
+	InventoryMenuProps<ShopId>,
+	MenuState<ShopId>,
+	any
+> {
 	public constructor(props: InventoryMenuProps<ShopId>) {
 		super(props);
 		this.state = {

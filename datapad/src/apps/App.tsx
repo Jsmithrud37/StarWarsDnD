@@ -17,7 +17,12 @@ export class App extends React.Component {
 						height="75"
 					/>
 					<div>Datapad</div>
-					<a className="App-link" href="https://sw5e.com/" target="_blank" rel="noopener noreferrer">
+					<a
+						className="App-link"
+						href="https://sw5e.com/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						<img
 							src="https://sw5e.com/img/sw5e-logo.84b4d7ed.png"
 							className="SW5e-logo"
