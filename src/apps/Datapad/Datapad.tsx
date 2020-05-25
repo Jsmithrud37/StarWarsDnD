@@ -9,6 +9,7 @@ import {
 	SimpleAccordionMenuItemBuilder,
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
+import Button from 'react-bootstrap/Button';
 
 enum AppId {
 	GalaxyMap,
@@ -90,6 +91,11 @@ export default class Datapad extends React.Component<{}, AppState> {
 						new SimpleAccordionMenuItemBuilder('Contacts'),
 					]}
 				/>
+				<div className="Datapad-app-menu-hide-button-container">
+					<div className="Datapad-app-menu-hide-button">
+						<Button>{'<='}</Button>
+					</div>
+				</div>
 			</div>
 		);
 	}

@@ -17,10 +17,22 @@
 }
 
 .Datapad-app-menu {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 	width: 200px;
 	text-align: center;
 	float: left;
 	background-color: #3b4d70;
+}
+
+.Datapad-app-menu-hide-button-container {
+	display: flex;
+	flex-direction: row-reverse;
+	width: 100%;
+}
+
+.Datapad-app-menu-hide-button {
 }
 
 .Datapad-menu-item {
