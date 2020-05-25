@@ -51,15 +51,21 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 					? this.props.selectedItemStyle
 					: this.props.defaultItemStyle;
 
-			menuItems.push(
-				this.props.menuItemBuilders[i].createMenuItem(itemStyle, () =>
-					this.setSelection(i),
-				),
+			const element: ReactNode = (
+				<React.Fragment key={i}>
+					{this.props.menuItemBuilders[i].createMenuItem(itemStyle, () =>
+						this.setSelection(i),
+					)}
+				</React.Fragment>
 			);
+			menuItems.push(element);
 		}
 
 		return (
-			<Accordion className="Datapad-menu">
+			<Accordion
+				className="Datapad-menu"
+				defaultActiveKey={this.props.menuItemBuilders[0].title}
+			>
 				{menuItems.map((item) => {
 					return item;
 				})}

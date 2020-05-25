@@ -8,7 +8,7 @@ export interface AccordionMenuItemStyle {
 }
 
 export abstract class AccordionMenuItemBuilder {
-	protected readonly title: string;
+	public readonly title: string;
 
 	protected constructor(title: string) {
 		this.title = title;
