@@ -1,7 +1,7 @@
 {
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.renderWhitespace": "all",
-	"editor.rulers": [120],
+	"editor.rulers": [100],
 	"typescript.format.placeOpenBraceOnNewLineForControlBlocks": true,
 	"typescript.format.placeOpenBraceOnNewLineForFunctions": true,
 	"javascript.preferences.quoteStyle": "single",

@@ -16,10 +16,7 @@ export class CollapsableAccordionMenuItemBuilder extends AccordionMenuItemBuilde
 		this.content = content;
 	}
 
-	public createMenuItem(
-		style: AccordionMenuItemStyle,
-		onClick: () => void,
-	): JSX.Element {
+	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): JSX.Element {
 		return (
 			<CollapsableAccordionMenuItem
 				title={this.title}
@@ -31,8 +28,7 @@ export class CollapsableAccordionMenuItemBuilder extends AccordionMenuItemBuilde
 	}
 }
 
-export interface CollapsableAccordionMenuItemProps
-	extends AccordionMenuItemProps {
+export interface CollapsableAccordionMenuItemProps extends AccordionMenuItemProps {
 	content: any;
 }
 

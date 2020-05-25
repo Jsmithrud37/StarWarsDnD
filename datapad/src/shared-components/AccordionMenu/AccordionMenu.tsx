@@ -1,9 +1,6 @@
 import React from 'react';
 import Accordion from 'react-bootstrap/accordion';
-import {
-	AccordionMenuItemBuilder,
-	AccordionMenuItemStyle,
-} from './AccordionMenuItem';
+import { AccordionMenuItemBuilder, AccordionMenuItemStyle } from './AccordionMenuItem';
 
 export interface AccordionMenuState {
 	selectionIndex: number;
@@ -17,11 +14,7 @@ export interface AccordionMenuProps {
 	selectedItemStyle: AccordionMenuItemStyle;
 }
 
-export class AccordionMenu extends React.Component<
-	AccordionMenuProps,
-	AccordionMenuState,
-	any
-> {
+export class AccordionMenu extends React.Component<AccordionMenuProps, AccordionMenuState, any> {
 	constructor(props: AccordionMenuProps) {
 		super(props);
 		this.state = { selectionIndex: props.initialSelectionIndex };

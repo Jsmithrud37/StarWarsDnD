@@ -14,10 +14,7 @@ export abstract class AccordionMenuItemBuilder {
 		this.title = title;
 	}
 
-	public abstract createMenuItem(
-		style: AccordionMenuItemStyle,
-		onClick: () => void,
-	): JSX.Element;
+	public abstract createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): JSX.Element;
 }
 
 export interface AccordionMenuItemProps {
@@ -26,9 +23,9 @@ export interface AccordionMenuItemProps {
 	onClick: () => void;
 }
 
-export class AccordionMenuItem<
-	TProps extends AccordionMenuItemProps
-> extends React.Component<TProps> {
+export class AccordionMenuItem<TProps extends AccordionMenuItemProps> extends React.Component<
+	TProps
+> {
 	protected constructor(props: TProps) {
 		super(props);
 	}

@@ -13,23 +13,12 @@ export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 		super(title);
 	}
 
-	public createMenuItem(
-		style: AccordionMenuItemStyle,
-		onClick: () => void,
-	): JSX.Element {
-		return (
-			<SimpleAccordionMenuItem
-				title={this.title}
-				style={style}
-				onClick={onClick}
-			/>
-		);
+	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): JSX.Element {
+		return <SimpleAccordionMenuItem title={this.title} style={style} onClick={onClick} />;
 	}
 }
 
-export class SimpleAccordionMenuItem extends AccordionMenuItem<
-	AccordionMenuItemProps
-> {
+export class SimpleAccordionMenuItem extends AccordionMenuItem<AccordionMenuItemProps> {
 	public constructor(props: AccordionMenuItemProps) {
 		super(props);
 	}

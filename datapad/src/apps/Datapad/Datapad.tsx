@@ -65,9 +65,7 @@ export default class Datapad extends React.Component<{}, AppState, any> {
 		return (
 			<AccordionMenu
 				initialSelectionIndex={this.state.shopSelection}
-				onSelectionChange={(shopSelection: ShopId) =>
-					this.changeShop(shopSelection)
-				}
+				onSelectionChange={(shopSelection: ShopId) => this.changeShop(shopSelection)}
 				defaultItemStyle={menuItemStyleDefault}
 				selectedItemStyle={menuItemStyleSelected}
 				menuItemBuilders={[
@@ -83,17 +81,12 @@ export default class Datapad extends React.Component<{}, AppState, any> {
 			<div className="Datapad-app-menu">
 				<AccordionMenu
 					initialSelectionIndex={this.state.shopSelection}
-					onSelectionChange={(appSelection: AppId) =>
-						this.changeApp(appSelection)
-					}
+					onSelectionChange={(appSelection: AppId) => this.changeApp(appSelection)}
 					defaultItemStyle={menuItemStyleDefault}
 					selectedItemStyle={menuItemStyleSelected}
 					menuItemBuilders={[
 						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-						new CollapsableAccordionMenuItemBuilder(
-							'Shops',
-							this.createShopsSubMenu(),
-						),
+						new CollapsableAccordionMenuItemBuilder('Shops', this.createShopsSubMenu()),
 						new SimpleAccordionMenuItemBuilder('Contacts'),
 					]}
 				/>
