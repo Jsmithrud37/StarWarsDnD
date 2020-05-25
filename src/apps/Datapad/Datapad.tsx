@@ -10,6 +10,7 @@ import {
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import Button from 'react-bootstrap/Button';
+import Overlay from 'react-bootstrap/Overlay';
 
 enum AppId {
 	GalaxyMap,
@@ -32,6 +33,7 @@ const menuItemStyleSelected: AccordionMenuItemStyle = {
 interface AppState {
 	appSelection: AppId;
 	shopSelection: ShopId;
+	collapseMenu: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ export default class Datapad extends React.Component<{}, AppState> {
 		this.state = {
 			appSelection: AppId.GalaxyMap,
 			shopSelection: ShopId.Equipment,
+			collapseMenu: false,
 		};
 	}
 
@@ -62,6 +65,18 @@ export default class Datapad extends React.Component<{}, AppState> {
 		});
 	}
 
+	private collapseMenu(): void {
+		this.setState({
+			collapseMenu: true,
+		});
+	}
+
+	private expandMenu(): void {
+		this.setState({
+			collapseMenu: false,
+		});
+	}
+
 	private createShopsSubMenu(): JSX.Element {
 		return (
 			<AccordionMenu
@@ -77,34 +92,46 @@ export default class Datapad extends React.Component<{}, AppState> {
 		);
 	}
 
-	private createMainMenu(): JSX.Element {
-		return (
-			<div className="Datapad-app-menu">
-				<AccordionMenu
-					initialSelectionIndex={this.state.shopSelection}
-					onSelectionChange={(appSelection: AppId) => this.changeApp(appSelection)}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={[
-						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-						new CollapsableAccordionMenuItemBuilder('Shops', this.createShopsSubMenu()),
-						new SimpleAccordionMenuItemBuilder('Contacts'),
-					]}
-				/>
-				<div className="Datapad-app-menu-hide-button-container">
-					<div className="Datapad-app-menu-hide-button">
-						<Button>{'<='}</Button>
+	public render(): ReactNode {
+		const appView: ReactNode = <div className="Datapad-view">{this.renderApp()}</div>;
+
+		let appMenu: ReactNode;
+		if (this.state.collapseMenu) {
+			appMenu = (
+				<div className="Datapad-app-menu-collapsed">
+					<div className="Datapad-app-menu-expand-button">
+						<Button onClick={() => this.expandMenu()}>{'=>'}</Button>
 					</div>
 				</div>
-			</div>
-		);
-	}
+			);
+		} else {
+			appMenu = (
+				<div className="Datapad-app-menu-expanded">
+					<AccordionMenu
+						initialSelectionIndex={this.state.appSelection}
+						onSelectionChange={(appSelection: AppId) => this.changeApp(appSelection)}
+						defaultItemStyle={menuItemStyleDefault}
+						selectedItemStyle={menuItemStyleSelected}
+						menuItemBuilders={[
+							new SimpleAccordionMenuItemBuilder('Galaxy Map'),
+							new CollapsableAccordionMenuItemBuilder(
+								'Shops',
+								this.createShopsSubMenu(),
+							),
+							new SimpleAccordionMenuItemBuilder('Contacts'),
+						]}
+					/>
+					<div className="Datapad-app-menu-collapse-button-container">
+						<Button onClick={() => this.collapseMenu()}>{'<='}</Button>
+					</div>
+				</div>
+			);
+		}
 
-	public render(): ReactNode {
 		return (
 			<div className="Datapad">
-				{this.createMainMenu()}
-				<div className="Datapad-view">{this.renderApp()}</div>
+				{appMenu}
+				{appView}
 			</div>
 		);
 	}

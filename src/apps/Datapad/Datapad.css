@@ -16,23 +16,40 @@
 	overflow: hidden;
 }
 
-.Datapad-app-menu {
+.Datapad-app-menu-expanded {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	width: 200px;
 	text-align: center;
 	float: left;
+	background-color: #282c34;
+}
+
+.Datapad-app-menu-collapsed {
+	display: flex;
+	flex-direction: column-reverse;
+	width: 1px;
+	max-width: 1px;
+	text-align: center;
+	float: left;
 	background-color: #3b4d70;
 }
 
-.Datapad-app-menu-hide-button-container {
+.Datapad-app-menu-collapse-button-container {
 	display: flex;
 	flex-direction: row-reverse;
 	width: 100%;
 }
 
-.Datapad-app-menu-hide-button {
+.Datapad-app-menu-collapse-button {
+	overflow: hidden;
+}
+
+.Datapad-app-menu-expand-button {
+	overflow: visible;
+	position: relative;
+	left: -10px;
 }
 
 .Datapad-menu-item {
