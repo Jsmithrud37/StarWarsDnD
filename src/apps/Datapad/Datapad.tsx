@@ -10,6 +10,7 @@ import {
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import Button from 'react-bootstrap/Button';
+import { Contacts } from '../Contacts';
 
 enum AppId {
 	GalaxyMap,
@@ -131,7 +132,7 @@ export default class Datapad extends React.Component<{}, AppState> {
 			case AppId.GalaxyMap:
 				return <GalaxyMap />;
 			case AppId.Contacts:
-				return <div>TODO: Contacts App</div>;
+				return <Contacts />;
 			case AppId.Shops:
 				return <Shop shopSelection={this.state.shopSelection} />;
 			default:
