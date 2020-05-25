@@ -23,25 +23,16 @@ function shopIdToString(id: ShopId): string {
 export interface ShopParameters {
 	/**
 	 * Indicates which shop should be loaded.
-	 * If undefined, will use default.
-	 * @default {@link Shop.defaultShopSelection}
 	 */
-	shopId: ShopId | undefined;
+	shopSelection: ShopId;
 }
 
 export class Shop extends React.Component<ShopParameters> {
-	defaultShopSelection = ShopId.Equipment;
-
 	public constructor(props: ShopParameters) {
 		super(props);
 	}
 
-	// TODO: private getter
-	private shopId(): ShopId {
-		return this.props.shopId ?? this.defaultShopSelection;
-	}
-
 	public render(): ReactNode {
-		return <div>TODO: {shopIdToString(this.shopId())}</div>;
+		return <div>TODO: {shopIdToString(this.props.shopSelection)}</div>;
 	}
 }

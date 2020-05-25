@@ -16,3 +16,14 @@
 	 */
 	overflow: hidden;
 }
+
+.Datapad-app-menu {
+	width: 200px;
+	text-align: center;
+	float: left;
+	background-color: #3b4d70;
+}
+
+.Datapad-menu-item {
+	width: 100%;
+}

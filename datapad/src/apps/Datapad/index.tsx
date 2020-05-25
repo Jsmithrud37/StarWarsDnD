@@ -2,8 +2,5 @@
  * App node export for Datapad
  */
 
-export * from './Datapad';
-export * from './Menu';
-
-import { Datapad } from './Datapad';
+import Datapad from './Datapad';
 export default Datapad;
