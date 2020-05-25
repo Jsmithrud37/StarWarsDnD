@@ -10,7 +10,6 @@ import {
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import Button from 'react-bootstrap/Button';
-import Overlay from 'react-bootstrap/Overlay';
 
 enum AppId {
 	GalaxyMap,
@@ -77,7 +76,7 @@ export default class Datapad extends React.Component<{}, AppState> {
 		});
 	}
 
-	private createShopsSubMenu(): JSX.Element {
+	private renderShopsSubMenu(): JSX.Element {
 		return (
 			<AccordionMenu
 				initialSelectionIndex={this.state.shopSelection}
@@ -92,12 +91,9 @@ export default class Datapad extends React.Component<{}, AppState> {
 		);
 	}
 
-	public render(): ReactNode {
-		const appView: ReactNode = <div className="Datapad-view">{this.renderApp()}</div>;
-
-		let appMenu: ReactNode;
+	private renderMenu(): ReactNode {
 		if (this.state.collapseMenu) {
-			appMenu = (
+			return (
 				<div className="Datapad-app-menu-collapsed">
 					<div className="Datapad-app-menu-expand-button">
 						<Button onClick={() => this.expandMenu()}>{'=>'}</Button>
@@ -105,7 +101,7 @@ export default class Datapad extends React.Component<{}, AppState> {
 				</div>
 			);
 		} else {
-			appMenu = (
+			return (
 				<div className="Datapad-app-menu-expanded">
 					<AccordionMenu
 						initialSelectionIndex={this.state.appSelection}
@@ -116,7 +112,7 @@ export default class Datapad extends React.Component<{}, AppState> {
 							new SimpleAccordionMenuItemBuilder('Galaxy Map'),
 							new CollapsableAccordionMenuItemBuilder(
 								'Shops',
-								this.createShopsSubMenu(),
+								this.renderShopsSubMenu(),
 							),
 							new SimpleAccordionMenuItemBuilder('Contacts'),
 						]}
@@ -127,13 +123,6 @@ export default class Datapad extends React.Component<{}, AppState> {
 				</div>
 			);
 		}
-
-		return (
-			<div className="Datapad">
-				{appMenu}
-				{appView}
-			</div>
-		);
 	}
 
 	private renderApp(): ReactNode {
@@ -148,5 +137,16 @@ export default class Datapad extends React.Component<{}, AppState> {
 			default:
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}
+	}
+
+	public render(): ReactNode {
+		const appView: ReactNode = <div className="Datapad-view">{this.renderApp()}</div>;
+		const menu = this.renderMenu();
+		return (
+			<div className="Datapad">
+				{menu}
+				{appView}
+			</div>
+		);
 	}
 }
