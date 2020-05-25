@@ -1,5 +1,5 @@
 import { CardColors } from '../../BootstrapUtilities';
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 export interface AccordionMenuItemStyle {
 	backgroundColor: CardColors;
@@ -14,7 +14,7 @@ export abstract class AccordionMenuItemBuilder {
 		this.title = title;
 	}
 
-	public abstract createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): JSX.Element;
+	public abstract createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode;
 }
 
 export interface AccordionMenuItemProps {

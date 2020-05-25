@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Datapad from './Datapad';
 import './App.css';
 
@@ -6,7 +6,7 @@ import './App.css';
  * Entrypoint to the application. Outermost container.
  */
 export class App extends React.Component {
-	render() {
+	public render(): ReactNode {
 		return (
 			<div className="App">
 				<header className="App-header">

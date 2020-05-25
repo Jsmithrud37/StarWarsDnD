@@ -36,7 +36,7 @@ interface AppState {
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-export default class Datapad extends React.Component<{}, AppState, any> {
+export default class Datapad extends React.Component<{}, AppState> {
 	public constructor(props: {}) {
 		super(props);
 		this.state = {
@@ -94,7 +94,7 @@ export default class Datapad extends React.Component<{}, AppState, any> {
 		);
 	}
 
-	public render() {
+	public render(): ReactNode {
 		return (
 			<div className="Datapad">
 				{this.createMainMenu()}

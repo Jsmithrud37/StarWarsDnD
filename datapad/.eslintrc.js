@@ -11,9 +11,20 @@ module.exports = {
 		ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
 		sourceType: 'module', // Allows for the use of imports
 	},
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+			tagNamePreference: {
+				param: 'arg',
+				returns: 'return',
+				extends: 'augments',
+			},
+		},
+	},
 	rules: {
-		'@typescript-eslint/explicit-function-return-type': 'error',
+		'@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
 		'@typescript-eslint/no-use-before-define': 'off', // We're above es6, so there is no need for single-pass constraints
+		'@typescript-eslint/no-explicit-any': 'error',
 		'jsdoc/check-alignment': 'error',
 		'jsdoc/check-examples': 'error',
 		'jsdoc/check-indentation': 'error',
@@ -27,14 +38,14 @@ module.exports = {
 		'jsdoc/require-description': 'error',
 		'jsdoc/require-hyphen-before-param-description': 'error',
 		'jsdoc/require-jsdoc': 'error',
-		'jsdoc/require-param': 'error',
+		'jsdoc/require-param': 'off',
 		'jsdoc/require-param-description': 'error',
 		'jsdoc/require-param-name': 'error',
-		'jsdoc/require-param-type': 'error',
-		'jsdoc/require-returns': 'error',
+		'jsdoc/require-param-type': 'off',
+		'jsdoc/require-returns': 'off',
 		'jsdoc/require-returns-check': 'error',
 		'jsdoc/require-returns-description': 'error',
-		'jsdoc/require-returns-type': 'error',
+		'jsdoc/require-returns-type': 'off',
 		'jsdoc/valid-types': 'error',
 	},
 };

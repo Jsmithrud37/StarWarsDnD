@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/card';
 import {
 	AccordionMenuItem,
@@ -13,7 +13,7 @@ export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 		super(title);
 	}
 
-	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): JSX.Element {
+	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode {
 		return <SimpleAccordionMenuItem title={this.title} style={style} onClick={onClick} />;
 	}
 }
@@ -23,7 +23,7 @@ export class SimpleAccordionMenuItem extends AccordionMenuItem<AccordionMenuItem
 		super(props);
 	}
 
-	render() {
+	public render(): ReactNode {
 		return (
 			<Card
 				bg={this.props.style.backgroundColor}

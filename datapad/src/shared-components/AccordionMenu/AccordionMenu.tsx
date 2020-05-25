@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Accordion from 'react-bootstrap/accordion';
 import { AccordionMenuItemBuilder, AccordionMenuItemStyle } from './AccordionMenuItem';
 
@@ -14,7 +14,7 @@ export interface AccordionMenuProps {
 	selectedItemStyle: AccordionMenuItemStyle;
 }
 
-export class AccordionMenu extends React.Component<AccordionMenuProps, AccordionMenuState, any> {
+export class AccordionMenu extends React.Component<AccordionMenuProps, AccordionMenuState> {
 	constructor(props: AccordionMenuProps) {
 		super(props);
 		this.state = { selectionIndex: props.initialSelectionIndex };
@@ -24,7 +24,7 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 		return this.props.menuItemBuilders.length;
 	}
 
-	private setSelection(newSelectionIndex: number) {
+	private setSelection(newSelectionIndex: number): void {
 		if (newSelectionIndex >= this.itemCount) {
 			throw new Error(
 				`Selection index out of bounds.` +
@@ -41,10 +41,10 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 		return index === this.state.selectionIndex;
 	}
 
-	public render() {
+	public render(): ReactNode {
 		// Generate menu items from props
 		const itemCount = this.itemCount;
-		const menuItems: JSX.Element[] = [];
+		const menuItems: ReactNode[] = [];
 		for (let i = 0; i < itemCount; i++) {
 			const itemStyle =
 				i === this.state.selectionIndex
