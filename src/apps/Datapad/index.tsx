@@ -11,4 +11,4 @@ export default Datapad;
 export * from './State';
 
 // TODO: export reducers for apps this app depends on
-export const reducers = combineReducers(datapadReducer /*, Dependent reducers */);
+export const reducers = datapadReducer; //combineReducers([datapadReducer, /* Dependent reducers */]);

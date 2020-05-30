@@ -1,3 +1,4 @@
+import { Reducer } from 'redux';
 import { ShopId } from '../Shop';
 
 // ---------- Action types ---------- \\
@@ -81,20 +82,26 @@ export enum AppId {
 export interface AppState {
 	appSelection: AppId;
 	shopSelection: ShopId;
-	collapseMenu: boolean;
+	isMenuCollapsed: boolean;
 }
 
 export const initialState: AppState = {
 	appSelection: AppId.GalaxyMap,
 	shopSelection: ShopId.Equipment,
-	collapseMenu: false,
+	isMenuCollapsed: false,
 };
 
 /**
  * TODO: better name?
  * TODO: docs
  */
-export default function datapadReducer(currentState: AppState, action: DatapadActions): AppState {
+const datapadReducer: Reducer<AppState, DatapadActions> = (
+	currentState: AppState | undefined,
+	action: DatapadActions,
+): AppState => {
+	if (!currentState) {
+		return initialState;
+	}
 	switch (action.type) {
 		case CHANGE_APP:
 			return {
@@ -104,19 +111,24 @@ export default function datapadReducer(currentState: AppState, action: DatapadAc
 		case CHANGE_SHOP:
 			return {
 				...currentState,
+				// If a user manages to click on one of the sub-menus while the shops menu is animating shut,
+				// switch back to shops menu
+				appSelection: AppId.Shops,
 				shopSelection: action.newShopSelection,
 			};
 		case COLLAPSE_MENU:
 			return {
 				...currentState,
-				collapseMenu: true,
+				isMenuCollapsed: true,
 			};
 		case EXPAND_MENU:
 			return {
 				...currentState,
-				collapseMenu: false,
+				isMenuCollapsed: false,
 			};
 		default:
 			return currentState;
 	}
-}
+};
+
+export default datapadReducer;
