@@ -10,12 +10,7 @@ import {
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import Button from 'react-bootstrap/Button';
-
-enum AppId {
-	GalaxyMap,
-	Shops,
-	Contacts,
-}
+import { AppId, AppState } from './State';
 
 const menuItemStyleDefault: AccordionMenuItemStyle = {
 	backgroundColor: 'dark',
@@ -28,12 +23,6 @@ const menuItemStyleSelected: AccordionMenuItemStyle = {
 	textColor: 'light',
 	borderColor: 'primary',
 };
-
-interface AppState {
-	appSelection: AppId;
-	shopSelection: ShopId;
-	collapseMenu: boolean;
-}
 
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.

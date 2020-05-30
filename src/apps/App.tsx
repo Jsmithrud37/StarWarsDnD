@@ -1,6 +1,10 @@
 import React, { ReactNode } from 'react';
-import Datapad from './Datapad';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import Datapad, { reducers } from './Datapad';
 import './App.css';
+
+const dataStore = createStore(reducers);
 
 /**
  * Entrypoint to the application. Outermost container.
@@ -32,7 +36,9 @@ export class App extends React.Component {
 					</a>
 				</header>
 				<div className="App-container">
-					<Datapad />
+					<Provider store={dataStore}>
+						<Datapad />
+					</Provider>
 				</div>
 			</div>
 		);
