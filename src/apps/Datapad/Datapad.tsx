@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { connect } from 'react-redux';
 import GalaxyMap from '../GalaxyMap/GalaxyMap';
 import { Shop, ShopId } from '../Shop/Shop';
-import './Datapad.css';
+import './Styling/Datapad.css';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
@@ -10,7 +10,9 @@ import {
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import Button from 'react-bootstrap/Button';
-import { AppId, changeApp, changeShop, collapseMenu, expandMenu, AppState } from './State';
+import { AppState } from './State';
+import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
+import AppId from './AppId';
 
 /**
  * Menu item style used for items which are not currently selected.
@@ -30,15 +32,14 @@ const menuItemStyleSelected: AccordionMenuItemStyle = {
 	borderColor: 'primary',
 };
 
-interface Actions {
-	changeApp: (newAppSelection: AppId) => void;
-	changeShop: (newShopSelection: ShopId) => void;
-	collapseMenu: () => void;
-	expandMenu: () => void;
-}
-
+/**
+ * State parameters used by the Datapad app component.
+ */
 type Parameters = AppState;
 
+/**
+ * Datapad {@link https://reactjs.org/docs/render-props.html | Render Props}
+ */
 type Props = Actions & Parameters;
 
 /**
@@ -135,6 +136,10 @@ function mapStateToProps(state: AppState): Parameters {
 	};
 }
 
+/**
+ * Datapad app.
+ * Displays various sub-apps, and offers a menu for navigating them.
+ */
 const Datapad = connect(mapStateToProps, {
 	changeApp,
 	changeShop,
