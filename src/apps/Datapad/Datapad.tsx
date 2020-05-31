@@ -1,7 +1,9 @@
 import React, { ReactNode } from 'react';
 import { connect } from 'react-redux';
+import Button from 'react-bootstrap/Button';
 import GalaxyMap from '../GalaxyMap/GalaxyMap';
 import { Shop, ShopId } from '../Shop/Shop';
+import { Contacts } from '../Contacts';
 import './Styling/Datapad.css';
 import {
 	AccordionMenu,
@@ -9,7 +11,6 @@ import {
 	SimpleAccordionMenuItemBuilder,
 	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
-import Button from 'react-bootstrap/Button';
 import { AppState } from './State';
 import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
 import AppId from './AppId';
@@ -65,7 +66,7 @@ function renderApp(props: Props): ReactNode {
 		case AppId.GalaxyMap:
 			return <GalaxyMap />;
 		case AppId.Contacts:
-			return <div>TODO: Contacts App</div>;
+			return <Contacts />;
 		case AppId.Shops:
 			return <Shop shopSelection={props.shopSelection} />;
 		default:
