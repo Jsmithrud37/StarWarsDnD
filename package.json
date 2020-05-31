@@ -2,43 +2,13 @@
 	"name": "datapad",
 	"version": "0.1.0",
 	"private": true,
-	"dependencies": {
-		"@testing-library/jest-dom": "^4.2.4",
-		"@testing-library/react": "^9.4.0",
-		"@testing-library/user-event": "^7.2.1",
-		"@types/jest": "^24.0.25",
-		"@types/node": "^12.12.24",
-		"@types/react": "^16.9.17",
-		"@types/react-dom": "^16.9.4",
-		"bootstrap": "^4.5.0",
-		"react": "^16.12.0",
-		"react-bootstrap": "^1.0.1",
-		"react-dom": "^16.12.0",
-		"react-iframe": "1.8.0",
-		"react-scripts": "3.3.0",
-		"typescript": "^3.7.4"
-	},
-	"devDependencies": {
-		"@typescript-eslint/parser": "^2.15.0",
-		"@typescript-eslint/eslint-plugin": "^2.15.0",
-		"eslint": "^6.8.0",
-		"eslint-config-airbnb": "^18.0.1",
-		"eslint-config-prettier": "^6.9.0",
-		"eslint-plugin-jsdoc": "^20.3.0",
-		"eslint-plugin-react": "^7.17.0",
-		"eslint-plugin-prettier": "^3.1.2",
-		"prettier": "^2.0.0"
-	},
 	"scripts": {
-		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"test": "react-scripts test",
 		"eject": "react-scripts eject",
+		"format": "prettier ./src --write",
 		"lint": "eslint ./src/**/*.{js,jsx,ts,tsx}",
-		"format": "prettier ./src --write"
-	},
-	"eslintConfig": {
-		"extends": "react-app"
+		"start": "react-scripts start",
+		"test": "react-scripts test"
 	},
 	"browserslist": {
 		"production": [
@@ -51,5 +21,36 @@
 			"last 1 firefox version",
 			"last 1 safari version"
 		]
+	},
+	"dependencies": {
+		"bootstrap": "^4.5.0",
+		"jquery": "1.9.1",
+		"popper.js": "^1.16.0",
+		"react": "^16.12.0",
+		"react-bootstrap": "^1.0.1",
+		"react-dom": "^16.12.0",
+		"react-iframe": "1.8.0",
+		"react-list": "^0.8.15",
+		"react-scripts": "^3.3.0",
+		"typescript": "^3.7.4"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^4.2.4",
+		"@testing-library/react": "^9.4.0",
+		"@testing-library/user-event": "^7.2.1",
+		"@types/jest": "^24.0.25",
+		"@types/node": "^12.12.24",
+		"@types/react": "^16.9.17",
+		"@types/react-dom": "^16.9.4",
+		"@types/react-list": "^0.8.5",
+		"@typescript-eslint/eslint-plugin": "^2.15.0",
+		"@typescript-eslint/parser": "^2.15.0",
+		"eslint": "^6.8.0",
+		"eslint-config-airbnb": "^18.0.1",
+		"eslint-config-prettier": "^6.9.0",
+		"eslint-plugin-jsdoc": "^20.3.0",
+		"eslint-plugin-prettier": "^3.1.2",
+		"eslint-plugin-react": "^7.17.0",
+		"prettier": "^2.0.0"
 	}
 }
