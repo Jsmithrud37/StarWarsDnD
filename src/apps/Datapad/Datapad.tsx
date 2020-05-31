@@ -12,12 +12,18 @@ import {
 import Button from 'react-bootstrap/Button';
 import { AppId, changeApp, changeShop, collapseMenu, expandMenu, AppState } from './State';
 
+/**
+ * Menu item style used for items which are not currently selected.
+ */
 const menuItemStyleDefault: AccordionMenuItemStyle = {
 	backgroundColor: 'dark',
 	textColor: 'light',
 	borderColor: undefined,
 };
 
+/**
+ * Menu item style used for selected items.
+ */
 const menuItemStyleSelected: AccordionMenuItemStyle = {
 	backgroundColor: 'primary',
 	textColor: 'light',
