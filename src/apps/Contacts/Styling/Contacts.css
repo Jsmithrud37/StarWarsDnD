@@ -1,0 +1,24 @@
+.Contacts {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	width: 100%;
+}
+
+.Contacts-view {
+	float: right;
+	flex: 1;
+	padding-top: 10px;
+}
+
+.Contacts-menu {
+	margin-left: 2px;
+	margin-right: 1px;
+	padding-left: 2px;
+	padding-right: 1px;
+	float: left;
+	width: 150px;
+	height: 100%;
+	text-align: right;
+	background-color: hsl(220, 12%, 20%);
+}
