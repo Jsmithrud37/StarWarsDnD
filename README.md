@@ -5,14 +5,7 @@
 
 TODO: Datapad docs.
 
-## Galaxy Map
+## Apps
 
-The `Galaxy Map` Datapad app allows players to navigate the Galaxy at large.
-
-It is intended to simulate the virtual map they would doubtless have on their personal datapads.
-
-Implemented by embedding [Star Wars Galaxy Map](http://www.swgalaxymap.com/).
-
-## Shops
-
-The `Shops` Datapad app allows players to view available inventory for the shops aboard Centran Base, and make purchases of available items.
+-   [GalaxyMap](./src/apps/GalaxyMap/README.md)
+-   [Shop](./src/apps/Shop/README.md)

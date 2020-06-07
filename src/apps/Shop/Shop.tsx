@@ -1,67 +1,85 @@
 import React, { ReactNode } from 'react';
 import Table from 'react-bootstrap/Table';
-import Card from 'react-bootstrap/card';
-
-export enum ShopId {
-	Equipment,
-	Apothicary,
-}
+import Card from 'react-bootstrap/Card';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import { ShopId } from './ShopId';
+import { Actions, changeShop } from './Actions';
+import { AppState } from './State';
+import { connect } from 'react-redux';
 
 /**
- * toString implementation for ShopId, since enums can't be simultaneously
- * number and string backed.
+ * State parameters used by the Datapad app component.
  */
-function shopIdToString(id: ShopId): string {
-	switch (id) {
-		case ShopId.Equipment:
-			return 'Equipment';
-		case ShopId.Apothicary:
-			return 'Apothicary';
-		default:
-			return `Unrecognized ShopId value: ${id}`;
-	}
-}
+type Parameters = AppState;
 
-export interface ShopParameters {
-	/**
-	 * Indicates which shop should be loaded.
-	 */
-	shopSelection: ShopId;
-}
+/**
+ * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
+ */
+type Props = Actions & Parameters;
 
-export class Shop extends React.Component<ShopParameters> {
-	public constructor(props: ShopParameters) {
+/**
+ *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
+ */
+class ShopComponent extends React.Component<Props> {
+	public constructor(props: Props) {
 		super(props);
-		// TODO: load table data based on selected shop
 	}
 
 	public render(): ReactNode {
 		return (
 			<div className="Shops">
-				<Card bg="dark" text="light">
-					<Card.Header className="Shops-banner">
-						<div>{shopIdToString(this.props.shopSelection)}</div>
-					</Card.Header>
-					<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
-				</Card>
+				{this.renderMenu()}
+				{this.renderApp()}
 			</div>
 		);
 	}
 
-	private renderInventory(): ReactNode {
-		const shopId = this.props.shopSelection;
-		switch (shopId) {
+	/**
+	 * Render the shop-selection menu
+	 */
+	public renderMenu(): ReactNode {
+		return (
+			<Tabs
+				defaultActiveKey={this.props.shopSelection}
+				id="shops-menu"
+				onSelect={(shop: unknown) => this.props.changeShop(shop as ShopId)}
+			>
+				{Object.values(ShopId).map((shop) => (
+					<Tab eventKey={shop} title={shop} key={shop} />
+				))}
+			</Tabs>
+		);
+	}
+
+	public renderApp(): ReactNode {
+		return (
+			<Card bg="dark" text="light">
+				<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
+			</Card>
+		);
+	}
+
+	/**
+	 * Renders the inventory view for the indicated shop
+	 */
+	public renderInventory(): ReactNode {
+		switch (this.props.shopSelection) {
 			case ShopId.Equipment:
 				return this.renderEquipmentInventory();
 			case ShopId.Apothicary:
 				return this.renderApothicaryInventory();
 			default:
-				return `Unrecognized ShopId value: ${shopId}`;
+				return `Unrecognized ShopId value: ${this.props.shopSelection}`;
 		}
 	}
 
-	// TODO: take table data as component input
-	private renderEquipmentInventory(): ReactNode {
+	/**
+	 * Renders the inventory view for the Equipment shop
+	 *
+	 * TODO: take table data as input
+	 */
+	public renderEquipmentInventory(): ReactNode {
 		return (
 			<Table bordered hover responsive striped variant="dark">
 				<thead>
@@ -103,8 +121,12 @@ export class Shop extends React.Component<ShopParameters> {
 		);
 	}
 
-	// TODO: take table data as component input
-	private renderApothicaryInventory(): ReactNode {
+	/**
+	 * Renders the inventory view for the Equipment shop
+	 *
+	 * TODO: take table data as input
+	 */
+	public renderApothicaryInventory(): ReactNode {
 		return (
 			<Table bordered hover responsive striped variant="dark">
 				<thead>
@@ -146,3 +168,22 @@ export class Shop extends React.Component<ShopParameters> {
 		);
 	}
 }
+
+/**
+ * {@inheritdoc react-redux/MapStateToPropsParam}
+ */
+function mapStateToProps(state: AppState): Parameters {
+	return {
+		shopSelection: state.shopSelection,
+	};
+}
+
+/**
+ * Shop app.
+ * Displays shop inventories.
+ */
+const Shop = connect(mapStateToProps, {
+	changeShop,
+})(ShopComponent);
+
+export default Shop;

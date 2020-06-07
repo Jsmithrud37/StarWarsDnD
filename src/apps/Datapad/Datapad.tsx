@@ -1,18 +1,18 @@
 import React, { ReactNode } from 'react';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
+import { createStore } from 'redux';
 import Button from 'react-bootstrap/Button';
 import GalaxyMap from '../GalaxyMap/GalaxyMap';
-import { Shop, ShopId } from '../Shop/Shop';
+import Shop, { reducers as shopReducers } from '../Shop';
 import { Contacts } from '../Contacts';
 import './Styling/Datapad.css';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
 	SimpleAccordionMenuItemBuilder,
-	CollapsableAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import { AppState } from './State';
-import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
+import { changeApp, collapseMenu, expandMenu, Actions } from './Actions';
 import AppId from './AppId';
 
 /**
@@ -46,84 +46,81 @@ type Props = Actions & Parameters;
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-const DatapadComponent: React.FC<Props> = (props: Props) => {
-	const appView: ReactNode = <div className="Datapad-view">{renderApp(props)}</div>;
-	const menu = renderMenu(props);
-	return (
-		<div className="Datapad">
-			{menu}
-			{appView}
-		</div>
-	);
-};
+class DatapadComponent extends React.Component<Props> {
+	private readonly shopStore: never;
 
-/**
- * Renders the application view
- */
-function renderApp(props: Props): ReactNode {
-	const selection = props.appSelection;
-	switch (selection) {
-		case AppId.GalaxyMap:
-			return <GalaxyMap />;
-		case AppId.Contacts:
-			return <Contacts />;
-		case AppId.Shops:
-			return <Shop shopSelection={props.shopSelection} />;
-		default:
-			throw new Error(`Unrecognized app selection: ${selection}`);
+	public constructor(props: Props) {
+		super(props);
+		this.shopStore = createStore(shopReducers);
 	}
-}
 
-/**
- * Renders the Datapad main menu
- */
-function renderMenu(props: Props): ReactNode {
-	if (props.isMenuCollapsed) {
+	public render(): ReactNode {
+		const appView: ReactNode = <div className="Datapad-view">{this.renderApp()}</div>;
+		const menu = this.renderMenu();
 		return (
-			<div className="Datapad-app-menu-collapsed">
-				<div className="Datapad-app-menu-expand-button">
-					<Button onClick={() => props.expandMenu()}>{'=>'}</Button>
-				</div>
-			</div>
-		);
-	} else {
-		return (
-			<div className="Datapad-app-menu-expanded">
-				<AccordionMenu
-					initialSelectionIndex={props.appSelection}
-					onSelectionChange={(appSelection: AppId) => props.changeApp(appSelection)}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={[
-						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-						new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
-						new SimpleAccordionMenuItemBuilder('Contacts'),
-					]}
-				/>
-				<div className="Datapad-app-menu-collapse-button-container">
-					<Button onClick={() => props.collapseMenu()}>{'<='}</Button>
-				</div>
+			<div className="Datapad">
+				{menu}
+				{appView}
 			</div>
 		);
 	}
-}
 
-/**
- * Renders the Shops sub-menu which appears under the "Shops" item in the main menu when selected.
- */
-function renderShopsSubMenu(props: Props): JSX.Element {
-	return (
-		<AccordionMenu
-			initialSelectionIndex={props.shopSelection}
-			onSelectionChange={(shopSelection: ShopId) => props.changeShop(shopSelection)}
-			defaultItemStyle={menuItemStyleDefault}
-			selectedItemStyle={menuItemStyleSelected}
-			menuItemBuilders={[
-				new SimpleAccordionMenuItemBuilder('Equipment'),
-				new SimpleAccordionMenuItemBuilder('Apothicary'),
-			]}
-		/>
-	);
+	/**
+	 * Renders the application view
+	 */
+	private renderApp(): ReactNode {
+		const selection = this.props.appSelection;
+		switch (selection) {
+			case AppId.GalaxyMap:
+				return <GalaxyMap />;
+			case AppId.Contacts:
+				return <Contacts />;
+			case AppId.Shops:
+				return (
+					<Provider store={this.shopStore}>
+						<Shop />
+					</Provider>
+				);
+			default:
+				throw new Error(`Unrecognized app selection: ${selection}`);
+		}
+	}
+
+	/**
+	 * Renders the Datapad main menu
+	 */
+	private renderMenu(): ReactNode {
+		if (this.props.isMenuCollapsed) {
+			return (
+				<div className="Datapad-app-menu-collapsed">
+					<div className="Datapad-app-menu-expand-button">
+						<Button onClick={() => this.props.expandMenu()}>{'=>'}</Button>
+					</div>
+				</div>
+			);
+		} else {
+			return (
+				<div className="Datapad-app-menu-expanded">
+					<AccordionMenu
+						initialSelectionIndex={this.props.appSelection}
+						onSelectionChange={(appSelection: AppId) =>
+							this.props.changeApp(appSelection)
+						}
+						defaultItemStyle={menuItemStyleDefault}
+						selectedItemStyle={menuItemStyleSelected}
+						menuItemBuilders={[
+							new SimpleAccordionMenuItemBuilder('Galaxy Map'),
+							new SimpleAccordionMenuItemBuilder('Shops'),
+							new SimpleAccordionMenuItemBuilder('Contacts'),
+						]}
+					/>
+					<div className="Datapad-app-menu-collapse-button-container">
+						<Button onClick={() => this.props.collapseMenu()}>{'<='}</Button>
+					</div>
+				</div>
+			);
+		}
+	}
 }
 
 /**
@@ -132,7 +129,6 @@ function renderShopsSubMenu(props: Props): JSX.Element {
 function mapStateToProps(state: AppState): Parameters {
 	return {
 		appSelection: state.appSelection,
-		shopSelection: state.shopSelection,
 		isMenuCollapsed: state.isMenuCollapsed,
 	};
 }
@@ -143,7 +139,6 @@ function mapStateToProps(state: AppState): Parameters {
  */
 const Datapad = connect(mapStateToProps, {
 	changeApp,
-	changeShop,
 	collapseMenu,
 	expandMenu,
 })(DatapadComponent);

@@ -3,7 +3,7 @@
  * {@inheritdoc ChangeShopFunction}
  */
 
-import { ShopId } from '../../Shop';
+import { ShopId } from '../ShopId';
 
 /**
  * Dispatch ID for the ChangeShop action
