@@ -10,3 +10,7 @@ TODO: Datapad docs.
 The Galaxy Map Datapad app allows users to navigate the Galaxy at large.
 
 Embeds [Star Wars Galaxy Map](http://www.swgalaxymap.com/).
+
+## Contacts
+
+The `Contacts` Datapad app allows players to view data about the people they've met during their adventures across the Galaxy.
