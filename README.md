@@ -7,6 +7,8 @@ TODO: Datapad docs.
 
 ## Galaxy Map
 
-The Galaxy Map Datapad app allows users to navigate the Galaxy at large.
+The `Galaxy Map` Datapad app allows players to navigate the Galaxy at large.
 
-Embeds [Star Wars Galaxy Map](http://www.swgalaxymap.com/).
+It is intended to simulate the virtual map they would doubtless have on their personal datapads.
+
+Implemented by embedding [Star Wars Galaxy Map](http://www.swgalaxymap.com/).
