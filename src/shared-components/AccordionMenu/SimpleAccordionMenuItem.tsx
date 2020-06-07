@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
-import Card from 'react-bootstrap/card';
+import Card from 'react-bootstrap/Card';
 import {
 	AccordionMenuItem,
 	AccordionMenuItemProps,
 	AccordionMenuItemBuilder,
 	AccordionMenuItemStyle,
 } from './AccordionMenuItem';
-import Accordion from 'react-bootstrap/accordion';
+import Accordion from 'react-bootstrap/Accordion';
 
 export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 	public constructor(title: string) {

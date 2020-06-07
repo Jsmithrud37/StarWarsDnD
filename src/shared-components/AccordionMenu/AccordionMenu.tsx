@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import Accordion from 'react-bootstrap/accordion';
+import Accordion from 'react-bootstrap/Accordion';
 import { AccordionMenuItemBuilder, AccordionMenuItemStyle } from './AccordionMenuItem';
 
 export interface AccordionMenuState {
