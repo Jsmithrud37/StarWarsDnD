@@ -7,6 +7,9 @@ import { ShopId } from './ShopId';
 import { Actions, changeShop } from './Actions';
 import { AppState } from './State';
 import { connect } from 'react-redux';
+import { Cell, Inventory, InventoryItem, InventoryHeader } from './InventoryItem';
+import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
+import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryTemp';
 
 /**
  * State parameters used by the Datapad app component.
@@ -60,112 +63,133 @@ class ShopComponent extends React.Component<Props> {
 		);
 	}
 
-	/**
-	 * Renders the inventory view for the indicated shop
-	 */
-	public renderInventory(): ReactNode {
+	private getInventory(): Inventory {
 		switch (this.props.shopSelection) {
 			case ShopId.Equipment:
-				return this.renderEquipmentInventory();
+				return getEquipmentInventoryTEMP();
 			case ShopId.Apothicary:
-				return this.renderApothicaryInventory();
+				return getApothicaryInventoryTEMP();
 			default:
-				return `Unrecognized ShopId value: ${this.props.shopSelection}`;
+				throw new Error(`Unrecognized ShopId value: ${this.props.shopSelection}`);
 		}
 	}
 
 	/**
-	 * Renders the inventory view for the Equipment shop
-	 *
-	 * TODO: take table data as input
+	 * Renders the inventory view for the indicated shop
 	 */
-	public renderEquipmentInventory(): ReactNode {
-		return (
-			<Table bordered hover responsive striped variant="dark">
-				<thead>
-					<tr>
-						<th>Item</th>
-						<th>Type</th>
-						<th>
-							Cost (
-							<a
-								href="https://sw5e.com/rules/phb/equipment#currency"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								cr
-							</a>
-							)
-						</th>
-						<th>Weight (lb)</th>
-						<th>Stock</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Emergency Battery</td>
-						<td>Mechanical</td>
-						<td>70</td>
-						<td>5</td>
-						<td>∞</td>
-					</tr>
-					<tr>
-						<td>Basic computer spike</td>
-						<td>Utility</td>
-						<td>145</td>
-						<td>1</td>
-						<td>5</td>
-					</tr>
-				</tbody>
-			</Table>
-		);
+	public renderInventory(): ReactNode {
+		const inventory: Inventory = this.getInventory();
+		return renderInventory(inventory);
 	}
+}
 
-	/**
-	 * Renders the inventory view for the Equipment shop
-	 *
-	 * TODO: take table data as input
-	 */
-	public renderApothicaryInventory(): ReactNode {
-		return (
-			<Table bordered hover responsive striped variant="dark">
-				<thead>
-					<tr>
-						<th>Item</th>
-						<th>Type</th>
-						<th>
-							Cost (
-							<a
-								href="https://sw5e.com/rules/phb/equipment#currency"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								cr
-							</a>
-							)
-						</th>
-						<th>Weight (lb)</th>
-						<th>Stock</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Medpac</td>
-						<td>Consumable</td>
-						<td>300</td>
-						<td>1</td>
-						<td>∞</td>
-					</tr>
-					<tr>
-						<td>Fine Medpac</td>
-						<td>Consumable</td>
-						<td>700</td>
-						<td>1</td>
-						<td>2</td>
-					</tr>
-				</tbody>
-			</Table>
-		);
+/**
+ * Renders the full inventory table.
+ */
+function renderInventory(inventory: Inventory): ReactNode {
+	return (
+		<Table bordered hover responsive striped variant="dark">
+			{renderHeader(inventory.header)}
+			{renderInventoryData(inventory.data)}
+		</Table>
+	);
+}
+
+/**
+ * Renders the inventory header.
+ */
+function renderHeader(header: InventoryHeader): ReactNode {
+	return (
+		<thead>
+			<tr>
+				<th>Name</th>
+				{header.map((cell) => {
+					return <>{renderCell(cell, true)}</>;
+				})}
+				<th>
+					Cost (
+					<a
+						href="https://sw5e.com/rules/phb/equipment#currency"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						cr
+					</a>
+					)
+				</th>
+				<th>Stock</th>
+			</tr>
+		</thead>
+	);
+}
+
+/**
+ * Renders the table body.
+ */
+function renderInventoryData(data: InventoryItem[]): ReactNode {
+	return (
+		<tbody>
+			{data.map((row) => {
+				return <>{renderRow(row)}</>;
+			})}
+		</tbody>
+	);
+}
+
+/**
+ * Renders a data row
+ */
+function renderRow(row: InventoryItem): ReactNode {
+	return (
+		<tr>
+			<td>{row.name}</td>
+			{row.otherData.map((cell) => {
+				return (
+					<React.Fragment key={getCellText(cell)}>
+						{renderCell(cell, false)}
+					</React.Fragment>
+				);
+			})}
+			<td>{row.cost}</td>
+			<td>{row.stock}</td>
+		</tr>
+	);
+}
+
+/**
+ * Renders an individual cell.
+ */
+function renderCell(cell: Cell | string, isHeaderCell: boolean): ReactNode {
+	if (typeof cell === 'string') {
+		return isHeaderCell ? <th>{cell}</th> : <td>{cell}</td>;
+	} else {
+		let render = <>{cell.text}</>;
+
+		if (cell.link) {
+			render = (
+				<a href={cell.link} target="_blank" rel="noopener noreferrer">
+					text
+				</a>
+			);
+		}
+
+		if (cell.popOverText) {
+			// TODO: pop-over support
+			render = render;
+		}
+
+		return isHeaderCell ? <th>{render}</th> : <td>{render}</td>;
+	}
+}
+
+/**
+ * Gets the text from a cell.
+ */
+function getCellText(cell: Cell | string): string {
+	if (typeof cell === 'string') {
+		return cell;
+	} else {
+		return cell.text;
 	}
 }
 
