@@ -1,19 +1,19 @@
 import React, { ReactNode } from 'react';
-import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import GalaxyMap from '../GalaxyMap/GalaxyMap';
-import { Shop, ShopId } from '../Shop/Shop';
-import { Contacts } from '../Contacts';
-import './Styling/Datapad.css';
+import { connect } from 'react-redux';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
-	SimpleAccordionMenuItemBuilder,
 	CollapsableAccordionMenuItemBuilder,
+	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
-import { AppState } from './State';
-import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
+import { Contacts } from '../Contacts';
+import GalaxyMap from '../GalaxyMap/GalaxyMap';
+import { Shop, ShopId } from '../Shop/Shop';
+import { Actions, changeApp, changeShop, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
+import { AppState } from './State';
+import './Styling/Datapad.css';
 
 /**
  * Menu item style used for items which are not currently selected.

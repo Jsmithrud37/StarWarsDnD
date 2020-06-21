@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import Datapad, { reducers } from './Datapad';
+import { createStore } from 'redux';
 import './App.css';
+import Datapad, { reducers } from './Datapad';
 
 const dataStore = createStore(reducers);
 

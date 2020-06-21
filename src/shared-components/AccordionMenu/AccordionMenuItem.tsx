@@ -1,5 +1,5 @@
-import { CardColors } from '../../BootstrapUtilities';
 import React, { ReactNode } from 'react';
+import { CardColors } from '../../BootstrapUtilities';
 
 export interface AccordionMenuItemStyle {
 	backgroundColor: CardColors;
