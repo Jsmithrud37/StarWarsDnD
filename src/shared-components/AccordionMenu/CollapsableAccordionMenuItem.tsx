@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import Accordion from 'react-bootstrap/accordion';
-import Card from 'react-bootstrap/card';
+import Accordion from 'react-bootstrap/Accordion';
+import Card from 'react-bootstrap/Card';
 import {
 	AccordionMenuItem,
 	AccordionMenuItemProps,
