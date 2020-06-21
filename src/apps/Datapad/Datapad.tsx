@@ -1,20 +1,20 @@
 import React, { ReactNode } from 'react';
+import { HamburgerSqueeze } from 'react-animated-burgers';
+import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
 import { connect } from 'react-redux';
-import GalaxyMap from '../GalaxyMap/GalaxyMap';
-import { Shop, ShopId } from '../Shop/Shop';
-import { Contacts } from '../Contacts';
-import './Styling/Datapad.css';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
-	SimpleAccordionMenuItemBuilder,
 	CollapsableAccordionMenuItemBuilder,
+	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
-import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
-import { HamburgerSqueeze } from 'react-animated-burgers';
-import { AppState } from './State';
-import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
+import { Contacts } from '../Contacts';
+import GalaxyMap from '../GalaxyMap/GalaxyMap';
+import { Shop, ShopId } from '../Shop/Shop';
+import { Actions, changeApp, changeShop, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
+import { AppState } from './State';
+import './Styling/Datapad.css';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
