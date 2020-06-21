@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import Button from 'react-bootstrap/Button';
+import { HamburgerSqueeze } from 'react-animated-burgers';
+import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
 import { connect } from 'react-redux';
 import {
 	AccordionMenu,
@@ -14,6 +15,10 @@ import { Actions, changeApp, changeShop, collapseMenu, expandMenu } from './Acti
 import AppId from './AppId';
 import { AppState } from './State';
 import './Styling/Datapad.css';
+
+const appId = 'datpad';
+const viewId = 'datapad-view';
+const menuId = 'datapad-menu';
 
 /**
  * Menu item style used for items which are not currently selected.
@@ -47,15 +52,46 @@ type Props = Actions & Parameters;
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
 const DatapadComponent: React.FC<Props> = (props: Props) => {
-	const appView: ReactNode = <div className="Datapad-view">{renderApp(props)}</div>;
+	const appView: ReactNode = (
+		<div className="Datapad-view" id={viewId}>
+			{renderApp(props)}
+		</div>
+	);
 	const menu = renderMenu(props);
 	return (
-		<div className="Datapad">
-			{menu}
-			{appView}
+		<div className="App">
+			{renderHeader(props)}
+			<div className="Datapad" id={appId}>
+				{menu}
+				{appView}
+			</div>
 		</div>
 	);
 };
+
+/**
+ * Renders the banner at the top of the app.
+ */
+function renderHeader(props: Props): ReactNode {
+	return (
+		<header className="App-header">
+			<HamburgerSqueeze
+				className="App-header-burger-button"
+				barColor="white"
+				buttonWidth="32"
+				isActive={!props.isMenuCollapsed}
+				toggleButton={
+					props.isMenuCollapsed ? () => props.expandMenu() : () => props.collapseMenu()
+				}
+			/>
+			<img
+				className="App-header-logo"
+				src="images/Order-Of-The-Fallen-Logo-Long.png"
+				alt="Campaign logo"
+			/>
+		</header>
+	);
+}
 
 /**
  * Renders the application view
@@ -75,37 +111,52 @@ function renderApp(props: Props): ReactNode {
 }
 
 /**
+ * Function to be invoked by state-change on BurgerMenu implementation of Datapad menu.
+ */
+function onMenuStateChange(props: Props, menuState: BurgerMenuState): void {
+	if (menuState.isOpen) {
+		props.expandMenu();
+	} else {
+		props.collapseMenu();
+	}
+}
+
+/**
  * Renders the Datapad main menu
  */
 function renderMenu(props: Props): ReactNode {
-	if (props.isMenuCollapsed) {
-		return (
-			<div className="Datapad-app-menu-collapsed">
-				<div className="Datapad-app-menu-expand-button">
-					<Button onClick={() => props.expandMenu()}>{'=>'}</Button>
-				</div>
-			</div>
-		);
-	} else {
-		return (
-			<div className="Datapad-app-menu-expanded">
-				<AccordionMenu
-					initialSelectionIndex={props.appSelection}
-					onSelectionChange={(appSelection: AppId) => props.changeApp(appSelection)}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={[
-						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-						new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
-						new SimpleAccordionMenuItemBuilder('Contacts'),
-					]}
-				/>
-				<div className="Datapad-app-menu-collapse-button-container">
-					<Button onClick={() => props.collapseMenu()}>{'<='}</Button>
-				</div>
-			</div>
-		);
-	}
+	// const closeButton = <Button onClick={() => props.collapseMenu()}>{'<='}</Button>;
+
+	return (
+		<BurgerMenu
+			id={menuId}
+			className="Datapad-app-menu"
+			menuClassName="Datapad-app-menu-expanded"
+			pageWrapId={viewId}
+			outerContainerId={appId}
+			width="225px"
+			onStateChange={(state) => {
+				onMenuStateChange(props, state);
+			}}
+			isOpen={!props.isMenuCollapsed}
+			disableOverlayClick={props.isMenuCollapsed}
+			noOverlay={props.isMenuCollapsed}
+			customBurgerIcon={false}
+			customCrossIcon={false}
+		>
+			<AccordionMenu
+				initialSelectionIndex={props.appSelection}
+				onSelectionChange={(appSelection: AppId) => props.changeApp(appSelection)}
+				defaultItemStyle={menuItemStyleDefault}
+				selectedItemStyle={menuItemStyleSelected}
+				menuItemBuilders={[
+					new SimpleAccordionMenuItemBuilder('Galaxy Map'),
+					new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
+					new SimpleAccordionMenuItemBuilder('Contacts'),
+				]}
+			/>
+		</BurgerMenu>
+	);
 }
 
 /**
