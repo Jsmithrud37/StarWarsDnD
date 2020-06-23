@@ -1,12 +1,11 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import Datapad, { reducers } from './apps/Datapad';
-import * as serviceWorker from './serviceWorker';
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { createStore } from 'redux';
+import Datapad, { reducers } from './apps/Datapad';
+import './index.css';
+import * as serviceWorker from './serviceWorker';
 
 const dataStore = createStore(reducers);
 ReactDOM.render(

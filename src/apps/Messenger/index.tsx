@@ -1,5 +1,5 @@
-import React from 'react';
 import WidgetBot, { API as BotApi } from '@widgetbot/react-embed';
+import React from 'react';
 import './Styling/Messenger.css';
 
 const serverId = '497633093394366464';

@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 import { ShopId } from '../Shop';
-import { DatapadActions, CHANGE_APP, CHANGE_SHOP, COLLAPSE_MENU, EXPAND_MENU } from './Actions';
+import { CHANGE_APP, CHANGE_SHOP, COLLAPSE_MENU, DatapadActions, EXPAND_MENU } from './Actions';
 import AppId from './AppId';
 
 /**
