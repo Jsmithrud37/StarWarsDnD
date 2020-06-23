@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
 import { connect } from 'react-redux';
 import GalaxyMap from '../GalaxyMap';
+import Messenger from '../Messenger';
 import { Shop, ShopId } from '../Shop/Shop';
 import { Contacts } from '../Contacts';
-import './Styling/Datapad.css';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
@@ -15,6 +15,7 @@ import { HamburgerSqueeze } from 'react-animated-burgers';
 import { AppState } from './State';
 import { changeApp, changeShop, collapseMenu, expandMenu, Actions } from './Actions';
 import AppId from './AppId';
+import './Styling/Datapad.css';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -105,6 +106,8 @@ function renderApp(props: Props): ReactNode {
 			return <Contacts />;
 		case AppId.Shops:
 			return <Shop shopSelection={props.shopSelection} />;
+		case AppId.Messenger:
+			return <Messenger />;
 		default:
 			throw new Error(`Unrecognized app selection: ${selection}`);
 	}
@@ -150,9 +153,11 @@ function renderMenu(props: Props): ReactNode {
 				defaultItemStyle={menuItemStyleDefault}
 				selectedItemStyle={menuItemStyleSelected}
 				menuItemBuilders={[
+					// TODO: update builders to take AppId and return it in onClick
 					new SimpleAccordionMenuItemBuilder('Galaxy Map'),
 					new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
 					new SimpleAccordionMenuItemBuilder('Contacts'),
+					new SimpleAccordionMenuItemBuilder('Messenger'),
 				]}
 			/>
 		</BurgerMenu>
