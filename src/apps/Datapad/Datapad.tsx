@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { connect } from 'react-redux';
-import GalaxyMap from '../GalaxyMap/GalaxyMap';
+import GalaxyMap from '../GalaxyMap';
 import { Shop, ShopId } from '../Shop/Shop';
 import { Contacts } from '../Contacts';
 import './Styling/Datapad.css';
