@@ -9,7 +9,8 @@ import {
 	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import { Contacts } from '../Contacts';
-import GalaxyMap from '../GalaxyMap/GalaxyMap';
+import GalaxyMap from '../GalaxyMap';
+import Messenger from '../Messenger';
 import { Shop, ShopId } from '../Shop/Shop';
 import { Actions, changeApp, changeShop, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
@@ -105,6 +106,8 @@ function renderApp(props: Props): ReactNode {
 			return <Contacts />;
 		case AppId.Shops:
 			return <Shop shopSelection={props.shopSelection} />;
+		case AppId.Messenger:
+			return <Messenger />;
 		default:
 			throw new Error(`Unrecognized app selection: ${selection}`);
 	}
@@ -150,9 +153,11 @@ function renderMenu(props: Props): ReactNode {
 				defaultItemStyle={menuItemStyleDefault}
 				selectedItemStyle={menuItemStyleSelected}
 				menuItemBuilders={[
+					// TODO: update builders to take AppId and return it in onClick
 					new SimpleAccordionMenuItemBuilder('Galaxy Map'),
 					new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
 					new SimpleAccordionMenuItemBuilder('Contacts'),
+					new SimpleAccordionMenuItemBuilder('Messenger'),
 				]}
 			/>
 		</BurgerMenu>

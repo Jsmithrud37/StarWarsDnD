@@ -19,14 +19,14 @@ function renderApp(): ReactNode {
 	);
 }
 
-test('renders learn react link', () => {
+// TODO: better tests than text only
+test('Menu contains expected buttons', () => {
 	const { getByText } = render(<>{renderApp()}</>);
 
-	const galaxyMapMenuItem = getByText(/Galaxy Map/);
-	const shopsMenuItem = getByText(/Shops/);
-	const contactsMenuItem = getByText(/Contacts/);
+	const expectedTextElement = [/Galaxy Map/, /Shops/, /Contacts/, /Messenger/];
 
-	expect(galaxyMapMenuItem).toBeInTheDocument();
-	expect(shopsMenuItem).toBeInTheDocument();
-	expect(contactsMenuItem).toBeInTheDocument();
+	for (const query of expectedTextElement) {
+		const element = getByText(query);
+		expect(element).toBeInTheDocument();
+	}
 });
