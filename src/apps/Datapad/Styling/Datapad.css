@@ -12,20 +12,18 @@
 .App-header {
 	position: relative;
 	background-color: #282c34;
-	padding: 15px;
 }
 
 .App-header-logo {
 	float: center;
 	height: 75px;
+	margin: 15px;
 	pointer-events: none;
 	object-fit: cover;
 }
 
 .App-header-burger-button {
 	position: absolute;
-	left: 0px;
-	bottom: 0px;
 }
 
 .Datapad {

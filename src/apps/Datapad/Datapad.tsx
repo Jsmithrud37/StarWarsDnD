@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
 import { connect } from 'react-redux';
@@ -20,6 +20,8 @@ import './Styling/Datapad.css';
 const appId = 'datpad';
 const viewId = 'datapad-view';
 const menuId = 'datapad-menu';
+
+const menuWidthInPixels = 225;
 
 /**
  * Menu item style used for items which are not currently selected.
@@ -53,6 +55,14 @@ type Props = Actions & Parameters;
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
 const DatapadComponent: React.FC<Props> = (props: Props) => {
+	const [viewWidth, setViewWidth] = useState(window.innerWidth);
+
+	React.useEffect(() => {
+		window.addEventListener('resize', () => {
+			setViewWidth(window.innerWidth);
+		});
+	}, []);
+
 	const appView: ReactNode = (
 		<div className="Datapad-view" id={viewId}>
 			{renderApp(props)}
@@ -61,7 +71,7 @@ const DatapadComponent: React.FC<Props> = (props: Props) => {
 	const menu = renderMenu(props);
 	return (
 		<div className="App">
-			{renderHeader(props)}
+			{renderHeader(props, viewWidth)}
 			<div className="Datapad" id={appId}>
 				{menu}
 				{appView}
@@ -73,24 +83,54 @@ const DatapadComponent: React.FC<Props> = (props: Props) => {
 /**
  * Renders the banner at the top of the app.
  */
-function renderHeader(props: Props): ReactNode {
+function renderHeader(props: Props, viewWidthInPixels: number): ReactNode {
 	return (
 		<header className="App-header">
-			<HamburgerSqueeze
-				className="App-header-burger-button"
-				barColor="white"
-				buttonWidth="32"
-				isActive={!props.isMenuCollapsed}
-				toggleButton={
-					props.isMenuCollapsed ? () => props.expandMenu() : () => props.collapseMenu()
-				}
-			/>
+			{renderMenuBurgerButton(props, viewWidthInPixels)}
 			<img
 				className="App-header-logo"
 				src="images/Order-Of-The-Fallen-Logo-Long.png"
 				alt="Campaign logo"
 			/>
 		</header>
+	);
+}
+
+/**
+ * Renders the burger menu button that controls revealing and hiding the side menu,
+ * which lives in the header above the menu.
+ */
+function renderMenuBurgerButton(props: Props, viewWidthInPixels: number): ReactNode {
+	const buttonWidthInPixels = 25;
+	const sliderWidthInPixels =
+		Math.min(menuWidthInPixels, viewWidthInPixels / 4.3) - 1.75 * buttonWidthInPixels;
+
+	return (
+		<BurgerMenu
+			width={`${sliderWidthInPixels}px`}
+			onStateChange={(state) => {
+				onMenuStateChange(props, state);
+			}}
+			isOpen={!props.isMenuCollapsed}
+			disableOverlayClick={true}
+			noOverlay={true}
+			customBurgerIcon={false}
+			customCrossIcon={false}
+		>
+			<HamburgerSqueeze
+				className="App-header-burger-button"
+				barColor="white"
+				buttonWidth={`${buttonWidthInPixels}`}
+				isActive={!props.isMenuCollapsed}
+				toggleButton={
+					props.isMenuCollapsed ? () => props.expandMenu() : () => props.collapseMenu()
+				}
+				buttonStyle={{
+					left: `${sliderWidthInPixels}px`,
+					top: '61px',
+				}}
+			/>
+		</BurgerMenu>
 	);
 }
 
@@ -128,8 +168,6 @@ function onMenuStateChange(props: Props, menuState: BurgerMenuState): void {
  * Renders the Datapad main menu
  */
 function renderMenu(props: Props): ReactNode {
-	// const closeButton = <Button onClick={() => props.collapseMenu()}>{'<='}</Button>;
-
 	return (
 		<BurgerMenu
 			id={menuId}
@@ -137,7 +175,7 @@ function renderMenu(props: Props): ReactNode {
 			menuClassName="Datapad-app-menu-expanded"
 			pageWrapId={viewId}
 			outerContainerId={appId}
-			width="225px"
+			width={`${menuWidthInPixels}px`}
 			onStateChange={(state) => {
 				onMenuStateChange(props, state);
 			}}
