@@ -78,20 +78,14 @@ class DatapadComponent extends React.Component<Props, State> {
 		this.shopStore = createStore(shopReducers);
 	}
 
-	private setViewPortWidth(width: number): void {
+	private updateViewPortWidth(): void {
 		this.setState({
 			...this.state,
-			viewPortWidthInPixels: width,
+			viewPortWidthInPixels: window.innerWidth,
 		});
 	}
 
 	public render(): ReactNode {
-		// TODO: Do these get cleaned up when this node is invalidated?
-		// Or is this a big-old memory leak?
-		window.addEventListener('resize', () => {
-			this.setViewPortWidth(window.innerWidth);
-		});
-
 		const appView: ReactNode = (
 			<div className="Datapad-view" id={viewId}>
 				{this.renderApp()}
@@ -107,6 +101,20 @@ class DatapadComponent extends React.Component<Props, State> {
 				</div>
 			</div>
 		);
+	}
+
+	/**
+	 * {@inheritdoc React.Component.componentDidMount}
+	 */
+	public componentDidMount(): void {
+		window.addEventListener('resize', this.updateViewPortWidth.bind(this));
+	}
+
+	/**
+	 * {@inheritdoc React.Component.componentWillUnmount}
+	 */
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', this.updateViewPortWidth.bind(this));
 	}
 
 	/**
