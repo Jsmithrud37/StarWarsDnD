@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
+import { CHANGE_SHOP, ShopActions } from './Actions';
 import { ShopId } from './ShopId';
-import { ShopActions, CHANGE_SHOP } from './Actions';
 
 /**
  * State utilized by the Shop app component

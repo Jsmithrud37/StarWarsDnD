@@ -1,15 +1,15 @@
 import React, { ReactNode } from 'react';
-import Table from 'react-bootstrap/Table';
 import Card from 'react-bootstrap/Card';
 import Tab from 'react-bootstrap/Tab';
+import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
-import { ShopId } from './ShopId';
-import { Actions, changeShop } from './Actions';
-import { AppState } from './State';
 import { connect } from 'react-redux';
-import { Cell, Inventory, InventoryItem, InventoryHeader } from './InventoryItem';
-import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
+import { Actions, changeShop } from './Actions';
+import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
 import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryTemp';
+import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
+import { ShopId } from './ShopId';
+import { AppState } from './State';
 
 /**
  * State parameters used by the Datapad app component.
