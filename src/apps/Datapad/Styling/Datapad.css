@@ -1,3 +1,31 @@
+.App {
+	display: flex;
+	flex-direction: column;
+	background-color: #3b414d;
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+	color: white;
+}
+
+.App-header {
+	position: relative;
+	background-color: #282c34;
+}
+
+.App-header-logo {
+	float: center;
+	height: 75px;
+	margin: 15px;
+	pointer-events: none;
+	object-fit: cover;
+}
+
+.App-header-burger-button {
+	position: absolute;
+}
+
 .Datapad {
 	display: flex;
 	flex-direction: row;
@@ -9,47 +37,22 @@
 	text-align: center;
 	float: right;
 	flex: 1;
-
-	/*
-	 * We see scroll bars if we don't do this. Not sure why :/
-	 */
-	overflow: hidden;
 }
 
-.Datapad-app-menu-expanded {
+.Burger {
+	position: relative;
+	height: 100%;
+}
+
+.Datapad-app-menu {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	width: 200px;
+	height: 100%;
 	text-align: center;
 	float: left;
-	background-color: #282c34;
-}
-
-.Datapad-app-menu-collapsed {
-	display: flex;
-	flex-direction: column-reverse;
-	width: 1px;
-	max-width: 1px;
-	text-align: center;
-	float: left;
-	background-color: #3b4d70;
-}
-
-.Datapad-app-menu-collapse-button-container {
-	display: flex;
-	flex-direction: row-reverse;
-	width: 100%;
-}
-
-.Datapad-app-menu-collapse-button {
-	overflow: hidden;
-}
-
-.Datapad-app-menu-expand-button {
-	overflow: visible;
-	position: relative;
-	left: -10px;
+	background-color: #282c34e8;
+	padding: 3px;
 }
 
 .Datapad-menu-item {

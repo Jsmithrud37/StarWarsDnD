@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { DatapadActions, CHANGE_APP, COLLAPSE_MENU, EXPAND_MENU } from './Actions';
+import { CHANGE_APP, COLLAPSE_MENU, DatapadActions, EXPAND_MENU } from './Actions';
 import AppId from './AppId';
 
 /**

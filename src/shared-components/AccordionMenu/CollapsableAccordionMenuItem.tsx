@@ -3,8 +3,8 @@ import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import {
 	AccordionMenuItem,
-	AccordionMenuItemProps,
 	AccordionMenuItemBuilder,
+	AccordionMenuItemProps,
 	AccordionMenuItemStyle,
 } from './AccordionMenuItem';
 

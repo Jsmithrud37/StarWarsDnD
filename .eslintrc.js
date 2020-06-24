@@ -20,6 +20,9 @@ module.exports = {
 				extends: 'augments',
 			},
 		},
+		react: {
+			version: 'detect',
+		},
 	},
 	rules: {
 		'@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
