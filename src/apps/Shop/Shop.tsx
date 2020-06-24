@@ -175,7 +175,6 @@ function renderCell(cell: Cell | string, isHeaderCell: boolean): ReactNode {
 
 		if (cell.popOverText) {
 			// TODO: pop-over support
-			render = render;
 		}
 
 		return isHeaderCell ? <th>{render}</th> : <td>{render}</td>;
