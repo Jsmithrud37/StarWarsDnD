@@ -86,6 +86,8 @@ class DatapadComponent extends React.Component<Props, State> {
 	}
 
 	public render(): ReactNode {
+		// TODO: Do these get cleaned up when this node is invalidated?
+		// Or is this a big-old memory leak?
 		window.addEventListener('resize', () => {
 			this.setViewPortWidth(window.innerWidth);
 		});
