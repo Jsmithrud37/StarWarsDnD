@@ -1,6 +1,6 @@
 import { Cell, Inventory, InventoryItem } from '../InventoryItem';
 
-const headerLabels: Array<Cell | string> = ['Type', 'Weight'];
+const headerLabels: Array<Cell | string> = ['Type', 'Weight (lb)'];
 
 const inventoryItems: InventoryItem[] = [
 	{
