@@ -1,18 +1,18 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
+import { createStore } from 'redux';
 import {
 	AccordionMenu,
 	AccordionMenuItemStyle,
-	CollapsableAccordionMenuItemBuilder,
 	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import { Contacts } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
-import { Shop, ShopId } from '../Shop/Shop';
-import { Actions, changeApp, changeShop, collapseMenu, expandMenu } from './Actions';
+import Shop, { reducers as shopReducers } from '../Shop';
+import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
 import './Styling/Datapad.css';
@@ -52,172 +52,200 @@ type Parameters = AppState;
 type Props = Actions & Parameters;
 
 /**
+ * Datapad Component state. Not managed by Redux.
+ */
+interface State {
+	/**
+	 * Width of the viewport. Used to position items.
+	 */
+	viewPortWidthInPixels: number;
+}
+
+/**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-const DatapadComponent: React.FC<Props> = (props: Props) => {
-	const [viewWidth, setViewWidth] = useState(window.innerWidth);
+class DatapadComponent extends React.Component<Props, State> {
+	/**
+	 * Redux data store for the shops app.
+	 */
+	private readonly shopStore: never;
 
-	React.useEffect(() => {
-		window.addEventListener('resize', () => {
-			setViewWidth(window.innerWidth);
+	public constructor(props: Props) {
+		super(props);
+		this.state = {
+			viewPortWidthInPixels: window.innerWidth,
+		};
+		this.shopStore = createStore(shopReducers);
+	}
+
+	private updateViewPortWidth(): void {
+		this.setState({
+			...this.state,
+			viewPortWidthInPixels: window.innerWidth,
 		});
-	}, []);
+	}
 
-	const appView: ReactNode = (
-		<div className="Datapad-view" id={viewId}>
-			{renderApp(props)}
-		</div>
-	);
-	const menu = renderMenu(props);
-	return (
-		<div className="App">
-			{renderHeader(props, viewWidth)}
-			<div className="Datapad" id={appId}>
-				{menu}
-				{appView}
+	public render(): ReactNode {
+		const appView: ReactNode = (
+			<div className="Datapad-view" id={viewId}>
+				{this.renderApp()}
 			</div>
-		</div>
-	);
-};
+		);
+		const menu = this.renderMenu();
+		return (
+			<div className="App">
+				{this.renderHeader()}
+				<div className="Datapad" id={appId}>
+					{menu}
+					{appView}
+				</div>
+			</div>
+		);
+	}
 
-/**
- * Renders the banner at the top of the app.
- */
-function renderHeader(props: Props, viewWidthInPixels: number): ReactNode {
-	return (
-		<header className="App-header">
-			{renderMenuBurgerButton(props, viewWidthInPixels)}
-			<img
-				className="App-header-logo"
-				src="images/Order-Of-The-Fallen-Logo-Long.png"
-				alt="Campaign logo"
-			/>
-		</header>
-	);
-}
+	/**
+	 * {@inheritdoc React.Component.componentDidMount}
+	 */
+	public componentDidMount(): void {
+		window.addEventListener('resize', this.updateViewPortWidth.bind(this));
+	}
 
-/**
- * Renders the burger menu button that controls revealing and hiding the side menu,
- * which lives in the header above the menu.
- */
-function renderMenuBurgerButton(props: Props, viewWidthInPixels: number): ReactNode {
-	const buttonWidthInPixels = 25;
-	const sliderWidthInPixels =
-		Math.min(menuWidthInPixels, viewWidthInPixels / 4.3) - 1.75 * buttonWidthInPixels;
+	/**
+	 * {@inheritdoc React.Component.componentWillUnmount}
+	 */
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', this.updateViewPortWidth.bind(this));
+	}
 
-	return (
-		<BurgerMenu
-			width={`${sliderWidthInPixels}px`}
-			onStateChange={(state) => {
-				onMenuStateChange(props, state);
-			}}
-			isOpen={!props.isMenuCollapsed}
-			disableOverlayClick={true}
-			noOverlay={true}
-			customBurgerIcon={false}
-			customCrossIcon={false}
-		>
-			<HamburgerSqueeze
-				className="App-header-burger-button"
-				barColor="white"
-				buttonWidth={`${buttonWidthInPixels}`}
-				isActive={!props.isMenuCollapsed}
-				toggleButton={
-					props.isMenuCollapsed ? () => props.expandMenu() : () => props.collapseMenu()
-				}
-				buttonStyle={{
-					left: `${sliderWidthInPixels}px`,
-					top: '61px',
+	/**
+	 * Renders the banner at the top of the app.
+	 */
+	private renderHeader(): ReactNode {
+		return (
+			<header className="App-header">
+				{this.renderMenuBurgerButton()}
+				<img
+					className="App-header-logo"
+					src="images/Order-Of-The-Fallen-Logo-Long.png"
+					alt="Campaign logo"
+				/>
+			</header>
+		);
+	}
+
+	/**
+	 * Renders the burger menu button that controls revealing and hiding the side menu,
+	 * which lives in the header above the menu.
+	 */
+	private renderMenuBurgerButton(): ReactNode {
+		const buttonWidthInPixels = 25;
+		const sliderWidthInPixels =
+			Math.min(menuWidthInPixels, this.state.viewPortWidthInPixels / 4.3) -
+			1.75 * buttonWidthInPixels;
+
+		return (
+			<BurgerMenu
+				width={`${sliderWidthInPixels}px`}
+				onStateChange={(state) => {
+					this.onMenuStateChange(state);
 				}}
-			/>
-		</BurgerMenu>
-	);
-}
-
-/**
- * Renders the application view
- */
-function renderApp(props: Props): ReactNode {
-	const selection = props.appSelection;
-	switch (selection) {
-		case AppId.GalaxyMap:
-			return <GalaxyMap />;
-		case AppId.Contacts:
-			return <Contacts />;
-		case AppId.Shops:
-			return <Shop shopSelection={props.shopSelection} />;
-		case AppId.Messenger:
-			return <Messenger />;
-		default:
-			throw new Error(`Unrecognized app selection: ${selection}`);
+				isOpen={!this.props.isMenuCollapsed}
+				disableOverlayClick={true}
+				noOverlay={true}
+				customBurgerIcon={false}
+				customCrossIcon={false}
+			>
+				<HamburgerSqueeze
+					className="App-header-burger-button"
+					barColor="white"
+					buttonWidth={`${buttonWidthInPixels}`}
+					isActive={!this.props.isMenuCollapsed}
+					toggleButton={
+						this.props.isMenuCollapsed
+							? () => this.props.expandMenu()
+							: () => this.props.collapseMenu()
+					}
+					buttonStyle={{
+						left: `${sliderWidthInPixels}px`,
+						top: '61px',
+					}}
+				/>
+			</BurgerMenu>
+		);
 	}
-}
 
-/**
- * Function to be invoked by state-change on BurgerMenu implementation of Datapad menu.
- */
-function onMenuStateChange(props: Props, menuState: BurgerMenuState): void {
-	if (menuState.isOpen) {
-		props.expandMenu();
-	} else {
-		props.collapseMenu();
+	/**
+	 * Renders the application view
+	 */
+	private renderApp(): ReactNode {
+		const selection = this.props.appSelection;
+		switch (selection) {
+			case AppId.GalaxyMap:
+				return <GalaxyMap />;
+			case AppId.Contacts:
+				return <Contacts />;
+			case AppId.Shops:
+				return (
+					<Provider store={this.shopStore}>
+						<Shop />
+					</Provider>
+				);
+
+			case AppId.Messenger:
+				return <Messenger />;
+			default:
+				throw new Error(`Unrecognized app selection: ${selection}`);
+		}
 	}
-}
 
-/**
- * Renders the Datapad main menu
- */
-function renderMenu(props: Props): ReactNode {
-	return (
-		<BurgerMenu
-			id={menuId}
-			className="Datapad-app-menu"
-			menuClassName="Datapad-app-menu-expanded"
-			pageWrapId={viewId}
-			outerContainerId={appId}
-			width={`${menuWidthInPixels}px`}
-			onStateChange={(state) => {
-				onMenuStateChange(props, state);
-			}}
-			isOpen={!props.isMenuCollapsed}
-			disableOverlayClick={props.isMenuCollapsed}
-			noOverlay={props.isMenuCollapsed}
-			customBurgerIcon={false}
-			customCrossIcon={false}
-		>
-			<AccordionMenu
-				initialSelectionIndex={props.appSelection}
-				onSelectionChange={(appSelection: AppId) => props.changeApp(appSelection)}
-				defaultItemStyle={menuItemStyleDefault}
-				selectedItemStyle={menuItemStyleSelected}
-				menuItemBuilders={[
-					// TODO: update builders to take AppId and return it in onClick
-					new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-					new CollapsableAccordionMenuItemBuilder('Shops', renderShopsSubMenu(props)),
-					new SimpleAccordionMenuItemBuilder('Contacts'),
-					new SimpleAccordionMenuItemBuilder('Messenger'),
-				]}
-			/>
-		</BurgerMenu>
-	);
-}
+	/**
+	 * Function to be invoked by state-change on BurgerMenu implementation of Datapad menu.
+	 */
+	private onMenuStateChange(menuState: BurgerMenuState): void {
+		if (menuState.isOpen) {
+			this.props.expandMenu();
+		} else {
+			this.props.collapseMenu();
+		}
+	}
 
-/**
- * Renders the Shops sub-menu which appears under the "Shops" item in the main menu when selected.
- */
-function renderShopsSubMenu(props: Props): JSX.Element {
-	return (
-		<AccordionMenu
-			initialSelectionIndex={props.shopSelection}
-			onSelectionChange={(shopSelection: ShopId) => props.changeShop(shopSelection)}
-			defaultItemStyle={menuItemStyleDefault}
-			selectedItemStyle={menuItemStyleSelected}
-			menuItemBuilders={[
-				new SimpleAccordionMenuItemBuilder('Equipment'),
-				new SimpleAccordionMenuItemBuilder('Apothicary'),
-			]}
-		/>
-	);
+	/**
+	 * Renders the Datapad main menu
+	 */
+	private renderMenu(): ReactNode {
+		return (
+			<BurgerMenu
+				id={menuId}
+				className="Datapad-app-menu"
+				menuClassName="Datapad-app-menu-expanded"
+				pageWrapId={viewId}
+				outerContainerId={appId}
+				width={`${menuWidthInPixels}px`}
+				onStateChange={(state) => {
+					this.onMenuStateChange(state);
+				}}
+				isOpen={!this.props.isMenuCollapsed}
+				disableOverlayClick={this.props.isMenuCollapsed}
+				noOverlay={this.props.isMenuCollapsed}
+				customBurgerIcon={false}
+				customCrossIcon={false}
+			>
+				<AccordionMenu
+					initialSelectionIndex={this.props.appSelection}
+					onSelectionChange={(appSelection: AppId) => this.props.changeApp(appSelection)}
+					defaultItemStyle={menuItemStyleDefault}
+					selectedItemStyle={menuItemStyleSelected}
+					menuItemBuilders={[
+						// TODO: update builders to take AppId and return it in onClick
+						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
+						new SimpleAccordionMenuItemBuilder('Shops'),
+						new SimpleAccordionMenuItemBuilder('Contacts'),
+						new SimpleAccordionMenuItemBuilder('Messenger'),
+					]}
+				/>
+			</BurgerMenu>
+		);
+	}
 }
 
 /**
@@ -226,7 +254,6 @@ function renderShopsSubMenu(props: Props): JSX.Element {
 function mapStateToProps(state: AppState): Parameters {
 	return {
 		appSelection: state.appSelection,
-		shopSelection: state.shopSelection,
 		isMenuCollapsed: state.isMenuCollapsed,
 	};
 }
@@ -237,7 +264,6 @@ function mapStateToProps(state: AppState): Parameters {
  */
 const Datapad = connect(mapStateToProps, {
 	changeApp,
-	changeShop,
 	collapseMenu,
 	expandMenu,
 })(DatapadComponent);

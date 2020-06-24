@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import Datapad from '../Datapad';
-import { datapadReducer } from '../State';
+import { reducer as datapadReducer } from '../State';
 
 const dataStore = createStore(datapadReducer);
 
