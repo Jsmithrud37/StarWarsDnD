@@ -46,15 +46,11 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 		const itemCount = this.itemCount;
 		const menuItems: ReactNode[] = [];
 		for (let i = 0; i < itemCount; i++) {
-			const itemStyle =
-				i === this.state.selectionIndex
-					? this.props.selectedItemStyle
-					: this.props.defaultItemStyle;
-
 			const element: ReactNode = (
 				<React.Fragment key={i}>
-					{this.props.menuItemBuilders[i].createMenuItem(itemStyle, () =>
-						this.setSelection(i),
+					{this.props.menuItemBuilders[i].createMenuItem(
+						i === this.state.selectionIndex,
+						() => this.setSelection(i),
 					)}
 				</React.Fragment>
 			);

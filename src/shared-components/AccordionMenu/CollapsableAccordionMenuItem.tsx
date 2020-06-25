@@ -11,16 +11,21 @@ import {
 export class CollapsableAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 	private readonly content: JSX.Element;
 
-	public constructor(title: string, content: JSX.Element) {
-		super(title);
+	public constructor(
+		title: string,
+		defaultStyle: AccordionMenuItemStyle,
+		selectedStyle: AccordionMenuItemStyle,
+		content: JSX.Element,
+	) {
+		super(title, defaultStyle, selectedStyle);
 		this.content = content;
 	}
 
-	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode {
+	public createMenuItem(selected: boolean, onClick: () => void): ReactNode {
 		return (
 			<CollapsableAccordionMenuItem
 				title={this.title}
-				style={style}
+				style={this.getStyle(selected)}
 				onClick={onClick}
 				content={this.content}
 			/>
@@ -33,7 +38,8 @@ export interface CollapsableAccordionMenuItemProps extends AccordionMenuItemProp
 }
 
 export class CollapsableAccordionMenuItem extends AccordionMenuItem<
-	CollapsableAccordionMenuItemProps
+	CollapsableAccordionMenuItemProps,
+	{}
 > {
 	public constructor(props: CollapsableAccordionMenuItemProps) {
 		super(props);

@@ -5,9 +5,11 @@ import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
 import {
 	AccordionMenu,
+	AccordionMenuItemBuilder,
 	AccordionMenuItemStyle,
 	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
+import { DisabledAccordionMenuItemBuilder } from '../../shared-components/AccordionMenu/DisabledAccordionMenuItem';
 import { Contacts } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
@@ -42,9 +44,28 @@ const menuItemStyleSelected: AccordionMenuItemStyle = {
 };
 
 /**
+ * Menu item style used for selected items.
+ */
+const menuItemStyleDisabled: AccordionMenuItemStyle = {
+	backgroundColor: 'secondary',
+	textColor: 'light',
+	borderColor: undefined,
+};
+
+/**
+ * Determines which apps in the Datapad are enabled. Set by the consumer.
+ */
+interface EnabledApps {
+	galaxyMapEnabled: boolean;
+	shopsEnabled: boolean;
+	contactsEnabled: boolean;
+	messengerEnabled: boolean;
+}
+
+/**
  * State parameters used by the Datapad app component.
  */
-type Parameters = AppState;
+type Parameters = AppState & EnabledApps;
 
 /**
  * Datapad {@link https://reactjs.org/docs/render-props.html | Render Props}
@@ -52,9 +73,9 @@ type Parameters = AppState;
 type Props = Actions & Parameters;
 
 /**
- * Datapad Component state. Not managed by Redux.
+ * Private Datapad Component state. Not managed by Redux.
  */
-interface State {
+interface PrivateState {
 	/**
 	 * Width of the viewport. Used to position items.
 	 */
@@ -64,7 +85,7 @@ interface State {
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-class DatapadComponent extends React.Component<Props, State> {
+class DatapadComponent extends React.Component<Props, PrivateState> {
 	/**
 	 * Redux data store for the shops app.
 	 */
@@ -237,10 +258,10 @@ class DatapadComponent extends React.Component<Props, State> {
 					selectedItemStyle={menuItemStyleSelected}
 					menuItemBuilders={[
 						// TODO: update builders to take AppId and return it in onClick
-						new SimpleAccordionMenuItemBuilder('Galaxy Map'),
-						new SimpleAccordionMenuItemBuilder('Shops'),
-						new SimpleAccordionMenuItemBuilder('Contacts'),
-						new SimpleAccordionMenuItemBuilder('Messenger'),
+						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled),
+						createMenuItemBuilder('Shops', this.props.shopsEnabled),
+						createMenuItemBuilder('Contacts', this.props.contactsEnabled),
+						createMenuItemBuilder('Messenger', this.props.messengerEnabled),
 					]}
 				/>
 			</BurgerMenu>
@@ -249,12 +270,25 @@ class DatapadComponent extends React.Component<Props, State> {
 }
 
 /**
+ * Creates the appropriate form of menu item builder based on whether or not the app is enabled.
+ */
+function createMenuItemBuilder(label: string, appEnabled: boolean): AccordionMenuItemBuilder {
+	return appEnabled
+		? new SimpleAccordionMenuItemBuilder(label, menuItemStyleDefault, menuItemStyleSelected)
+		: new DisabledAccordionMenuItemBuilder(label, menuItemStyleDisabled, 'Coming Soon');
+}
+
+/**
  * {@inheritdoc react-redux/MapStateToPropsParam}
  */
-function mapStateToProps(state: AppState): Parameters {
+function mapStateToProps(state: AppState, externalProps: EnabledApps): Parameters {
 	return {
 		appSelection: state.appSelection,
 		isMenuCollapsed: state.isMenuCollapsed,
+		galaxyMapEnabled: externalProps.galaxyMapEnabled,
+		shopsEnabled: externalProps.shopsEnabled,
+		contactsEnabled: externalProps.contactsEnabled,
+		messengerEnabled: externalProps.messengerEnabled,
 	};
 }
 
