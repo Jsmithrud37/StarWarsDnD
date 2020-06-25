@@ -9,16 +9,26 @@ import {
 } from './AccordionMenuItem';
 
 export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
-	public constructor(title: string) {
-		super(title);
+	public constructor(
+		title: string,
+		defaultStyle: AccordionMenuItemStyle,
+		selectedStyle: AccordionMenuItemStyle,
+	) {
+		super(title, defaultStyle, selectedStyle);
 	}
 
-	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode {
-		return <SimpleAccordionMenuItem title={this.title} style={style} onClick={onClick} />;
+	public createMenuItem(selected: boolean, onClick: () => void): ReactNode {
+		return (
+			<SimpleAccordionMenuItem
+				title={this.title}
+				style={this.getStyle(selected)}
+				onClick={onClick}
+			/>
+		);
 	}
 }
 
-export class SimpleAccordionMenuItem extends AccordionMenuItem<AccordionMenuItemProps> {
+export class SimpleAccordionMenuItem extends AccordionMenuItem<AccordionMenuItemProps, {}> {
 	public constructor(props: AccordionMenuItemProps) {
 		super(props);
 	}

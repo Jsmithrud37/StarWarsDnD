@@ -92,7 +92,12 @@ function renderMenu(
 				defaultItemStyle={menuItemStyleDefault}
 				selectedItemStyle={menuItemStyleSelected}
 				menuItemBuilders={contacts.map(
-					(contact) => new SimpleAccordionMenuItemBuilder(contact),
+					(contact) =>
+						new SimpleAccordionMenuItemBuilder(
+							contact,
+							menuItemStyleDefault,
+							menuItemStyleSelected,
+						),
 				)}
 			/>
 			{/* </ReactList> */}

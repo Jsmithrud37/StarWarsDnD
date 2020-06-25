@@ -9,12 +9,24 @@ export interface AccordionMenuItemStyle {
 
 export abstract class AccordionMenuItemBuilder {
 	public readonly title: string;
+	public readonly defaultStyle: AccordionMenuItemStyle;
+	public readonly selectedStyle: AccordionMenuItemStyle;
 
-	protected constructor(title: string) {
-		this.title = title;
+	protected getStyle(selected: boolean): AccordionMenuItemStyle {
+		return selected ? this.selectedStyle : this.defaultStyle;
 	}
 
-	public abstract createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode;
+	protected constructor(
+		title: string,
+		defaultStyle: AccordionMenuItemStyle,
+		selectedStyle: AccordionMenuItemStyle,
+	) {
+		this.title = title;
+		this.defaultStyle = defaultStyle;
+		this.selectedStyle = selectedStyle;
+	}
+
+	public abstract createMenuItem(selected: boolean, onClick: () => void): ReactNode;
 }
 
 export interface AccordionMenuItemProps {
@@ -23,9 +35,10 @@ export interface AccordionMenuItemProps {
 	onClick: () => void;
 }
 
-export class AccordionMenuItem<TProps extends AccordionMenuItemProps> extends React.Component<
-	TProps
-> {
+export class AccordionMenuItem<
+	TProps extends AccordionMenuItemProps,
+	TState extends {}
+> extends React.Component<TProps, TState> {
 	protected constructor(props: TProps) {
 		super(props);
 	}

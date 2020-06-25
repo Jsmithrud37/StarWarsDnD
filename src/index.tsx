@@ -8,9 +8,20 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 
 const dataStore = createStore(reducers);
+
+const galaxyMapEnabled = true;
+const shopsEnabled = false;
+const contactsEnabled = false;
+const messengerEnabled = true;
+
 ReactDOM.render(
 	<Provider store={dataStore}>
-		<Datapad />
+		<Datapad
+			galaxyMapEnabled={galaxyMapEnabled}
+			shopsEnabled={shopsEnabled}
+			contactsEnabled={contactsEnabled}
+			messengerEnabled={messengerEnabled}
+		/>
 	</Provider>,
 	document.getElementById('root'),
 );
