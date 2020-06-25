@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
-import { slide as BurgerMenu, State as BurgerMenuState } from 'react-burger-menu';
+import { push as PushMenu, slide as SlideMenu, State as BurgerMenuState } from 'react-burger-menu';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
 import {
@@ -31,7 +31,7 @@ const menuWidthInPixels = 225;
 const menuItemStyleDefault: AccordionMenuItemStyle = {
 	backgroundColor: 'dark',
 	textColor: 'light',
-	borderColor: undefined,
+	borderColor: 'dark',
 };
 
 /**
@@ -40,7 +40,7 @@ const menuItemStyleDefault: AccordionMenuItemStyle = {
 const menuItemStyleSelected: AccordionMenuItemStyle = {
 	backgroundColor: 'primary',
 	textColor: 'light',
-	borderColor: 'primary',
+	borderColor: 'light',
 };
 
 /**
@@ -49,7 +49,7 @@ const menuItemStyleSelected: AccordionMenuItemStyle = {
 const menuItemStyleDisabled: AccordionMenuItemStyle = {
 	backgroundColor: 'secondary',
 	textColor: 'light',
-	borderColor: undefined,
+	borderColor: 'dark',
 };
 
 /**
@@ -180,7 +180,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			1.75 * buttonWidthInPixels;
 
 		return (
-			<BurgerMenu
+			<SlideMenu
 				width={`${sliderWidthInPixels}px`}
 				onStateChange={(state) => {
 					this.onMenuStateChange(state);
@@ -203,10 +203,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					}
 					buttonStyle={{
 						left: `${sliderWidthInPixels}px`,
-						top: '61px',
+						top: '60px',
 					}}
 				/>
-			</BurgerMenu>
+			</SlideMenu>
 		);
 	}
 
@@ -250,10 +250,8 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 */
 	private renderMenu(): ReactNode {
 		return (
-			<BurgerMenu
+			<PushMenu
 				id={menuId}
-				className="Datapad-app-menu"
-				menuClassName="Datapad-app-menu-expanded"
 				pageWrapId={viewId}
 				outerContainerId={appId}
 				width={`${menuWidthInPixels}px`}
@@ -267,6 +265,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				customCrossIcon={false}
 			>
 				<AccordionMenu
+					className="Datapad-app-menu"
 					initialSelectionIndex={this.props.appSelection}
 					onSelectionChange={(appSelection: AppId) => this.props.changeApp(appSelection)}
 					defaultItemStyle={menuItemStyleDefault}
@@ -279,7 +278,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
 					]}
 				/>
-			</BurgerMenu>
+			</PushMenu>
 		);
 	}
 }
@@ -288,9 +287,20 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
  * Creates the appropriate form of menu item builder based on whether or not the app is enabled.
  */
 function createMenuItemBuilder(label: string, appEnabled: boolean): AccordionMenuItemBuilder {
+	const menuItemClassName = 'Datapad-menu-item';
 	return appEnabled
-		? new SimpleAccordionMenuItemBuilder(label, menuItemStyleDefault, menuItemStyleSelected)
-		: new DisabledAccordionMenuItemBuilder(label, menuItemStyleDisabled, 'Coming Soon');
+		? new SimpleAccordionMenuItemBuilder(
+				label,
+				menuItemStyleDefault,
+				menuItemStyleSelected,
+				menuItemClassName,
+		  )
+		: new DisabledAccordionMenuItemBuilder(
+				label,
+				menuItemStyleDisabled,
+				'Coming Soon',
+				menuItemClassName,
+		  );
 }
 
 /**

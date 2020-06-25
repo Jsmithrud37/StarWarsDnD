@@ -16,8 +16,9 @@ export class CollapsableAccordionMenuItemBuilder extends AccordionMenuItemBuilde
 		defaultStyle: AccordionMenuItemStyle,
 		selectedStyle: AccordionMenuItemStyle,
 		content: JSX.Element,
+		className?: string,
 	) {
-		super(title, defaultStyle, selectedStyle);
+		super(title, defaultStyle, selectedStyle, className);
 		this.content = content;
 	}
 
@@ -47,22 +48,24 @@ export class CollapsableAccordionMenuItem extends AccordionMenuItem<
 
 	public render(): ReactNode {
 		return (
-			<Card
-				bg={this.props.style.backgroundColor}
-				text={this.props.style.textColor}
-				border={this.props.style.borderColor}
-			>
-				<Accordion.Toggle
-					as={Card.Header}
-					eventKey={this.props.title}
-					onClick={() => this.props.onClick()}
+			<div className={this.props.className}>
+				<Card
+					bg={this.props.style.backgroundColor}
+					text={this.props.style.textColor}
+					border={this.props.style.borderColor}
 				>
-					{this.props.title}
-				</Accordion.Toggle>
-				<Accordion.Collapse eventKey={this.props.title}>
-					<Card>{this.props.content}</Card>
-				</Accordion.Collapse>
-			</Card>
+					<Accordion.Toggle
+						as={Card.Header}
+						eventKey={this.props.title}
+						onClick={() => this.props.onClick()}
+					>
+						{this.props.title}
+					</Accordion.Toggle>
+					<Accordion.Collapse eventKey={this.props.title}>
+						<Card>{this.props.content}</Card>
+					</Accordion.Collapse>
+				</Card>
+			</div>
 		);
 	}
 }

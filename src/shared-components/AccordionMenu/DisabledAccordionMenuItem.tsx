@@ -14,8 +14,13 @@ export class DisabledAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 	 */
 	public readonly hoverOverText: string;
 
-	public constructor(title: string, style: AccordionMenuItemStyle, hoverOverText: string) {
-		super(title, style, style);
+	public constructor(
+		title: string,
+		style: AccordionMenuItemStyle,
+		hoverOverText: string,
+		className?: string,
+	) {
+		super(title, style, style, className);
 		this.hoverOverText = hoverOverText;
 	}
 
@@ -23,8 +28,9 @@ export class DisabledAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 		return (
 			<DisabledAccordionMenuItem
 				title={this.title}
-				style={this.defaultStyle}
+				style={this.defaultCardStyle}
 				onClick={onClick}
+				className={this.className}
 				hoverOverText={this.hoverOverText}
 			/>
 		);
@@ -57,6 +63,7 @@ export class DisabledAccordionMenuItem extends AccordionMenuItem<
 	public render(): ReactNode {
 		return (
 			<div
+				className={this.props.className}
 				onMouseEnter={() => this.setHovered(true)}
 				onMouseLeave={() => this.setHovered(false)}
 			>

@@ -13,8 +13,9 @@ export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 		title: string,
 		defaultStyle: AccordionMenuItemStyle,
 		selectedStyle: AccordionMenuItemStyle,
+		className?: string,
 	) {
-		super(title, defaultStyle, selectedStyle);
+		super(title, defaultStyle, selectedStyle, className);
 	}
 
 	public createMenuItem(selected: boolean, onClick: () => void): ReactNode {
@@ -23,6 +24,7 @@ export class SimpleAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 				title={this.title}
 				style={this.getStyle(selected)}
 				onClick={onClick}
+				className={this.className}
 			/>
 		);
 	}
@@ -35,19 +37,21 @@ export class SimpleAccordionMenuItem extends AccordionMenuItem<AccordionMenuItem
 
 	public render(): ReactNode {
 		return (
-			<Card
-				bg={this.props.style.backgroundColor}
-				text={this.props.style.textColor}
-				border={this.props.style.borderColor}
-			>
-				<Accordion.Toggle
-					as={Card.Header}
-					eventKey={this.props.title}
-					onClick={() => this.props.onClick()}
+			<div className={this.props.className}>
+				<Card
+					bg={this.props.style.backgroundColor}
+					text={this.props.style.textColor}
+					border={this.props.style.borderColor}
 				>
-					{this.props.title}
-				</Accordion.Toggle>
-			</Card>
+					<Accordion.Toggle
+						as={Card.Header}
+						eventKey={this.props.title}
+						onClick={() => this.props.onClick()}
+					>
+						{this.props.title}
+					</Accordion.Toggle>
+				</Card>
+			</div>
 		);
 	}
 }

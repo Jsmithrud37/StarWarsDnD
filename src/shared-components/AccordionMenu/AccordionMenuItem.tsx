@@ -9,21 +9,24 @@ export interface AccordionMenuItemStyle {
 
 export abstract class AccordionMenuItemBuilder {
 	public readonly title: string;
-	public readonly defaultStyle: AccordionMenuItemStyle;
-	public readonly selectedStyle: AccordionMenuItemStyle;
+	public readonly defaultCardStyle: AccordionMenuItemStyle;
+	public readonly selectedCardStyle: AccordionMenuItemStyle;
+	public readonly className?: string;
 
 	protected getStyle(selected: boolean): AccordionMenuItemStyle {
-		return selected ? this.selectedStyle : this.defaultStyle;
+		return selected ? this.selectedCardStyle : this.defaultCardStyle;
 	}
 
 	protected constructor(
 		title: string,
-		defaultStyle: AccordionMenuItemStyle,
-		selectedStyle: AccordionMenuItemStyle,
+		defaultCardStyle: AccordionMenuItemStyle,
+		selectedCardStyle: AccordionMenuItemStyle,
+		className?: string,
 	) {
 		this.title = title;
-		this.defaultStyle = defaultStyle;
-		this.selectedStyle = selectedStyle;
+		this.defaultCardStyle = defaultCardStyle;
+		this.selectedCardStyle = selectedCardStyle;
+		this.className = className;
 	}
 
 	public abstract createMenuItem(selected: boolean, onClick: () => void): ReactNode;
@@ -33,6 +36,7 @@ export interface AccordionMenuItemProps {
 	title: string;
 	style: AccordionMenuItemStyle;
 	onClick: () => void;
+	className?: string;
 }
 
 export class AccordionMenuItem<
