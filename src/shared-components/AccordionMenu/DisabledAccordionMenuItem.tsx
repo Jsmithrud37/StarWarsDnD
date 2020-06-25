@@ -9,11 +9,14 @@ import {
 } from './AccordionMenuItem';
 
 export class DisabledAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
-	public readonly popOverText: string;
+	/**
+	 * Replacement text to display when the item is hovered over.
+	 */
+	public readonly hoverOverText: string;
 
-	public constructor(title: string, style: AccordionMenuItemStyle, popOverText: string) {
+	public constructor(title: string, style: AccordionMenuItemStyle, hoverOverText: string) {
 		super(title, style, style);
-		this.popOverText = popOverText;
+		this.hoverOverText = hoverOverText;
 	}
 
 	public createMenuItem(selected: boolean, onClick: () => void): ReactNode {
@@ -22,7 +25,7 @@ export class DisabledAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 				title={this.title}
 				style={this.defaultStyle}
 				onClick={onClick}
-				popOverText={this.popOverText}
+				hoverOverText={this.hoverOverText}
 			/>
 		);
 	}
@@ -32,10 +35,13 @@ interface DisabledAccordionMenuItemProps extends AccordionMenuItemProps {
 	/**
 	 * Hover text for disabled menu items
 	 */
-	popOverText: string;
+	hoverOverText: string;
 }
 
 interface State {
+	/**
+	 * True iff the menu item is hovered over.
+	 */
 	hovered: boolean;
 }
 
@@ -64,7 +70,7 @@ export class DisabledAccordionMenuItem extends AccordionMenuItem<
 						eventKey={this.props.title}
 						onClick={onClick}
 					>
-						{this.state.hovered ? this.props.popOverText : this.props.title}
+						{this.state.hovered ? this.props.hoverOverText : this.props.title}
 					</Accordion.Toggle>
 				</Card>
 			</div>
