@@ -56,10 +56,25 @@ const menuItemStyleDisabled: AccordionMenuItemStyle = {
  * Determines which apps in the Datapad are enabled. Set by the consumer.
  */
 interface EnabledApps {
-	galaxyMapEnabled: boolean;
-	shopsEnabled: boolean;
-	contactsEnabled: boolean;
-	messengerEnabled: boolean;
+	/**
+	 * Galaxy Map app will be enabled iff true or undefined.
+	 */
+	galaxyMapEnabled?: boolean;
+
+	/**
+	 * Shops app will be enabled iff true or undefined.
+	 */
+	shopsEnabled?: boolean;
+
+	/**
+	 * Contacts app will be enabled iff true or undefined.
+	 */
+	contactsEnabled?: boolean;
+
+	/**
+	 * Messenger app will be enabled iff true or undefined.
+	 */
+	messengerEnabled?: boolean;
 }
 
 /**
@@ -258,10 +273,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					selectedItemStyle={menuItemStyleSelected}
 					menuItemBuilders={[
 						// TODO: update builders to take AppId and return it in onClick
-						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled),
-						createMenuItemBuilder('Shops', this.props.shopsEnabled),
-						createMenuItemBuilder('Contacts', this.props.contactsEnabled),
-						createMenuItemBuilder('Messenger', this.props.messengerEnabled),
+						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled ?? true),
+						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
+						createMenuItemBuilder('Contacts', this.props.contactsEnabled ?? true),
+						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
 					]}
 				/>
 			</BurgerMenu>
