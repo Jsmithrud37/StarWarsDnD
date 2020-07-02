@@ -13,7 +13,7 @@ const galaxyMapEnabled = true;
 const shopsEnabled = false;
 const contactsEnabled = false;
 const messengerEnabled = true;
-const timelineEnabled = false;
+const timelineEnabled = true;
 
 ReactDOM.render(
 	<Provider store={dataStore}>
