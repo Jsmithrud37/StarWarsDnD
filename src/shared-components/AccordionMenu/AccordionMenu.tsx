@@ -7,6 +7,10 @@ export interface AccordionMenuState {
 }
 
 export interface AccordionMenuProps {
+	/**
+	 * CSS Class name
+	 */
+	className?: string;
 	initialSelectionIndex: number;
 	onSelectionChange: (selectionIndex: number) => void;
 	menuItemBuilders: AccordionMenuItemBuilder[];
@@ -46,15 +50,11 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 		const itemCount = this.itemCount;
 		const menuItems: ReactNode[] = [];
 		for (let i = 0; i < itemCount; i++) {
-			const itemStyle =
-				i === this.state.selectionIndex
-					? this.props.selectedItemStyle
-					: this.props.defaultItemStyle;
-
 			const element: ReactNode = (
 				<React.Fragment key={i}>
-					{this.props.menuItemBuilders[i].createMenuItem(itemStyle, () =>
-						this.setSelection(i),
+					{this.props.menuItemBuilders[i].createMenuItem(
+						i === this.state.selectionIndex,
+						() => this.setSelection(i),
 					)}
 				</React.Fragment>
 			);
@@ -63,7 +63,7 @@ export class AccordionMenu extends React.Component<AccordionMenuProps, Accordion
 
 		return (
 			<Accordion
-				className="Datapad-menu"
+				className={this.props.className}
 				defaultActiveKey={this.props.menuItemBuilders[0].title}
 			>
 				{menuItems.map((item) => {

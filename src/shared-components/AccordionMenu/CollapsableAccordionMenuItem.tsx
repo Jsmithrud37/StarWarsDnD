@@ -3,24 +3,30 @@ import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import {
 	AccordionMenuItem,
-	AccordionMenuItemProps,
 	AccordionMenuItemBuilder,
+	AccordionMenuItemProps,
 	AccordionMenuItemStyle,
 } from './AccordionMenuItem';
 
 export class CollapsableAccordionMenuItemBuilder extends AccordionMenuItemBuilder {
 	private readonly content: JSX.Element;
 
-	public constructor(title: string, content: JSX.Element) {
-		super(title);
+	public constructor(
+		title: string,
+		defaultStyle: AccordionMenuItemStyle,
+		selectedStyle: AccordionMenuItemStyle,
+		content: JSX.Element,
+		className?: string,
+	) {
+		super(title, defaultStyle, selectedStyle, className);
 		this.content = content;
 	}
 
-	public createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode {
+	public createMenuItem(selected: boolean, onClick: () => void): ReactNode {
 		return (
 			<CollapsableAccordionMenuItem
 				title={this.title}
-				style={style}
+				style={this.getStyle(selected)}
 				onClick={onClick}
 				content={this.content}
 			/>
@@ -33,7 +39,8 @@ export interface CollapsableAccordionMenuItemProps extends AccordionMenuItemProp
 }
 
 export class CollapsableAccordionMenuItem extends AccordionMenuItem<
-	CollapsableAccordionMenuItemProps
+	CollapsableAccordionMenuItemProps,
+	{}
 > {
 	public constructor(props: CollapsableAccordionMenuItemProps) {
 		super(props);
@@ -41,22 +48,24 @@ export class CollapsableAccordionMenuItem extends AccordionMenuItem<
 
 	public render(): ReactNode {
 		return (
-			<Card
-				bg={this.props.style.backgroundColor}
-				text={this.props.style.textColor}
-				border={this.props.style.borderColor}
-			>
-				<Accordion.Toggle
-					as={Card.Header}
-					eventKey={this.props.title}
-					onClick={() => this.props.onClick()}
+			<div className={this.props.className}>
+				<Card
+					bg={this.props.style.backgroundColor}
+					text={this.props.style.textColor}
+					border={this.props.style.borderColor}
 				>
-					{this.props.title}
-				</Accordion.Toggle>
-				<Accordion.Collapse eventKey={this.props.title}>
-					<Card>{this.props.content}</Card>
-				</Accordion.Collapse>
-			</Card>
+					<Accordion.Toggle
+						as={Card.Header}
+						eventKey={this.props.title}
+						onClick={() => this.props.onClick()}
+					>
+						{this.props.title}
+					</Accordion.Toggle>
+					<Accordion.Collapse eventKey={this.props.title}>
+						<Card>{this.props.content}</Card>
+					</Accordion.Collapse>
+				</Card>
+			</div>
 		);
 	}
 }

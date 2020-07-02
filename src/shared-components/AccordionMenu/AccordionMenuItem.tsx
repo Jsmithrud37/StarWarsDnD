@@ -1,5 +1,5 @@
-import { CardColors } from '../../BootstrapUtilities';
 import React, { ReactNode } from 'react';
+import { CardColors } from '../../BootstrapUtilities';
 
 export interface AccordionMenuItemStyle {
 	backgroundColor: CardColors;
@@ -9,23 +9,40 @@ export interface AccordionMenuItemStyle {
 
 export abstract class AccordionMenuItemBuilder {
 	public readonly title: string;
+	public readonly defaultCardStyle: AccordionMenuItemStyle;
+	public readonly selectedCardStyle: AccordionMenuItemStyle;
+	public readonly className?: string;
 
-	protected constructor(title: string) {
-		this.title = title;
+	protected getStyle(selected: boolean): AccordionMenuItemStyle {
+		return selected ? this.selectedCardStyle : this.defaultCardStyle;
 	}
 
-	public abstract createMenuItem(style: AccordionMenuItemStyle, onClick: () => void): ReactNode;
+	protected constructor(
+		title: string,
+		defaultCardStyle: AccordionMenuItemStyle,
+		selectedCardStyle: AccordionMenuItemStyle,
+		className?: string,
+	) {
+		this.title = title;
+		this.defaultCardStyle = defaultCardStyle;
+		this.selectedCardStyle = selectedCardStyle;
+		this.className = className;
+	}
+
+	public abstract createMenuItem(selected: boolean, onClick: () => void): ReactNode;
 }
 
 export interface AccordionMenuItemProps {
 	title: string;
 	style: AccordionMenuItemStyle;
 	onClick: () => void;
+	className?: string;
 }
 
-export class AccordionMenuItem<TProps extends AccordionMenuItemProps> extends React.Component<
-	TProps
-> {
+export class AccordionMenuItem<
+	TProps extends AccordionMenuItemProps,
+	TState extends {}
+> extends React.Component<TProps, TState> {
 	protected constructor(props: TProps) {
 		super(props);
 	}

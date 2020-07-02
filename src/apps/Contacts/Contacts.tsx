@@ -1,15 +1,15 @@
 import React, { ReactNode } from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import Media from 'react-bootstrap/Media';
-// import ReactList from 'react-list';
-import './Styling/Contacts.css';
+import Row from 'react-bootstrap/Row';
 import {
+	AccordionMenu,
 	AccordionMenuItemStyle,
 	SimpleAccordionMenuItemBuilder,
-	AccordionMenu,
 } from '../../shared-components/AccordionMenu';
+// import ReactList from 'react-list';
+import './Styling/Contacts.css';
 
 const contactsKludge = [
 	'Lucian Kaiet',
@@ -92,7 +92,12 @@ function renderMenu(
 				defaultItemStyle={menuItemStyleDefault}
 				selectedItemStyle={menuItemStyleSelected}
 				menuItemBuilders={contacts.map(
-					(contact) => new SimpleAccordionMenuItemBuilder(contact),
+					(contact) =>
+						new SimpleAccordionMenuItemBuilder(
+							contact,
+							menuItemStyleDefault,
+							menuItemStyleSelected,
+						),
 				)}
 			/>
 			{/* </ReactList> */}

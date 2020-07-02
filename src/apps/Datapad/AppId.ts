@@ -5,6 +5,8 @@ enum AppId {
 	GalaxyMap,
 	Shops,
 	Contacts,
+	Messenger,
+	Timeline,
 }
 
 export default AppId;
