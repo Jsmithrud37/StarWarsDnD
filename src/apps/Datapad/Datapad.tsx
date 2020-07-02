@@ -14,6 +14,7 @@ import { Contacts } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import Shop, { reducers as shopReducers } from '../Shop';
+import Timeline from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
@@ -75,6 +76,11 @@ interface EnabledApps {
 	 * Messenger app will be enabled iff true or undefined.
 	 */
 	messengerEnabled?: boolean;
+
+	/**
+	 * Timeline app will be enabled iff true or undefined.
+	 */
+	timelineEnabled?: boolean;
 }
 
 /**
@@ -226,9 +232,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						<Shop />
 					</Provider>
 				);
-
 			case AppId.Messenger:
 				return <Messenger />;
+			case AppId.Timeline:
+				return <Timeline />;
 			default:
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}
@@ -276,6 +283,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
 						createMenuItemBuilder('Contacts', this.props.contactsEnabled ?? true),
 						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
+						createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
 					]}
 				/>
 			</PushMenu>

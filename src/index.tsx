@@ -13,6 +13,7 @@ const galaxyMapEnabled = true;
 const shopsEnabled = false;
 const contactsEnabled = false;
 const messengerEnabled = true;
+const timelineEnabled = false;
 
 ReactDOM.render(
 	<Provider store={dataStore}>
@@ -21,6 +22,7 @@ ReactDOM.render(
 			shopsEnabled={shopsEnabled}
 			contactsEnabled={contactsEnabled}
 			messengerEnabled={messengerEnabled}
+			timelineEnabled={timelineEnabled}
 		/>
 	</Provider>,
 	document.getElementById('root'),

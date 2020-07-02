@@ -6,6 +6,7 @@ enum AppId {
 	Shops,
 	Contacts,
 	Messenger,
+	Timeline,
 }
 
 export default AppId;
