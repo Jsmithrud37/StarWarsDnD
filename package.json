@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"build": "run-p build:*",
-		"build:back-end": "netlify-lambda build ./back-end",
+		"build:back-end": "netlify-lambda build ./backend",
 		"build:front-end": "react-scripts build",
 		"build-clean": "run-s clean build",
 		"check-peer-dependencies": "check-peer-deps",
@@ -20,7 +20,7 @@
 		"lint:package-json": "sort-package-json ./package.json ./src/**/package.json --check",
 		"lint:prettier": "prettier . --check",
 		"start": "run-p start:*",
-		"start:back-end": "netlify-lambda serve ./back-end",
+		"start:back-end": "netlify-lambda serve ./backend",
 		"start:front-end": "react-scripts start",
 		"test": "react-scripts test"
 	},

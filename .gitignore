@@ -23,4 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # Back-end build directory populated via Netlify build
-back-end-build
+backend-build

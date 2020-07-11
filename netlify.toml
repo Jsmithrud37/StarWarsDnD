@@ -1,2 +1,2 @@
 [build]
-	functions = "back-end-build/"
+	functions = "backend-build/"
