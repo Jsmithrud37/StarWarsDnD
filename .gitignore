@@ -22,5 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Local Netlify folder
-.netlify
+# Back-end build directory populated via Netlify build
+back-end-build
