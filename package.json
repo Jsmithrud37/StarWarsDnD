@@ -4,8 +4,10 @@
 	"private": true,
 	"scripts": {
 		"build": "react-scripts build",
+		"check-peer-dependencies": "check-peer-deps",
 		"eject": "react-scripts eject",
 		"format": "prettier . --write",
+		"postinstall": "npm run check-peer-dependencies",
 		"lint": "eslint ./src/**/*.{js,jsx,ts,tsx}",
 		"start": "react-scripts start",
 		"test": "react-scripts test"
@@ -26,7 +28,7 @@
 		"@reduxjs/toolkit": "^1.3.6",
 		"@widgetbot/react-embed": "^1.2.2",
 		"bootstrap": "^4.5.0",
-		"jquery": "3.5.0",
+		"jquery": "^3.5.1",
 		"popper.js": "^1.16.0",
 		"react": "^16.13.1",
 		"react-animated-burgers": "^1.2.7",
@@ -43,6 +45,7 @@
 		"typescript": "^3.9.5"
 	},
 	"devDependencies": {
+		"@testing-library/dom": "^7.20.0",
 		"@testing-library/jest-dom": "^4.2.4",
 		"@testing-library/react": "^9.5.0",
 		"@testing-library/user-event": "^7.2.1",
@@ -56,12 +59,17 @@
 		"@types/react-vertical-timeline-component": "^3.0.0",
 		"@typescript-eslint/eslint-plugin": "^2.34.0",
 		"@typescript-eslint/parser": "^2.34.0",
+		"check-peer-deps": "^1.1.3",
 		"eslint": "^6.8.0",
 		"eslint-config-airbnb": "^18.1.0",
 		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-import": "^2.22.0",
 		"eslint-plugin-jsdoc": "^20.4.0",
+		"eslint-plugin-jsx-a11y": "^6.3.1",
 		"eslint-plugin-prettier": "^3.1.3",
 		"eslint-plugin-react": "^7.20.0",
+		"eslint-plugin-react-hooks": "^4.0.7",
+		"npm-run-all": "^4.1.5",
 		"prettier": "^2.0.0",
 		"prettier-plugin-organize-imports": "^1.1.0"
 	}
