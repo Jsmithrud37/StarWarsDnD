@@ -4,7 +4,9 @@
 	"private": true,
 	"scripts": {
 		"build": "react-scripts build",
+		"build-clean": "run-s clean build",
 		"check-peer-dependencies": "check-peer-deps",
+		"clean": "del-cli build/*",
 		"eject": "react-scripts eject",
 		"format": "npm-run-all format:* --sequential",
 		"format:ecmascript": "eslint ./src/**/*.{js,jsx,ts,tsx} --fix",
