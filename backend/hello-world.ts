@@ -1,5 +1,10 @@
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
-exports.handler = async (event, context) => {
+
+import { APIGatewayEvent, APIGatewayProxyResult, Handler } from 'aws-lambda';
+
+const helloWorldHandler: Handler<APIGatewayEvent, APIGatewayProxyResult> = async (
+	event: APIGatewayEvent,
+): Promise<APIGatewayProxyResult> => {
 	try {
 		const subject = event.queryStringParameters.name || 'World';
 		return {
@@ -13,3 +18,5 @@ exports.handler = async (event, context) => {
 		return { statusCode: 500, body: err.toString() };
 	}
 };
+
+exports.handler = helloWorldHandler;
