@@ -9,6 +9,7 @@
 		"format": "npm-run-all format:* --sequential",
 		"format:package-json": "sort-package-json ./package.json ./src/**/package.json",
 		"format:prettier": "prettier . --write",
+		"format:ecmascript": "eslint ./src/**/*.{js,jsx,ts,tsx} --fix",
 		"postinstall": "npm run check-peer-dependencies",
 		"lint": "npm-run-all lint:* --parallel",
 		"lint:prettier": "prettier . --check",
