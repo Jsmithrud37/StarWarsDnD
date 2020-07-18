@@ -5,6 +5,7 @@ const urlBase = '/.netlify/functions/';
  * @arg functionName - Name of the backend function to query. Must be non-empty,
  * and must correspond to a valid backend function.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchFromBackendFunction(functionName: string): Promise<any> {
 	if (functionName.length === 0) {
 		throw new Error('Cannot process empty query function.');
