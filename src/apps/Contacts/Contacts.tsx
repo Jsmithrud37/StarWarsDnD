@@ -96,7 +96,7 @@ export class Contacts extends React.Component<{}, State> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		const getContactsFunction = 'get-contacts';
+		const getContactsFunction = 'get-all-contacts';
 		const response = await fetchFromBackendFunction(getContactsFunction);
 		const message = response.message;
 
