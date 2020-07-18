@@ -1,12 +1,11 @@
-// const router = require('express').Router();
-// import Contact from '../models/Contact.model';
+export { contactSchema } from './contact.schema';
 
-// router.route('/').get((req, res) => {
-// 	Contact.find()
-// 		.sort({ name: 1 })
-// 		.then((contacts) => res.json(contacts))
-// 		.catch((err) => res.status(400).json('Error: ' + err));
-// });
+/**
+ * Name of the MongoDB collection containing the Contacts
+ */
+export const collectionName = 'contacts';
+
+// TODO: other functions...
 
 // router.route('/add').post((req, res) => {
 // 	const name = req.body.name;

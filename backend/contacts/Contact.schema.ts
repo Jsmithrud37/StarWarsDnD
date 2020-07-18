@@ -1,6 +1,6 @@
-import { model, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
-const contactSchema = new Schema(
+export const contactSchema = new Schema(
 	{
 		name: { type: String, required: true },
 		race: { type: String, required: false },
@@ -11,6 +11,3 @@ const contactSchema = new Schema(
 		timestamps: true,
 	},
 );
-
-const Contact = model('Contact', contactSchema);
-export default Contact;
