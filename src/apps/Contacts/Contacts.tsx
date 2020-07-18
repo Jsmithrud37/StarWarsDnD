@@ -38,7 +38,6 @@ interface State {
 	contactsLoaded: boolean;
 	contacts?: Contact[]; // TODO
 	contactSelectionIndex?: number;
-	helloWorld?: string;
 }
 
 export class Contacts extends React.Component<{}, State> {
@@ -48,7 +47,6 @@ export class Contacts extends React.Component<{}, State> {
 			contactsLoaded: false,
 			contacts: undefined,
 			contactSelectionIndex: undefined,
-			helloWorld: undefined,
 		};
 	}
 
@@ -96,28 +94,23 @@ export class Contacts extends React.Component<{}, State> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		const getContactsFunction = 'get-all-contacts';
+		const getContactsFunction = 'GetAllContacts';
 		const response = await fetchFromBackendFunction(getContactsFunction);
-		const message = response.message;
+		const contacts: Contact[] = response.contacts;
 
-		if (message.length > 0) {
-			this.setState({
-				...this.state,
-				contactsLoaded: true,
-				helloWorld: message,
-			});
+		if (contacts.length > 0) {
+			this.loadContactsList(contacts);
 		}
 	}
 
 	public render(): ReactNode {
 		if (this.state.contactsLoaded) {
-			// return (
-			// 	<div className="Contacts">
-			// 		{this.renderMenu()}
-			// 		{this.renderView()}
-			// 	</div>
-			// );
-			return <div>{this.state.helloWorld}</div>;
+			return (
+				<div className="Contacts">
+					{this.renderMenu()}
+					{this.renderView()}
+				</div>
+			);
 		}
 		return this.renderLoadingScreen();
 	}
