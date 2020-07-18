@@ -42,6 +42,7 @@
 		"aws-lambda": "^1.0.6",
 		"bootstrap": "^4.5.0",
 		"jquery": "^3.5.1",
+		"mongodb-client-encryption": "^1.1.0",
 		"mongoose": "^5.9.23",
 		"popper.js": "^1.16.0",
 		"react": "^16.13.1",
