@@ -1,8 +1,6 @@
 import { Connection, ConnectionOptions, createConnection } from 'mongoose';
 
-const DB_URL =
-	process.env.DB_URL ??
-	'mongodb+srv://Jsmithrud37:Js556471%23m@swlotf-datapad-xkhtw.azure.mongodb.net/datapad?retryWrites=true&w=majority';
+const DB_URL = process.env.DB_URL;
 
 /**
  * TODO
