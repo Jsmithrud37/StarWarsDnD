@@ -171,7 +171,7 @@ export class Contacts extends React.Component<{}, State> {
 									width={150}
 									height={150}
 									src="images/Missing-Contact-Image.png"
-									alt="No contact image found"
+									alt="No contact visual found"
 								/>
 								<Media.Body>
 									<Row>
