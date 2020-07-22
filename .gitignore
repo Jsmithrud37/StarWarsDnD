@@ -24,3 +24,6 @@ yarn-error.log*
 
 # Back-end build directory populated via Netlify build
 backend-build
+
+# Local db connection url. Contains private auth information and should not be checked in.
+db_url.txt
