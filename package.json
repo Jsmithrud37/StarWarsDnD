@@ -5,8 +5,8 @@
 	"scripts": {
 		"build": "run-p build:*",
 		"build-clean": "run-s clean build",
-		"build:back-end": "netlify-lambda build -c ./webpack.backend.js ./backend",
-		"build:front-end": "react-scripts build",
+		"build:backend": "netlify-lambda build -c ./webpack.backend.js ./backend",
+		"build:frontend": "react-scripts build",
 		"check-peer-dependencies": "check-peer-deps",
 		"clean": "del-cli build/* backend-build/*",
 		"eject": "react-scripts eject",
@@ -20,8 +20,8 @@
 		"lint:package-json": "sort-package-json ./package.json --check",
 		"lint:prettier": "prettier . --check",
 		"start": "run-p start:*",
-		"start:back-end": "netlify-lambda serve -c ./webpack.backend.js ./backend",
-		"start:front-end": "react-scripts start",
+		"start:backend": "netlify-lambda serve -c ./webpack.backend.js ./backend",
+		"start:frontend": "react-scripts start",
 		"test": "react-scripts test"
 	},
 	"browserslist": {
