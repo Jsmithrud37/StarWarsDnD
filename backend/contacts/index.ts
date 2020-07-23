@@ -1,4 +1,4 @@
-export { contactSchema } from './contact.schema';
+export { contactSchema } from './ContactSchema';
 
 /**
  * Name of the MongoDB collection containing the Contacts
