@@ -11,7 +11,7 @@ const dataStore = createStore(reducers);
 
 const galaxyMapEnabled = true;
 const shopsEnabled = false;
-const contactsEnabled = false;
+const contactsEnabled = true;
 const messengerEnabled = true;
 const timelineEnabled = false;
 
