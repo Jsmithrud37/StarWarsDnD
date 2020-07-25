@@ -232,14 +232,4 @@ export class Contacts extends React.Component<{}, State> {
 			</div>
 		);
 	}
-
-	renderAffiliationsList(affiliations: string[]): ReactNode {
-		return (
-			<ul>
-				{affiliations.map((affiliation) => {
-					return <li key={affiliation}>{affiliation}</li>;
-				})}
-			</ul>
-		);
-	}
 }
