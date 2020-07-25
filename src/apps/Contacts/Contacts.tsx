@@ -1,96 +1,44 @@
 import React, { ReactNode } from 'react';
+import Card from 'react-bootstrap/Card';
+import CardColumns from 'react-bootstrap/CardColumns';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
+import Image from 'react-bootstrap/Image';
 import Media from 'react-bootstrap/Media';
 import Row from 'react-bootstrap/Row';
-import {
-	AccordionMenu,
-	AccordionMenuItemStyle,
-	SimpleAccordionMenuItemBuilder,
-} from '../../shared-components/AccordionMenu';
+import Spinner from 'react-bootstrap/Spinner';
+import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
-// import ReactList from 'react-list';
+import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
+import { Contact } from './Contact';
+import { AppState } from './State';
 import './Styling/Contacts.css';
 
-// TODO: get from schema
-interface Contact {
-	// _id: string,
-	name: string;
-	race?: string; // undefined === "Unkown"
-	gender?: string; // undefined === "Unkown"
-	affiliations?: string[]; // undefined === "None"
-	status?: string; // undefined === "Unkown"
-}
+/**
+ * State parameters used by the Datapad app component.
+ */
+type Parameters = AppState;
 
-const menuItemStyleDefault: AccordionMenuItemStyle = {
-	backgroundColor: 'dark',
-	textColor: 'light',
-	borderColor: undefined,
-};
+/**
+ * Contacts {@link https://reactjs.org/docs/render-props.html | Render Props}
+ */
+type Props = Actions & Parameters;
 
-const menuItemStyleSelected: AccordionMenuItemStyle = {
-	backgroundColor: 'primary',
-	textColor: 'light',
-	borderColor: 'primary',
-};
-
-interface State {
-	contactsLoaded: boolean;
-	contacts?: Contact[]; // TODO
-	contactSelectionIndex?: number;
-}
-
-export class Contacts extends React.Component<{}, State> {
-	public constructor(props: {}) {
+class ContactsComponent extends React.Component<Props> {
+	public constructor(props: Props) {
 		super(props);
-		this.state = {
-			contactsLoaded: false,
-			contacts: undefined,
-			contactSelectionIndex: undefined,
-		};
 	}
 
-	private getLoadedContacts(): Contact[] {
-		if (!this.state.contactsLoaded) {
-			throw new Error('Contacts not loaded yet.');
-		}
-		return this.state.contacts as Contact[];
-	}
-
-	private getLoadedContactsSelectionIndex(): number {
-		if (!this.state.contactsLoaded) {
-			throw new Error('Contacts not loaded yet.');
-		}
-		return this.state.contactSelectionIndex as number;
-	}
-
-	private getSelectedContact(): Contact {
-		const selectionIndex = this.getLoadedContactsSelectionIndex();
-		const contacts = this.getLoadedContacts();
-		return contacts[selectionIndex];
-	}
-
-	private setContactSelection(newSelectionId: number): void {
-		this.setState({
-			...this.state,
-			contactSelectionIndex: newSelectionId,
-		});
-	}
-
-	private loadContactsList(contacts: Contact[]): void {
-		this.setState({
-			...this.state,
-			contactsLoaded: true,
-			contacts: contacts,
-			contactSelectionIndex: 0,
-		});
+	private isSelected(contact: Contact): boolean {
+		return contact._id === this.props.contactSelection;
 	}
 
 	/**
 	 * {@inheritdoc React.Component.componentDidMount}
 	 */
 	public componentDidMount(): void {
-		this.fetchContacts();
+		if (!this.props.contacts) {
+			this.fetchContacts();
+		}
 	}
 
 	private async fetchContacts(): Promise<void> {
@@ -99,16 +47,16 @@ export class Contacts extends React.Component<{}, State> {
 		const contacts: Contact[] = response.contacts;
 
 		if (contacts.length > 0) {
-			this.loadContactsList(contacts);
+			this.props.loadContacts(contacts);
 		}
 	}
 
 	public render(): ReactNode {
-		if (this.state.contactsLoaded) {
+		if (this.props.contacts) {
 			return (
 				<div className="Contacts">
-					{this.renderMenu()}
-					{this.renderView()}
+					{/* {this.renderMenu()} */}
+					{this.renderContacts()}
 				</div>
 			);
 		}
@@ -116,36 +64,11 @@ export class Contacts extends React.Component<{}, State> {
 	}
 
 	private renderLoadingScreen(): ReactNode {
-		return <div>Loading contacts...</div>;
-	}
-
-	/**
-	 * Renders the Contacts app's address-book-style menu.
-	 */
-	public renderMenu(): ReactNode {
-		const contacts = this.getLoadedContacts();
-		const selectionIndex = this.getLoadedContactsSelectionIndex();
 		return (
-			<div className="Contacts-menu">
-				{/* <ReactList> */}
-				<AccordionMenu
-					initialSelectionIndex={selectionIndex}
-					onSelectionChange={(newSelectionIndex: number) =>
-						this.setContactSelection(newSelectionIndex)
-					}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={contacts.map(
-						(contact) =>
-							new SimpleAccordionMenuItemBuilder(
-								contact.name,
-								menuItemStyleDefault,
-								menuItemStyleSelected,
-							),
-					)}
-				/>
-				{/* </ReactList> */}
-			</div>
+			<>
+				<div>Loading contacts...</div>
+				<Spinner animation="border" variant="light"></Spinner>
+			</>
 		);
 	}
 
@@ -153,49 +76,96 @@ export class Contacts extends React.Component<{}, State> {
 	 * Renders the Contacts app view.
 	 * Displays information about the selected contact.
 	 */
-	public renderView(): ReactNode {
-		const selectedContact = this.getSelectedContact();
-		const raceLink = selectedContact.race
-			? `https://starwars.fandom.com/wiki/${selectedContact.race.replace(' ', '_')}/Legends`
-			: undefined;
+	public renderContacts(): ReactNode {
+		if (!this.props.contacts) {
+			throw new Error('Cannot render contacts; none have been loaded.');
+		}
+		return (
+			<CardColumns
+				className="Contacts-view"
+				onClick={() => {
+					this.props.deselectContact();
+				}}
+			>
+				{this.props.contacts.map((contact) => this.renderContact(contact))}
+			</CardColumns>
+		);
+	}
+
+	private renderContact(contact: Contact): React.ReactNode {
+		return this.isSelected(contact)
+			? this.renderSelectedContact(contact)
+			: this.renderNonSelectedContact(contact);
+	}
+
+	private renderNonSelectedContact(contact: Contact): React.ReactNode {
+		const contactImage = this.renderContactImage(contact, 60);
+		const affilliationImage = this.renderAffilliationImage(contact, 60);
+		return (
+			<Card
+				bg="dark"
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				onClick={(event: any) => {
+					this.props.selectContact(contact._id);
+					event.stopPropagation();
+				}}
+			>
+				<Card.Body>
+					<Card.Title>
+						<Media>
+							{contactImage}
+							<Media.Body>{contact.name}</Media.Body>
+							{affilliationImage}
+						</Media>
+					</Card.Title>
+				</Card.Body>
+			</Card>
+		);
+	}
+
+	private renderSelectedContact(contact: Contact): React.ReactNode {
+		const raceLink = this.getRaceLinkUrl(contact);
 
 		let affiliationsString = 'None';
-		if (selectedContact.affiliations && selectedContact.affiliations.length > 0) {
-			affiliationsString = selectedContact.affiliations?.join(', ');
+		if (contact.affiliations && contact.affiliations.length > 0) {
+			affiliationsString = contact.affiliations?.join(', ');
 		}
 
+		const contactImage = this.renderContactImage(contact, 150);
+		const affilliationImage = this.renderAffilliationImage(contact, 150);
+
 		return (
-			<div className="Contacts-view">
-				<Container fluid>
+			<Card
+				bg="dark"
+				border="primary"
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				onClick={(event: any) => {
+					event.stopPropagation();
+				}}
+			>
+				<Card.Header>
+					<Card.Title>{contact.name}</Card.Title>
+				</Card.Header>
+				<Card.Body>
 					<Row>
 						<Col>
 							<Media>
-								<img
-									width={150}
-									height={150}
-									src="images/Missing-Contact-Image.png"
-									alt="No contact visual found"
-								/>
+								{contactImage}
 								<Media.Body>
-									<Row>
-										<Col>
-											<h3>{selectedContact.name}</h3>
-										</Col>
-									</Row>
 									<Row>
 										<Col>
 											<p>
 												<b>Race: </b>
-												{selectedContact.race ? (
+												{contact.race ? (
 													<a
 														href={raceLink}
 														target="_blank"
 														rel="noopener noreferrer"
 													>
-														{selectedContact.race}
+														{contact.race}
 													</a>
 												) : (
-													'unkown'
+													'Unkown'
 												)}
 											</p>
 										</Col>
@@ -204,7 +174,7 @@ export class Contacts extends React.Component<{}, State> {
 										<Col>
 											<p>
 												<b>Gender: </b>
-												{selectedContact.gender ?? 'Unknown'}
+												{this.stringOrUnknown(contact.gender)}
 											</p>
 										</Col>
 									</Row>
@@ -220,16 +190,75 @@ export class Contacts extends React.Component<{}, State> {
 										<Col>
 											<p>
 												<b>Status: </b>
-												{selectedContact.status ?? 'Unknown'}
+												{this.stringOrUnknown(contact.status)}
 											</p>
 										</Col>
 									</Row>
 								</Media.Body>
+								{affilliationImage}
 							</Media>
 						</Col>
 					</Row>
-				</Container>
-			</div>
+				</Card.Body>
+			</Card>
 		);
 	}
+
+	private getRaceLinkUrl(contact: Contact): string | undefined {
+		return contact.race
+			? `https://starwars.fandom.com/wiki/${contact.race.replace(' ', '_')}/Legends`
+			: undefined;
+	}
+
+	private renderContactImage(contact: Contact, height: number): React.ReactNode {
+		return this.renderImage(
+			contact.imageUrl ?? 'images/Missing-Contact-Image.png',
+			height,
+			true,
+		);
+	}
+
+	private stringOrUnknown(value: string | undefined): string {
+		return value ?? 'Unkown';
+	}
+
+	private renderAffilliationImage(contact: Contact, height: number): React.ReactNode {
+		if (!contact.affiliations || contact.affiliations.length === 0) {
+			return <></>;
+		}
+		// TODO: clean this up
+		if (contact.affiliations.includes('Stave Squad')) {
+			return this.renderImage('images/Stave-Squad.png', height, false);
+		} else if (contact.affiliations.includes('Centran Alliance')) {
+			return this.renderImage('images/Centran-Alliance.png', height, false);
+		} else if (contact.affiliations.includes('Galactic Republic')) {
+			return this.renderImage('images/Galactic-Republic.png', height, false);
+		} else if (contact.affiliations.includes('True Sith Empire')) {
+			return this.renderImage('images/True Sith Empire.png', height, false);
+		}
+		return <></>;
+	}
+
+	private renderImage(url: string, height: number, rounded: boolean): React.ReactNode {
+		return <Image rounded={rounded} height={height} src={url} />;
+	}
 }
+
+/**
+ * {@inheritdoc react-redux/MapStateToPropsParam}
+ */
+function mapStateToProps(state: AppState): Parameters {
+	return state;
+}
+
+/**
+ * Contacts app.
+ * Displays known contacts.
+ */
+const Contacts = connect(mapStateToProps, {
+	selectContact,
+	deselectContact,
+	loadContacts,
+})(ContactsComponent);
+
+export default Contacts;

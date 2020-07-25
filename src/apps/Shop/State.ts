@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { CHANGE_SHOP, ShopActions } from './Actions';
+import { CHANGE_SHOP, ShopActionTypes } from './Actions';
 import { ShopId } from './ShopId';
 
 /**
@@ -19,9 +19,9 @@ export const initialState: AppState = {
 /**
  * {@link https://redux.js.org/basics/reducers | Reducer} for the Shop app component's state
  */
-export const reducer: Reducer<AppState, ShopActions> = (
+export const reducer: Reducer<AppState, ShopActionTypes> = (
 	currentState: AppState | undefined,
-	action: ShopActions,
+	action: ShopActionTypes,
 ): AppState => {
 	if (!currentState) {
 		return initialState;

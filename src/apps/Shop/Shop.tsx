@@ -196,9 +196,7 @@ function getCellText(cell: Cell | string): string {
  * {@inheritdoc react-redux/MapStateToPropsParam}
  */
 function mapStateToProps(state: AppState): Parameters {
-	return {
-		shopSelection: state.shopSelection,
-	};
+	return state;
 }
 
 /**
