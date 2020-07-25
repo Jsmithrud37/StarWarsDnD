@@ -159,7 +159,10 @@ export class Contacts extends React.Component<{}, State> {
 			? `https://starwars.fandom.com/wiki/${selectedContact.race.replace(' ', '_')}/Legends`
 			: undefined;
 
-		const affiliationsString = selectedContact.affiliations?.join(', ') ?? 'None';
+		let affiliationsString = 'None';
+		if (selectedContact.affiliations && selectedContact.affiliations.length > 0) {
+			affiliationsString = selectedContact.affiliations?.join(', ');
+		}
 
 		return (
 			<div className="Contacts-view">
@@ -208,7 +211,7 @@ export class Contacts extends React.Component<{}, State> {
 									<Row>
 										<Col>
 											<p>
-												<b>Affiliations: </b>
+												<b>Known Affiliations: </b>
 												{affiliationsString}
 											</p>
 										</Col>
