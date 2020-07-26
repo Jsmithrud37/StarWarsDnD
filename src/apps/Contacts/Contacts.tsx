@@ -2,11 +2,11 @@ import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/Card';
 import CardColumns from 'react-bootstrap/CardColumns';
 import Col from 'react-bootstrap/Col';
-import Image from 'react-bootstrap/Image';
 import Media from 'react-bootstrap/Media';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import { connect } from 'react-redux';
+import { renderContactImage, renderFactionEmblem } from '../../utilities/ImageUtilities';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
 import { Contact } from './Contact';
@@ -99,10 +99,11 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderNonSelectedContact(contact: Contact): React.ReactNode {
-		const contactImage = this.renderContactImage(contact, 60);
+		const contactImage = renderContactImage(contact.name, 60);
 		const affilliationImage = this.renderAffilliationImage(contact, 60);
 		return (
 			<Card
+				key={contact._id}
 				bg="dark"
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				onClick={(event: any) => {
@@ -131,7 +132,7 @@ class ContactsComponent extends React.Component<Props> {
 			affiliationsString = contact.affiliations?.join(', ');
 		}
 
-		const contactImage = this.renderContactImage(contact, 150);
+		const contactImage = renderContactImage(contact.name, 150);
 		const affilliationImage = this.renderAffilliationImage(contact, 150);
 
 		return (
@@ -210,37 +211,20 @@ class ContactsComponent extends React.Component<Props> {
 			: undefined;
 	}
 
-	private renderContactImage(contact: Contact, height: number): React.ReactNode {
-		return this.renderImage(
-			contact.imageUrl ?? 'images/Missing-Contact-Image.png',
-			height,
-			true,
-		);
-	}
-
 	private stringOrUnknown(value: string | undefined): string {
 		return value ?? 'Unkown';
 	}
 
-	private renderAffilliationImage(contact: Contact, height: number): React.ReactNode {
+	private renderAffilliationImage(
+		contact: Contact,
+		displayHeightInPixels: number,
+	): React.ReactNode {
 		if (!contact.affiliations || contact.affiliations.length === 0) {
 			return <></>;
 		}
-		// TODO: clean this up
-		if (contact.affiliations.includes('Stave Squad')) {
-			return this.renderImage('images/Stave-Squad.png', height, false);
-		} else if (contact.affiliations.includes('Centran Alliance')) {
-			return this.renderImage('images/Centran-Alliance.png', height, false);
-		} else if (contact.affiliations.includes('Galactic Republic')) {
-			return this.renderImage('images/Galactic-Republic.png', height, false);
-		} else if (contact.affiliations.includes('True Sith Empire')) {
-			return this.renderImage('images/True Sith Empire.png', height, false);
-		}
-		return <></>;
-	}
 
-	private renderImage(url: string, height: number, rounded: boolean): React.ReactNode {
-		return <Image rounded={rounded} height={height} src={url} />;
+		// Render emblem for first listed faction affiliation.
+		return renderFactionEmblem(contact.affiliations[0], displayHeightInPixels);
 	}
 }
 
