@@ -9,16 +9,38 @@ import { Img as ReactImage } from 'react-image';
 const baseImageUrl = 'https://datapadassets.blob.core.windows.net';
 
 /**
+ * Shape options for image cropping.
+ */
+export enum ImageContainerShape {
+	Rectangle,
+	RoundedRectangle,
+}
+
+/**
+ * Image size options. Correspond to hosted image variants.
+ */
+export enum ImageSize {
+	Small = 'small',
+	Medium = 'medium',
+	Large = 'large',
+}
+
+/**
+ * Options for image rendering.
+ */
+export interface ImageOptions {
+	displayHeightInPixels: number;
+	containerShape: ImageContainerShape;
+}
+
+/**
  * Renders the contact image for the specified contact if one exists. Otherwise displays
  * the `missing contact` image.
  */
-export function renderFactionEmblem(
-	factionName: string,
-	displayHeightInPixels: number,
-): React.ReactNode {
+export function renderFactionEmblem(factionName: string, options: ImageOptions): React.ReactNode {
 	const cleanedName = cleanName(factionName);
-	const factionImageUrl = `${baseImageUrl}/factions/${cleanedName}.png`;
-	return loadAndRenderImage([factionImageUrl], displayHeightInPixels);
+	const factionImageUrls = getSizedUrls(`${baseImageUrl}/factions/${cleanedName}`, options);
+	return loadAndRenderImage(factionImageUrls, options);
 }
 
 // TODO: timeout on load attempt.
@@ -26,14 +48,12 @@ export function renderFactionEmblem(
  * Renders the faction image for the specified faction.
  * Assumes that one exists, if it doesn't, this will fail to converge.
  */
-export function renderContactImage(
-	contactName: string,
-	displayHeightInPixels: number,
-): React.ReactNode {
+export function renderContactImage(contactName: string, options: ImageOptions): React.ReactNode {
 	const cleanedName = cleanName(contactName);
-	const contactUrl = `${baseImageUrl}/contacts/${cleanedName}.png`;
+	const contactImageUrls = getSizedUrls(`${baseImageUrl}/contacts/${cleanedName}`, options);
 	const missingContactImage = 'images/Missing-Contact-Image.png';
-	return loadAndRenderImage([contactUrl, missingContactImage], displayHeightInPixels);
+	const urls = [...contactImageUrls, missingContactImage];
+	return loadAndRenderImage(urls, options);
 }
 
 // TODO: timeout after some provided time. Stop spinner and display error.
@@ -42,16 +62,54 @@ export function renderContactImage(
  * handle the case where the requested image does not exists, or 404s or what-have-you.
  * Displays a spinner while the image is being loaded.
  */
-export function loadAndRenderImage(
-	imageUrls: string[],
-	displayHeightInPixels: number,
-): React.ReactNode {
-	const spinner = <Spinner animation="border" variant="light"></Spinner>;
+export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): React.ReactNode {
+	let borderRadius = 0;
+	switch (options.containerShape) {
+		case ImageContainerShape.RoundedRectangle:
+			borderRadius = options.displayHeightInPixels / 10;
+			break;
+		default:
+			break;
+	}
+
 	return (
-		<ReactImage src={imageUrls} loader={spinner} height={displayHeightInPixels}></ReactImage>
+		<ReactImage
+			src={imageUrls}
+			loader={<Spinner animation="border" variant="light"></Spinner>}
+			height={options.displayHeightInPixels}
+			style={{
+				borderRadius,
+			}}
+		></ReactImage>
 	);
 }
 
+/**
+ * Formats the provided name for image url queries. Replaces spaces with hyphens, and stro[s]
+ */
 function cleanName(value: string): string {
-	return value.replace(' ', '-').replace(/[^0-9a-zA-Z_\-]/g, '');
+	const filteredName = value.replace(' ', '-').replace(/[^0-9a-zA-Z_\-]/g, '');
+	return filteredName;
+}
+
+/**
+ * Gets the suggested image size(s) to query for based on the specified height.
+ * Potentially returns multiple sizes, given in the order of recommendation.
+ */
+function getImageSizes(options: ImageOptions): ImageSize[] {
+	if (options.displayHeightInPixels > 500) {
+		return [ImageSize.Large, ImageSize.Medium, ImageSize.Small];
+	}
+	if (options.displayHeightInPixels > 250) {
+		return [ImageSize.Medium, ImageSize.Large, ImageSize.Small];
+	}
+	return [ImageSize.Small, ImageSize.Medium, ImageSize.Large];
+}
+
+/**
+ * Gets urls for the base url image at different sizes, in order based on size recommendations.
+ */
+function getSizedUrls(urlBase: string, options: ImageOptions): string[] {
+	const recommendedSizes = getImageSizes(options);
+	return recommendedSizes.map((size) => `${urlBase}-${size}.png`);
 }

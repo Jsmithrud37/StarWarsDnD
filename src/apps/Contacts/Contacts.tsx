@@ -6,7 +6,11 @@ import Media from 'react-bootstrap/Media';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import { connect } from 'react-redux';
-import { renderContactImage, renderFactionEmblem } from '../../utilities/ImageUtilities';
+import {
+	ImageContainerShape,
+	renderContactImage,
+	renderFactionEmblem,
+} from '../../utilities/ImageUtilities';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
 import { Contact } from './Contact';
@@ -99,7 +103,10 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderNonSelectedContact(contact: Contact): React.ReactNode {
-		const contactImage = renderContactImage(contact.name, 60);
+		const contactImage = renderContactImage(contact.name, {
+			displayHeightInPixels: 60,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		});
 		const affilliationImage = this.renderAffilliationImage(contact, 60);
 		return (
 			<Card
@@ -132,7 +139,10 @@ class ContactsComponent extends React.Component<Props> {
 			affiliationsString = contact.affiliations?.join(', ');
 		}
 
-		const contactImage = renderContactImage(contact.name, 150);
+		const contactImage = renderContactImage(contact.name, {
+			displayHeightInPixels: 150,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		});
 		const affilliationImage = this.renderAffilliationImage(contact, 150);
 
 		return (
@@ -224,7 +234,10 @@ class ContactsComponent extends React.Component<Props> {
 		}
 
 		// Render emblem for first listed faction affiliation.
-		return renderFactionEmblem(contact.affiliations[0], displayHeightInPixels);
+		return renderFactionEmblem(contact.affiliations[0], {
+			displayHeightInPixels,
+			containerShape: ImageContainerShape.Rectangle,
+		});
 	}
 }
 
