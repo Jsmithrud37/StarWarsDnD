@@ -72,6 +72,7 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 			break;
 	}
 
+	// TODO: memory leak if this component is unmounted before image is loaded :(
 	return (
 		<ReactImage
 			src={imageUrls}
