@@ -291,7 +291,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						// TODO: update builders to take AppId and return it in onClick
 						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled ?? true),
 						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
-						createMenuItemBuilder('Contacts', this.props.contactsEnabled ?? true),
+						createMenuItemBuilder(
+							'Contacts (beta)',
+							this.props.contactsEnabled ?? true,
+						),
 						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
 						createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
 					]}
