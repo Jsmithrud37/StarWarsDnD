@@ -5,6 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Media from 'react-bootstrap/Media';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import {
 	ImageContainerShape,
@@ -57,12 +58,7 @@ class ContactsComponent extends React.Component<Props> {
 
 	public render(): ReactNode {
 		if (this.props.contacts) {
-			return (
-				<div className="Contacts">
-					{/* {this.renderMenu()} */}
-					{this.renderContacts()}
-				</div>
-			);
+			return <div className="Contacts">{this.renderContacts()}</div>;
 		}
 		return this.renderLoadingScreen();
 	}
@@ -85,14 +81,18 @@ class ContactsComponent extends React.Component<Props> {
 			throw new Error('Cannot render contacts; none have been loaded.');
 		}
 		return (
-			<CardColumns
-				className="Contacts-view"
+			<Scrollbars
+				autoHide={true}
+				autoHeight={false}
 				onClick={() => {
+					// TODO: clicking on scroll bar should not deselect items
 					this.props.deselectContact();
 				}}
 			>
-				{this.props.contacts.map((contact) => this.renderContact(contact))}
-			</CardColumns>
+				<CardColumns className="Contacts-view">
+					{this.props.contacts.map((contact) => this.renderContact(contact))}
+				</CardColumns>
+			</Scrollbars>
 		);
 	}
 
