@@ -117,6 +117,8 @@ class ContactsComponent extends React.Component<Props> {
 					if (!isSelected) {
 						this.props.selectContact(contact._id);
 					}
+					// Ensures that deselect event capture on container
+					// does not immediately deselect the contact.
 					event.stopPropagation();
 				}}
 				style={{
@@ -161,6 +163,8 @@ class ContactsComponent extends React.Component<Props> {
 								? () => this.props.deselectContact()
 								: // eslint-disable-next-line @typescript-eslint/no-explicit-any
 								  (event: any) => {
+										// Ensures that deselect event capture on container
+										// does not immediately deselect the contact.
 										event.stopPropagation();
 										this.props.selectContact(contact._id);
 								  }
