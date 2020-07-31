@@ -123,6 +123,7 @@ class ContactsComponent extends React.Component<Props> {
 				}}
 				style={{
 					maxWidth: 500,
+					overflow: 'hidden',
 				}}
 			>
 				{cardHeader}
@@ -147,7 +148,6 @@ class ContactsComponent extends React.Component<Props> {
 		return (
 			<Card.Header
 				style={{
-					overflow: 'hidden',
 					height: 100,
 				}}
 			>
@@ -292,6 +292,7 @@ class ContactsComponent extends React.Component<Props> {
 				<Card.Body
 					style={{
 						padding: 5,
+						minWidth: 200,
 					}}
 				>
 					<b>Known Affiliations</b>
