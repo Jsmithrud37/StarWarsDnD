@@ -82,6 +82,7 @@ class ContactsComponent extends React.Component<Props> {
 		}
 		return (
 			<Scrollbars
+				className="Contacts-view"
 				autoHide={true}
 				autoHeight={false}
 				onClick={() => {
@@ -89,7 +90,7 @@ class ContactsComponent extends React.Component<Props> {
 					this.props.deselectContact();
 				}}
 			>
-				<CardColumns className="Contacts-view">
+				<CardColumns>
 					{this.props.contacts.map((contact) => this.renderContact(contact))}
 				</CardColumns>
 			</Scrollbars>
