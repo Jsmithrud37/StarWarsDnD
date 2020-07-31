@@ -17,7 +17,7 @@ import {
 } from '../../utilities/ImageUtilities';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
-import { Contact } from './Contact';
+import { Contact, isDroid } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 
@@ -220,32 +220,59 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderBasicDetails(contact: Contact): React.ReactNode {
-		const raceLink = this.getRaceLinkUrl(contact);
 		return (
-			<Card bg="dark">
+			<Card
+				bg="dark"
+				style={{
+					minWidth: 200,
+				}}
+			>
 				<Card.Body>
 					<>
-						<p>
-							<b>Race: </b>
-							{contact.race ? (
-								<a href={raceLink} target="_blank" rel="noopener noreferrer">
-									{contact.race}
-								</a>
-							) : (
-								'Unkown'
-							)}
-						</p>
-						<p>
-							<b>Gender: </b>
-							{this.stringOrUnknown(contact.gender)}
-						</p>
-						<p>
-							<b>Status: </b>
-							{this.stringOrUnknown(contact.status)}
-						</p>
+						{this.renderRace(contact)}
+						{this.renderGender(contact)}
+						{this.renderStatus(contact)}
 					</>
 				</Card.Body>
 			</Card>
+		);
+	}
+
+	private renderRace(contact: Contact): React.ReactNode {
+		const raceLink = this.getRaceLinkUrl(contact);
+		return (
+			<p>
+				<b>Race: </b>
+				{contact.race ? (
+					<a href={raceLink} target="_blank" rel="noopener noreferrer">
+						{contact.race}
+					</a>
+				) : (
+					'Unkown'
+				)}
+			</p>
+		);
+	}
+
+	private renderGender(contact: Contact): React.ReactNode {
+		// If the contact is a droid, then it does not
+		if (isDroid(contact)) {
+			return <></>;
+		}
+		return (
+			<p>
+				<b>Gender: </b>
+				{this.stringOrUnknown(contact.gender)}
+			</p>
+		);
+	}
+
+	private renderStatus(contact: Contact): React.ReactNode {
+		return (
+			<p>
+				<b>Status: </b>
+				{this.stringOrUnknown(contact.status)}
+			</p>
 		);
 	}
 
