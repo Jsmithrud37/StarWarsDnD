@@ -1,7 +1,10 @@
 import { Grid } from '@material-ui/core';
 import React, { ReactNode } from 'react';
+import { HamburgerSqueeze } from 'react-animated-burgers';
 import Card from 'react-bootstrap/Card';
 import CardColumns from 'react-bootstrap/CardColumns';
+import Collapse from 'react-bootstrap/Collapse';
+import Fade from 'react-bootstrap/Fade';
 import Media from 'react-bootstrap/Media';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
@@ -104,14 +107,16 @@ class ContactsComponent extends React.Component<Props> {
 	private renderContact(contact: Contact): React.ReactNode {
 		const isSelected = this.isSelected(contact);
 		const cardHeader = this.renderContactCardHeader(contact);
-		const cardBody = this.isSelected(contact) ? this.renderContactCardBody(contact) : <></>;
+		const cardBody = this.renderContactCardBody(contact);
 		return (
 			<Card
 				bg="dark"
 				border={isSelected ? 'primary' : undefined}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				onClick={(event: any) => {
-					this.props.selectContact(contact._id);
+					if (!isSelected) {
+						this.props.selectContact(contact._id);
+					}
 					event.stopPropagation();
 				}}
 				style={{
@@ -119,7 +124,9 @@ class ContactsComponent extends React.Component<Props> {
 				}}
 			>
 				{cardHeader}
-				{cardBody}
+				<Collapse in={isSelected}>
+					<div>{cardBody}</div>
+				</Collapse>
 			</Card>
 		);
 	}
@@ -127,32 +134,38 @@ class ContactsComponent extends React.Component<Props> {
 	private renderContactCardHeader(contact: Contact): React.ReactNode {
 		const isSelected = this.isSelected(contact);
 		const name = this.renderName(contact);
-		const contactImage = isSelected ? (
-			<></>
-		) : (
-			renderContactImage(contact.name, {
-				displayHeightInPixels: 60,
-				containerShape: ImageContainerShape.RoundedRectangle,
-			})
-		);
+		const imageHeightInPixels = 60;
 
-		let affiliationImage: React.ReactNode = <></>;
-		if (!isSelected) {
-			if (contact.affiliations && contact.affiliations.length > 0) {
-				affiliationImage = this.renderFactionImage(contact.affiliations[0], 60);
-			}
-		}
+		// Only display the contact image when the card is not expanded
+		const contactImage = renderContactImage(contact.name, {
+			displayHeightInPixels: imageHeightInPixels,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		});
 
 		return (
 			<Card.Header
 				style={{
 					overflow: 'hidden',
+					height: 100,
 				}}
 			>
 				<Media>
-					{contactImage}
+					<Fade in={!isSelected}>{contactImage}</Fade>
 					<Media.Body>{name}</Media.Body>
-					{affiliationImage}
+					<HamburgerSqueeze
+						barColor="white"
+						buttonWidth={30}
+						isActive={isSelected}
+						toggleButton={
+							isSelected
+								? () => this.props.deselectContact()
+								: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+								  (event: any) => {
+										event.stopPropagation();
+										this.props.selectContact(contact._id);
+								  }
+						}
+					/>
 				</Media>
 			</Card.Header>
 		);
@@ -164,12 +177,22 @@ class ContactsComponent extends React.Component<Props> {
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
+		const itemStyle = {
+			padding: 5,
+		};
+
 		return (
 			<Card.Body>
 				<Grid container justify="space-between">
-					<Grid item>{contactImage}</Grid>
-					<Grid item>{this.renderBasicDetails(contact)}</Grid>
-					<Grid item>{this.renderAffilliations(contact)}</Grid>
+					<Grid item style={itemStyle}>
+						{contactImage}
+					</Grid>
+					<Grid item style={itemStyle}>
+						{this.renderBasicDetails(contact)}
+					</Grid>
+					<Grid item style={itemStyle}>
+						{this.renderAffilliations(contact)}
+					</Grid>
 				</Grid>
 			</Card.Body>
 		);
