@@ -4,5 +4,7 @@ The `Contacts` Datapad app allows players to view data about the people they've 
 
 ## TODO
 
--   Server-side data store
--   Affiliations (with links to other contacts, locations, etc.?)
+-   Card tabs: Probably split current one into "basic data" and "affiliations". Add notes, etc.
+-   Filter + search
+    -   Add filtered server queries
+-   Affiliation links (link to other contacts, locations, etc.?)
