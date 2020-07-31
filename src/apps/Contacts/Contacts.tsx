@@ -320,7 +320,7 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private stringOrUnknown(value: string | undefined): string {
-		return value ?? 'Unkown';
+		return value ?? 'unkown';
 	}
 
 	private renderFactionImage(
