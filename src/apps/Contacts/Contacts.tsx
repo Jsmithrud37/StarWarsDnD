@@ -151,7 +151,12 @@ class ContactsComponent extends React.Component<Props> {
 					height: 100,
 				}}
 			>
-				<Media>
+				<Media
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+					}}
+				>
 					<Fade in={!isSelected}>{contactImage}</Fade>
 					<Media.Body>{name}</Media.Body>
 					<HamburgerSqueeze
