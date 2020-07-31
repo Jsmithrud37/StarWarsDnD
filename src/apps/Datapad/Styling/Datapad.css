@@ -47,7 +47,7 @@
 .Datapad-app-menu {
 	display: flex;
 	flex-direction: column;
-	justify-content: start;
+	justify-content: flex-start;
 	height: 100%;
 	width: 100%;
 	text-align: center;

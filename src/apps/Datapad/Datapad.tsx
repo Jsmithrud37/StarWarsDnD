@@ -10,7 +10,7 @@ import {
 	SimpleAccordionMenuItemBuilder,
 } from '../../shared-components/AccordionMenu';
 import { DisabledAccordionMenuItemBuilder } from '../../shared-components/AccordionMenu/DisabledAccordionMenuItem';
-import { Contacts } from '../Contacts';
+import Contacts, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import Shop, { reducers as shopReducers } from '../Shop';
@@ -108,9 +108,14 @@ interface PrivateState {
  */
 class DatapadComponent extends React.Component<Props, PrivateState> {
 	/**
-	 * Redux data store for the shops app.
+	 * Redux data store for the Shop app.
 	 */
 	private readonly shopStore: never;
+
+	/**
+	 * Redux data store for the Contacts app.
+	 */
+	private readonly contactsStore: never;
 
 	public constructor(props: Props) {
 		super(props);
@@ -118,6 +123,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			viewPortWidthInPixels: window.innerWidth,
 		};
 		this.shopStore = createStore(shopReducers);
+		this.contactsStore = createStore(contactsReducers);
 	}
 
 	private updateViewPortWidth(): void {
@@ -225,7 +231,11 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.GalaxyMap:
 				return <GalaxyMap />;
 			case AppId.Contacts:
-				return <Contacts />;
+				return (
+					<Provider store={this.contactsStore}>
+						<Contacts />
+					</Provider>
+				);
 			case AppId.Shops:
 				return (
 					<Provider store={this.shopStore}>
@@ -281,7 +291,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						// TODO: update builders to take AppId and return it in onClick
 						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled ?? true),
 						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
-						createMenuItemBuilder('Contacts', this.props.contactsEnabled ?? true),
+						createMenuItemBuilder(
+							'Contacts (beta)',
+							this.props.contactsEnabled ?? true,
+						),
 						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
 						createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
 					]}

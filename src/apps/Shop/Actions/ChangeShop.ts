@@ -34,8 +34,6 @@ export function changeShop(newShopSelection: ShopId): ChangeShop {
 }
 
 /**
- * TODO: remove this - move shop selection into the shop app.
  * Set's the Shop App's shop selection to the one specified.
- * If the shop app is not selected, it will also change the selection to it.
  */
 export type ChangeShopFunction = (newShopSelection: ShopId) => void;

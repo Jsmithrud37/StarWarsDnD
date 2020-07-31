@@ -9,6 +9,6 @@ TODO: Datapad docs.
 
 -   [GalaxyMap](./src/apps/GalaxyMap/README.md)
 -   [Shop](./src/apps/Shop/README.md)
--   [Contacts](TODO)
+-   [Contacts](./src/apps/Contacts/README.md)
 -   [Messenger](TODO)
 -   [Timeline](./src/apps/Timeline/README.md)
