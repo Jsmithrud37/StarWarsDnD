@@ -1,10 +1,10 @@
+import { Grid } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/Card';
 import CardColumns from 'react-bootstrap/CardColumns';
-import Col from 'react-bootstrap/Col';
 import Media from 'react-bootstrap/Media';
-import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import Table from 'react-bootstrap/Table';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import {
@@ -135,7 +135,14 @@ class ContactsComponent extends React.Component<Props> {
 				containerShape: ImageContainerShape.RoundedRectangle,
 			})
 		);
-		const affilliationImage = isSelected ? <></> : this.renderAffilliationImage(contact, 60);
+
+		let affiliationImage: React.ReactNode = <></>;
+		if (!isSelected) {
+			if (contact.affiliations && contact.affiliations.length > 0) {
+				affiliationImage = this.renderFactionImage(contact.affiliations[0], 60);
+			}
+		}
+
 		return (
 			<Card.Header
 				style={{
@@ -144,81 +151,26 @@ class ContactsComponent extends React.Component<Props> {
 			>
 				<Media>
 					{contactImage}
-					<Media.Body>{this.renderName(contact)}</Media.Body>
-					{affilliationImage}
+					<Media.Body>{name}</Media.Body>
+					{affiliationImage}
 				</Media>
 			</Card.Header>
 		);
 	}
 
 	private renderContactCardBody(contact: Contact): React.ReactNode {
-		const raceLink = this.getRaceLinkUrl(contact);
-
-		let affiliationsString = 'None';
-		if (contact.affiliations && contact.affiliations.length > 0) {
-			affiliationsString = contact.affiliations?.join(', ');
-		}
-
 		const contactImage = renderContactImage(contact.name, {
 			displayHeightInPixels: 150,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
-		const affilliationImage = this.renderAffilliationImage(contact, 150);
 
 		return (
 			<Card.Body>
-				<Row>
-					<Col>
-						<Media>
-							{contactImage}
-							<Media.Body>
-								<Row>
-									<Col>
-										<p>
-											<b>Race: </b>
-											{contact.race ? (
-												<a
-													href={raceLink}
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													{contact.race}
-												</a>
-											) : (
-												'Unkown'
-											)}
-										</p>
-									</Col>
-								</Row>
-								<Row>
-									<Col>
-										<p>
-											<b>Gender: </b>
-											{this.stringOrUnknown(contact.gender)}
-										</p>
-									</Col>
-								</Row>
-								<Row>
-									<Col>
-										<p>
-											<b>Known Affiliations: </b>
-											{affiliationsString}
-										</p>
-									</Col>
-								</Row>
-								<Row>
-									<Col>
-										<p>
-											<b>Status: </b>
-											{this.stringOrUnknown(contact.status)}
-										</p>
-									</Col>
-								</Row>
-							</Media.Body>
-							{affilliationImage}
-						</Media>
-					</Col>
-				</Row>
+				<Grid container justify="space-between">
+					<Grid item>{contactImage}</Grid>
+					<Grid item>{this.renderBasicDetails(contact)}</Grid>
+					<Grid item>{this.renderAffilliations(contact)}</Grid>
+				</Grid>
 			</Card.Body>
 		);
 	}
@@ -235,6 +187,72 @@ class ContactsComponent extends React.Component<Props> {
 		);
 	}
 
+	private renderBasicDetails(contact: Contact): React.ReactNode {
+		const raceLink = this.getRaceLinkUrl(contact);
+		return (
+			<Card bg="dark">
+				<Card.Body>
+					<>
+						<p>
+							<b>Race: </b>
+							{contact.race ? (
+								<a href={raceLink} target="_blank" rel="noopener noreferrer">
+									{contact.race}
+								</a>
+							) : (
+								'Unkown'
+							)}
+						</p>
+						<p>
+							<b>Gender: </b>
+							{this.stringOrUnknown(contact.gender)}
+						</p>
+						<p>
+							<b>Status: </b>
+							{this.stringOrUnknown(contact.status)}
+						</p>
+					</>
+				</Card.Body>
+			</Card>
+		);
+	}
+
+	private renderAffilliations(contact: Contact): React.ReactNode {
+		let cardBody;
+		if (contact.affiliations && contact.affiliations.length > 0) {
+			const affiliationEntries = contact.affiliations.map((faction) => {
+				const affilliationImage = this.renderFactionImage(faction, 30);
+				return (
+					<tr key={faction}>
+						<td>{faction}</td>
+						<td>{affilliationImage}</td>
+					</tr>
+				);
+			});
+			cardBody = (
+				<Card.Body
+					style={{
+						padding: 5,
+					}}
+				>
+					<b>Known Affiliations</b>
+					<Table variant="dark">{affiliationEntries}</Table>
+				</Card.Body>
+			);
+		} else {
+			cardBody = (
+				<Card.Body>
+					<p>
+						<b>Known Affiliations: </b>
+						None
+					</p>
+				</Card.Body>
+			);
+		}
+
+		return <Card bg="dark">{cardBody}</Card>;
+	}
+
 	private getRaceLinkUrl(contact: Contact): string | undefined {
 		return contact.race
 			? `https://starwars.fandom.com/wiki/${contact.race.replace(' ', '_')}/Legends`
@@ -245,16 +263,11 @@ class ContactsComponent extends React.Component<Props> {
 		return value ?? 'Unkown';
 	}
 
-	private renderAffilliationImage(
-		contact: Contact,
+	private renderFactionImage(
+		factionName: string,
 		displayHeightInPixels: number,
 	): React.ReactNode {
-		if (!contact.affiliations || contact.affiliations.length === 0) {
-			return <></>;
-		}
-
-		// Render emblem for first listed faction affiliation.
-		return renderFactionEmblem(contact.affiliations[0], {
+		return renderFactionEmblem(factionName, {
 			displayHeightInPixels,
 			containerShape: ImageContainerShape.Rectangle,
 		});

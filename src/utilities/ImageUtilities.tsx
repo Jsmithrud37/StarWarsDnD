@@ -38,6 +38,7 @@ export interface ImageOptions {
  * the `missing contact` image.
  */
 export function renderFactionEmblem(factionName: string, options: ImageOptions): React.ReactNode {
+	console.log(`faction: "${factionName}"`);
 	const cleanedName = cleanName(factionName);
 	const factionImageUrls = getSizedUrls(`${baseImageUrl}/factions/${cleanedName}`, options);
 	return loadAndRenderImage(factionImageUrls, options);
@@ -89,6 +90,7 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
  * Formats the provided name for image url queries. Replaces spaces with hyphens, and stro[s]
  */
 function cleanName(value: string): string {
+	// eslint-disable-next-line no-useless-escape
 	const filteredName = value.replace(' ', '-').replace(/[^0-9a-zA-Z_\-]/g, '');
 	return filteredName;
 }
