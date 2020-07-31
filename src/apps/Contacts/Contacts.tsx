@@ -90,7 +90,11 @@ class ContactsComponent extends React.Component<Props> {
 					this.props.deselectContact();
 				}}
 			>
-				<CardColumns>
+				<CardColumns
+					style={{
+						padding: 10,
+					}}
+				>
 					{this.props.contacts.map((contact) => this.renderContact(contact))}
 				</CardColumns>
 			</Scrollbars>
@@ -98,41 +102,56 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderContact(contact: Contact): React.ReactNode {
-		return this.isSelected(contact)
-			? this.renderSelectedContact(contact)
-			: this.renderNonSelectedContact(contact);
-	}
-
-	private renderNonSelectedContact(contact: Contact): React.ReactNode {
-		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: 60,
-			containerShape: ImageContainerShape.RoundedRectangle,
-		});
-		const affilliationImage = this.renderAffilliationImage(contact, 60);
+		const isSelected = this.isSelected(contact);
+		const cardHeader = this.renderContactCardHeader(contact);
+		const cardBody = this.isSelected(contact) ? this.renderContactCardBody(contact) : <></>;
 		return (
 			<Card
-				key={contact._id}
 				bg="dark"
+				border={isSelected ? 'primary' : undefined}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				onClick={(event: any) => {
 					this.props.selectContact(contact._id);
 					event.stopPropagation();
 				}}
+				style={{
+					maxWidth: 500,
+				}}
 			>
-				<Card.Body>
-					<Card.Title>
-						<Media>
-							{contactImage}
-							<Media.Body>{contact.name}</Media.Body>
-							{affilliationImage}
-						</Media>
-					</Card.Title>
-				</Card.Body>
+				{cardHeader}
+				{cardBody}
 			</Card>
 		);
 	}
 
-	private renderSelectedContact(contact: Contact): React.ReactNode {
+	private renderContactCardHeader(contact: Contact): React.ReactNode {
+		const isSelected = this.isSelected(contact);
+		const name = this.renderName(contact);
+		const contactImage = isSelected ? (
+			<></>
+		) : (
+			renderContactImage(contact.name, {
+				displayHeightInPixels: 60,
+				containerShape: ImageContainerShape.RoundedRectangle,
+			})
+		);
+		const affilliationImage = isSelected ? <></> : this.renderAffilliationImage(contact, 60);
+		return (
+			<Card.Header
+				style={{
+					overflow: 'hidden',
+				}}
+			>
+				<Media>
+					{contactImage}
+					<Media.Body>{this.renderName(contact)}</Media.Body>
+					{affilliationImage}
+				</Media>
+			</Card.Header>
+		);
+	}
+
+	private renderContactCardBody(contact: Contact): React.ReactNode {
 		const raceLink = this.getRaceLinkUrl(contact);
 
 		let affiliationsString = 'None';
@@ -147,72 +166,72 @@ class ContactsComponent extends React.Component<Props> {
 		const affilliationImage = this.renderAffilliationImage(contact, 150);
 
 		return (
-			<Card
-				bg="dark"
-				border="primary"
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				onClick={(event: any) => {
-					event.stopPropagation();
+			<Card.Body>
+				<Row>
+					<Col>
+						<Media>
+							{contactImage}
+							<Media.Body>
+								<Row>
+									<Col>
+										<p>
+											<b>Race: </b>
+											{contact.race ? (
+												<a
+													href={raceLink}
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													{contact.race}
+												</a>
+											) : (
+												'Unkown'
+											)}
+										</p>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										<p>
+											<b>Gender: </b>
+											{this.stringOrUnknown(contact.gender)}
+										</p>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										<p>
+											<b>Known Affiliations: </b>
+											{affiliationsString}
+										</p>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										<p>
+											<b>Status: </b>
+											{this.stringOrUnknown(contact.status)}
+										</p>
+									</Col>
+								</Row>
+							</Media.Body>
+							{affilliationImage}
+						</Media>
+					</Col>
+				</Row>
+			</Card.Body>
+		);
+	}
+
+	private renderName(contact: Contact): React.ReactNode {
+		return (
+			<div
+				style={{
+					minWidth: 100,
 				}}
 			>
-				<Card.Header>
-					<Card.Title>{contact.name}</Card.Title>
-				</Card.Header>
-				<Card.Body>
-					<Row>
-						<Col>
-							<Media>
-								{contactImage}
-								<Media.Body>
-									<Row>
-										<Col>
-											<p>
-												<b>Race: </b>
-												{contact.race ? (
-													<a
-														href={raceLink}
-														target="_blank"
-														rel="noopener noreferrer"
-													>
-														{contact.race}
-													</a>
-												) : (
-													'Unkown'
-												)}
-											</p>
-										</Col>
-									</Row>
-									<Row>
-										<Col>
-											<p>
-												<b>Gender: </b>
-												{this.stringOrUnknown(contact.gender)}
-											</p>
-										</Col>
-									</Row>
-									<Row>
-										<Col>
-											<p>
-												<b>Known Affiliations: </b>
-												{affiliationsString}
-											</p>
-										</Col>
-									</Row>
-									<Row>
-										<Col>
-											<p>
-												<b>Status: </b>
-												{this.stringOrUnknown(contact.status)}
-											</p>
-										</Col>
-									</Row>
-								</Media.Body>
-								{affilliationImage}
-							</Media>
-						</Col>
-					</Row>
-				</Card.Body>
-			</Card>
+				{contact.name}
+			</div>
 		);
 	}
 
