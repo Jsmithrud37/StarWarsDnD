@@ -17,7 +17,7 @@ import {
 } from '../../utilities/ImageUtilities';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
-import { Contact } from './Contact';
+import { Contact, isDroid } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 
@@ -123,6 +123,7 @@ class ContactsComponent extends React.Component<Props> {
 				}}
 				style={{
 					maxWidth: 500,
+					overflow: 'hidden',
 				}}
 			>
 				{cardHeader}
@@ -147,11 +148,15 @@ class ContactsComponent extends React.Component<Props> {
 		return (
 			<Card.Header
 				style={{
-					overflow: 'hidden',
 					height: 100,
 				}}
 			>
-				<Media>
+				<Media
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+					}}
+				>
 					<Fade in={!isSelected}>{contactImage}</Fade>
 					<Media.Body>{name}</Media.Body>
 					<HamburgerSqueeze
@@ -215,32 +220,59 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderBasicDetails(contact: Contact): React.ReactNode {
-		const raceLink = this.getRaceLinkUrl(contact);
 		return (
-			<Card bg="dark">
+			<Card
+				bg="dark"
+				style={{
+					minWidth: 200,
+				}}
+			>
 				<Card.Body>
 					<>
-						<p>
-							<b>Race: </b>
-							{contact.race ? (
-								<a href={raceLink} target="_blank" rel="noopener noreferrer">
-									{contact.race}
-								</a>
-							) : (
-								'Unkown'
-							)}
-						</p>
-						<p>
-							<b>Gender: </b>
-							{this.stringOrUnknown(contact.gender)}
-						</p>
-						<p>
-							<b>Status: </b>
-							{this.stringOrUnknown(contact.status)}
-						</p>
+						{this.renderRace(contact)}
+						{this.renderGender(contact)}
+						{this.renderStatus(contact)}
 					</>
 				</Card.Body>
 			</Card>
+		);
+	}
+
+	private renderRace(contact: Contact): React.ReactNode {
+		const raceLink = this.getRaceLinkUrl(contact);
+		return (
+			<p>
+				<b>Race: </b>
+				{contact.race ? (
+					<a href={raceLink} target="_blank" rel="noopener noreferrer">
+						{contact.race}
+					</a>
+				) : (
+					'Unkown'
+				)}
+			</p>
+		);
+	}
+
+	private renderGender(contact: Contact): React.ReactNode {
+		// If the contact is a droid, then it does not
+		if (isDroid(contact)) {
+			return <></>;
+		}
+		return (
+			<p>
+				<b>Gender: </b>
+				{this.stringOrUnknown(contact.gender)}
+			</p>
+		);
+	}
+
+	private renderStatus(contact: Contact): React.ReactNode {
+		return (
+			<p>
+				<b>Status: </b>
+				{this.stringOrUnknown(contact.status)}
+			</p>
 		);
 	}
 
@@ -260,6 +292,7 @@ class ContactsComponent extends React.Component<Props> {
 				<Card.Body
 					style={{
 						padding: 5,
+						minWidth: 200,
 					}}
 				>
 					<b>Known Affiliations</b>
@@ -287,7 +320,7 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private stringOrUnknown(value: string | undefined): string {
-		return value ?? 'Unkown';
+		return value ?? 'unkown';
 	}
 
 	private renderFactionImage(

@@ -10,3 +10,10 @@ export interface Contact {
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
 }
+
+/**
+ * Returns whether or not the contact is a Droid.
+ */
+export function isDroid(contact: Contact): boolean {
+	return contact.race === 'Droid';
+}
