@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { push as PushMenu, slide as SlideMenu, State as BurgerMenuState } from 'react-burger-menu';
@@ -56,7 +57,17 @@ const menuItemStyleDisabled: AccordionMenuItemStyle = {
 /**
  * Determines which apps in the Datapad are enabled. Set by the consumer.
  */
-interface EnabledApps {
+interface InputProps {
+	/**
+	 * Name of the signed-in user.
+	 */
+	userName: string;
+
+	/**
+	 * Function for signing the user out of the application.
+	 */
+	logoutFunction: () => void;
+
 	/**
 	 * Galaxy Map app will be enabled iff true or undefined.
 	 */
@@ -86,7 +97,7 @@ interface EnabledApps {
 /**
  * State parameters used by the Datapad app component.
  */
-type Parameters = AppState & EnabledApps;
+type Parameters = AppState & InputProps;
 
 /**
  * Datapad {@link https://reactjs.org/docs/render-props.html | Render Props}
@@ -134,19 +145,21 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	}
 
 	public render(): ReactNode {
-		const appView: ReactNode = (
-			<div className="Datapad-view" id={viewId}>
-				{this.renderApp()}
+		const header = this.renderHeader();
+
+		const view = (
+			<div className="Datapad" id={appId}>
+				{this.renderMenu()}
+				<div className="Datapad-view" id={viewId}>
+					{this.renderApp()}
+				</div>
 			</div>
 		);
-		const menu = this.renderMenu();
+
 		return (
 			<div className="App">
-				{this.renderHeader()}
-				<div className="Datapad" id={appId}>
-					{menu}
-					{appView}
-				</div>
+				{header}
+				{view}
 			</div>
 		);
 	}
@@ -266,6 +279,8 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 * Renders the Datapad main menu
 	 */
 	private renderMenu(): ReactNode {
+		const userName: string = this.props.userName;
+
 		return (
 			<PushMenu
 				id={menuId}
@@ -281,24 +296,44 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				customBurgerIcon={false}
 				customCrossIcon={false}
 			>
-				<AccordionMenu
-					className="Datapad-app-menu"
-					initialSelectionIndex={this.props.appSelection}
-					onSelectionChange={(appSelection: AppId) => this.props.changeApp(appSelection)}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={[
-						// TODO: update builders to take AppId and return it in onClick
-						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled ?? true),
-						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
-						createMenuItemBuilder(
-							'Contacts (beta)',
-							this.props.contactsEnabled ?? true,
-						),
-						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
-						createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
-					]}
-				/>
+				<div className="Datapad-app-menu">
+					<p>
+						Welcome <b>{userName}</b>!
+					</p>
+					<AccordionMenu
+						initialSelectionIndex={this.props.appSelection}
+						onSelectionChange={(appSelection: AppId) =>
+							this.props.changeApp(appSelection)
+						}
+						defaultItemStyle={menuItemStyleDefault}
+						selectedItemStyle={menuItemStyleSelected}
+						menuItemBuilders={[
+							// TODO: update builders to take AppId and return it in onClick
+							createMenuItemBuilder(
+								'Galaxy Map',
+								this.props.galaxyMapEnabled ?? true,
+							),
+							createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
+							createMenuItemBuilder(
+								'Contacts (beta)',
+								this.props.contactsEnabled ?? true,
+							),
+							createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
+							createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
+						]}
+					/>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'center',
+						}}
+					>
+						<Button variant="contained" onClick={() => this.props.logoutFunction()}>
+							Log Out
+						</Button>
+					</div>
+				</div>
 			</PushMenu>
 		);
 	}
@@ -327,14 +362,10 @@ function createMenuItemBuilder(label: string, appEnabled: boolean): AccordionMen
 /**
  * {@inheritdoc react-redux/MapStateToPropsParam}
  */
-function mapStateToProps(state: AppState, externalProps: EnabledApps): Parameters {
+function mapStateToProps(state: AppState, externalProps: InputProps): Parameters {
 	return {
-		appSelection: state.appSelection,
-		isMenuCollapsed: state.isMenuCollapsed,
-		galaxyMapEnabled: externalProps.galaxyMapEnabled,
-		shopsEnabled: externalProps.shopsEnabled,
-		contactsEnabled: externalProps.contactsEnabled,
-		messengerEnabled: externalProps.messengerEnabled,
+		...state,
+		...externalProps,
 	};
 }
 
