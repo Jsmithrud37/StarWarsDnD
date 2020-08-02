@@ -8,13 +8,22 @@ import { reducer as datapadReducer } from '../State';
 
 const dataStore = createStore(datapadReducer);
 
+const userName = 'test-user';
+
+/**
+ * Mocks the logout functionality supported by the Datapad
+ */
+function mockLogout(): void {
+	console.log('User logged out.');
+}
+
 /**
  * Renders the datapad app, initialized with its required Redux datastore.
  */
 function renderApp(): ReactNode {
 	return (
 		<Provider store={dataStore}>
-			<Datapad />
+			<Datapad userName={userName} logoutFunction={mockLogout} />
 		</Provider>
 	);
 }
