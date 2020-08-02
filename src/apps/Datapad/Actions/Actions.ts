@@ -12,7 +12,7 @@ export type DatapadActions = ChangeApp | CollapseMenu | ExpandMenu;
  */
 export interface Actions {
 	/**
-	 * {@inheritdoc ChangeAppSignature}
+	 * {@inheritdoc ChangeAppFunction}
 	 */
 	changeApp: ChangeAppFunction;
 
