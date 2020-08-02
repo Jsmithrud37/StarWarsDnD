@@ -6,7 +6,14 @@ import AppId from './AppId';
  * State utilized by the Datapad app component
  */
 export interface AppState {
+	/**
+	 * Currently selected application.
+	 */
 	appSelection: AppId;
+
+	/**
+	 * Whether or not the side-bar menu is hidden (collapsed), or visible.
+	 */
 	isMenuCollapsed: boolean;
 }
 
