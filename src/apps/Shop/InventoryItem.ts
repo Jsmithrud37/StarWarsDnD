@@ -36,6 +36,7 @@ export interface InventoryItem {
 	 */
 	name: string;
 
+	// TODO: replace this with anonomous fields?
 	/**
 	 * Data entries associated with the specified headings for the table
 	 * (see {@link IntentoryHeader.columns}).

@@ -1,5 +1,6 @@
 import { Reducer } from 'redux';
-import { CHANGE_SHOP, ShopActionTypes } from './Actions';
+import { CHANGE_SHOP, LOAD_INVENTORY, ShopActionTypes } from './Actions';
+import { InventoryItem } from './InventoryItem';
 import { ShopId } from './ShopId';
 
 /**
@@ -7,6 +8,7 @@ import { ShopId } from './ShopId';
  */
 export interface AppState {
 	shopSelection: ShopId;
+	inventory?: InventoryItem[];
 }
 
 /**
@@ -14,6 +16,7 @@ export interface AppState {
  */
 export const initialState: AppState = {
 	shopSelection: ShopId.Equipment,
+	inventory: undefined,
 };
 
 /**
@@ -31,6 +34,12 @@ export const reducer: Reducer<AppState, ShopActionTypes> = (
 			return {
 				...currentState,
 				shopSelection: action.newShopSelection,
+				inventory: undefined, // Set the inventory back to empty to trigger reload
+			};
+		case LOAD_INVENTORY:
+			return {
+				...currentState,
+				inventory: action.inventory,
 			};
 		default:
 			return currentState;

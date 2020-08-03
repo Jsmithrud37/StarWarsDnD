@@ -2,7 +2,7 @@
 
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { Connection } from 'mongoose';
-import { collectionName, contactSchema } from './contacts';
+import { collectionName, contactSchema, databaseName } from './contacts';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
@@ -12,7 +12,7 @@ import { errorResponse, successResponse } from './utilities/Responses';
  */
 async function getContactsHandler(): Promise<APIGatewayProxyResult> {
 	try {
-		const contacts = await withDbConnection(async (db: Connection) => {
+		const contacts = await withDbConnection(databaseName, async (db: Connection) => {
 			const model = db.model('Contact', contactSchema, collectionName);
 
 			console.log('Retrieved contacts collection.');

@@ -1,6 +1,12 @@
 export { contactSchema } from './ContactSchema';
 
 /**
+ * Database including all of the contact-related collections.
+ * TODO: rename to `contacts`
+ */
+export const databaseName = 'datapad';
+
+/**
  * Name of the MongoDB collection containing the Contacts
  */
 export const collectionName = 'contacts';

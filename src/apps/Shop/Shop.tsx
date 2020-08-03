@@ -1,10 +1,12 @@
 import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/Card';
+import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import { connect } from 'react-redux';
-import { Actions, changeShop } from './Actions';
+import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
+import { Actions, changeShop, loadInventory } from './Actions';
 import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
 import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryTemp';
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
@@ -29,12 +31,46 @@ class ShopComponent extends React.Component<Props> {
 		super(props);
 	}
 
+	/**
+	 * {@inheritdoc React.Component.componentDidMount}
+	 */
+	public componentDidMount(): void {
+		if (!this.props.inventory) {
+			this.fetchInventory();
+		}
+	}
+
+	private async fetchInventory(): Promise<void> {
+		const getContactsFunction = 'GetShopInventory';
+		const response = await fetchFromBackendFunction(getContactsFunction);
+		const shopName = response.shopName;
+
+		// If the shop selection has changed since we requested inventory from the server,
+		// disregard the response.
+		if (shopName === this.props.shopSelection) {
+			const inventory: InventoryItem[] = response.inventory;
+			if (inventory.length > 0) {
+				this.props.loadInventory(inventory);
+			}
+		}
+	}
+
 	public render(): ReactNode {
 		return (
 			<div className="Shops">
 				{this.renderMenu()}
-				{this.renderApp()}
+				{this.props.inventory ? this.renderApp() : this.renderLoadingScreen()}
 			</div>
+		);
+	}
+
+	// TODO: de-dup with Contacts.
+	private renderLoadingScreen(): ReactNode {
+		return (
+			<>
+				<div>Loading {this.props.shopSelection} inventory...</div>
+				<Spinner animation="border" variant="light"></Spinner>
+			</>
 		);
 	}
 
@@ -205,6 +241,7 @@ function mapStateToProps(state: AppState): Parameters {
  */
 const Shop = connect(mapStateToProps, {
 	changeShop,
+	loadInventory,
 })(ShopComponent);
 
 export default Shop;
