@@ -10,10 +10,10 @@ import * as serviceWorker from './serviceWorker';
 const dataStore = createStore(reducers);
 
 const galaxyMapEnabled = true;
-const shopsEnabled = false;
+const shopsEnabled = process.env.NODE_ENV !== 'production';
 const contactsEnabled = true;
 const messengerEnabled = true;
-const timelineEnabled = false;
+const timelineEnabled = process.env.NODE_ENV !== 'production';
 
 ReactDOM.render(
 	<Provider store={dataStore}>
