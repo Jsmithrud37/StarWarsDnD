@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 import { CHANGE_SHOP, LOAD_INVENTORY, ShopActionTypes } from './Actions';
-import { InventoryItem } from './InventoryItem';
+import { Inventory } from './InventoryItem';
 import { ShopId } from './ShopId';
 
 /**
@@ -8,7 +8,7 @@ import { ShopId } from './ShopId';
  */
 export interface AppState {
 	shopSelection: ShopId;
-	inventory?: InventoryItem[];
+	inventory?: Inventory;
 }
 
 /**

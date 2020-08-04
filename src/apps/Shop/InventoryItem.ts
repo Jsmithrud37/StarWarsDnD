@@ -22,8 +22,8 @@ export interface Cell {
 
 /**
  * Describes the data headers for the inventory.
- * Omits the `name` field (string), `cost` field, and`stock` field, which are required for all
- * inventory tables.
+ * Omits the `name` field, `cost` field, `type`, `weight`, and`stock` field, which are
+ * required for all inventory tables.
  */
 export type InventoryHeader = Array<Cell | string>;
 
@@ -42,6 +42,16 @@ export interface InventoryItem {
 	 * (see {@link IntentoryHeader.columns}).
 	 */
 	otherData: Array<Cell | string>;
+
+	/**
+	 * Item type
+	 */
+	type: string;
+
+	/**
+	 * Weight of the item in pounds.
+	 */
+	weight: number;
 
 	/**
 	 * Cost of the item in Galactic Credits.

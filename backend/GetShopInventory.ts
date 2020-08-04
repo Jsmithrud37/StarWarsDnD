@@ -6,12 +6,15 @@ import { apothecaryItemSchema, databaseName, equipmentItemSchema, ShopName } fro
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
+// TODO: find a better way to represent this set.
+const shopNames = ['apothecary', 'equipment'];
+
 /**
  * Converts the provided shop name string to one of the supported shop name values.
  * If not valid, throws.
  */
 function getShopName(shopName: string): ShopName {
-	if (!Object.keys(ShopName).includes(shopName)) {
+	if (!shopNames.includes(shopName)) {
 		throw new Error(`Shop '${shopName}' does not exist.`);
 	}
 	return shopName as ShopName;

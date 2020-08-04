@@ -1,4 +1,4 @@
 export enum ShopId {
 	Equipment = 'Equipment',
-	Apothicary = 'Apothicary',
+	Apothecary = 'Apothecary',
 }

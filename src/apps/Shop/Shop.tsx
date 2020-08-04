@@ -8,8 +8,6 @@ import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
-import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryTemp';
-import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 
@@ -42,24 +40,39 @@ class ShopComponent extends React.Component<Props> {
 
 	private async fetchInventory(): Promise<void> {
 		const getContactsFunction = 'GetShopInventory';
-		const response = await fetchFromBackendFunction(getContactsFunction);
+		const getContactsParameters = [
+			{
+				name: 'shopName',
+				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
+			},
+		];
+		const response = await fetchFromBackendFunction(getContactsFunction, getContactsParameters);
 		const shopName = response.shopName;
 
 		// If the shop selection has changed since we requested inventory from the server,
 		// disregard the response.
-		if (shopName === this.props.shopSelection) {
-			const inventory: InventoryItem[] = response.inventory;
-			if (inventory.length > 0) {
+		if (shopName === this.props.shopSelection.toLowerCase()) {
+			const inventoryItems: InventoryItem[] = response.inventory;
+			if (inventoryItems.length > 0) {
+				const inventory = new Inventory([] /* TODO */, inventoryItems);
 				this.props.loadInventory(inventory);
 			}
 		}
 	}
 
 	public render(): ReactNode {
+		let view;
+		if (!this.props.inventory) {
+			this.fetchInventory();
+			view = this.renderLoadingScreen();
+		} else {
+			view = this.renderApp();
+		}
+
 		return (
 			<div className="Shops">
 				{this.renderMenu()}
-				{this.props.inventory ? this.renderApp() : this.renderLoadingScreen()}
+				{view}
 			</div>
 		);
 	}
@@ -99,23 +112,14 @@ class ShopComponent extends React.Component<Props> {
 		);
 	}
 
-	private getInventory(): Inventory {
-		switch (this.props.shopSelection) {
-			case ShopId.Equipment:
-				return getEquipmentInventoryTEMP();
-			case ShopId.Apothicary:
-				return getApothicaryInventoryTEMP();
-			default:
-				throw new Error(`Unrecognized ShopId value: ${this.props.shopSelection}`);
-		}
-	}
-
 	/**
 	 * Renders the inventory view for the indicated shop
 	 */
 	public renderInventory(): ReactNode {
-		const inventory: Inventory = this.getInventory();
-		return renderInventory(inventory);
+		if (!this.props.inventory) {
+			throw new Error('Inventory not loaded.');
+		}
+		return renderInventory(this.props.inventory);
 	}
 }
 
@@ -139,9 +143,9 @@ function renderHeader(header: InventoryHeader): ReactNode {
 		<thead>
 			<tr>
 				<th>Name</th>
-				{header.map((cell) => {
-					return <>{renderCell(cell, true)}</>;
-				})}
+				<th>Type</th>
+				<th>Weight (lb)</th>
+				{/* TODO: handle custom table data */}
 				<th>
 					Cost (
 					<a
@@ -178,14 +182,20 @@ function renderInventoryData(data: InventoryItem[]): ReactNode {
 function renderRow(row: InventoryItem): ReactNode {
 	return (
 		<tr>
-			<td>{row.name}</td>
-			{row.otherData.map((cell) => {
-				return (
-					<React.Fragment key={getCellText(cell)}>
-						{renderCell(cell, false)}
-					</React.Fragment>
-				);
-			})}
+			<td>
+				<a
+					href={`https://sw5e.com/searchResults?searchText=${encodeURIComponent(
+						row.name,
+					)}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{row.name}
+				</a>
+			</td>
+			<td>{row.type}</td>
+			<td>{row.weight}</td>
+			{/* TODO: handle custom table data */}
 			<td>{row.cost}</td>
 			<td>{row.stock}</td>
 		</tr>
