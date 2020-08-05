@@ -194,6 +194,10 @@ function renderRow(row: InventoryItem): React.ReactNode {
 	);
 }
 
+/**
+ * Gets the resource url for the provided item. Gets it from the item itself if present, otherwise
+ * generates a default.
+ */
 function getResourceUrl(item: InventoryItem): string {
 	if (item.resourceUrl) {
 		return item.resourceUrl;
