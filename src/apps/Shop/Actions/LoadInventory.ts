@@ -1,4 +1,4 @@
-import { Inventory } from '../InventoryItem';
+import { Inventory } from '../Inventory';
 
 /**
  * Dispatch ID for the LoadInventory action

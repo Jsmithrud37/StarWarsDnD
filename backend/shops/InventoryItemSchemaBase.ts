@@ -6,4 +6,5 @@ export const inventoryItemBaseSchema: SchemaDefinition = {
 	weight: { type: Number, required: true },
 	cost: { type: Number, required: true },
 	stock: { type: Number, required: true },
+	resourceUrl: { type: String, required: false },
 };

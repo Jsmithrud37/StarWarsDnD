@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import Card from 'react-bootstrap/Card';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
@@ -7,7 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
-import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
+import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 
@@ -20,6 +20,12 @@ type Parameters = AppState;
  * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
 type Props = Actions & Parameters;
+
+/**
+ * Whether or not inventories may be edited.
+ * TODO: permissions based on user roles.
+ */
+const canEdit = process.env.NODE_ENV !== 'production';
 
 /**
  *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
@@ -52,15 +58,14 @@ class ShopComponent extends React.Component<Props> {
 		// If the shop selection has changed since we requested inventory from the server,
 		// disregard the response.
 		if (shopName === this.props.shopSelection.toLowerCase()) {
-			const inventoryItems: InventoryItem[] = response.inventory;
-			if (inventoryItems.length > 0) {
-				const inventory = new Inventory([] /* TODO */, inventoryItems);
+			const inventory: Inventory = response.inventory;
+			if (inventory.length > 0) {
 				this.props.loadInventory(inventory);
 			}
 		}
 	}
 
-	public render(): ReactNode {
+	public render(): React.ReactNode {
 		let view;
 		if (!this.props.inventory) {
 			this.fetchInventory();
@@ -78,7 +83,7 @@ class ShopComponent extends React.Component<Props> {
 	}
 
 	// TODO: de-dup with Contacts.
-	private renderLoadingScreen(): ReactNode {
+	private renderLoadingScreen(): React.ReactNode {
 		return (
 			<>
 				<div>Loading {this.props.shopSelection} inventory...</div>
@@ -90,7 +95,7 @@ class ShopComponent extends React.Component<Props> {
 	/**
 	 * Render the shop-selection menu
 	 */
-	public renderMenu(): ReactNode {
+	public renderMenu(): React.ReactNode {
 		return (
 			<Tabs
 				defaultActiveKey={this.props.shopSelection}
@@ -104,7 +109,7 @@ class ShopComponent extends React.Component<Props> {
 		);
 	}
 
-	public renderApp(): ReactNode {
+	public renderApp(): React.ReactNode {
 		return (
 			<Card bg="dark" text="light">
 				<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
@@ -115,37 +120,30 @@ class ShopComponent extends React.Component<Props> {
 	/**
 	 * Renders the inventory view for the indicated shop
 	 */
-	public renderInventory(): ReactNode {
+	public renderInventory(): React.ReactNode {
 		if (!this.props.inventory) {
 			throw new Error('Inventory not loaded.');
 		}
-		return renderInventory(this.props.inventory);
+		return (
+			<Table bordered hover responsive striped variant="dark">
+				{renderHeader()}
+				{renderInventoryData(this.props.inventory)}
+				{renderInsertFooter()}
+			</Table>
+		);
 	}
-}
-
-/**
- * Renders the full inventory table.
- */
-function renderInventory(inventory: Inventory): ReactNode {
-	return (
-		<Table bordered hover responsive striped variant="dark">
-			{renderHeader(inventory.header)}
-			{renderInventoryData(inventory.data)}
-		</Table>
-	);
 }
 
 /**
  * Renders the inventory header.
  */
-function renderHeader(header: InventoryHeader): ReactNode {
+function renderHeader(): React.ReactNode {
 	return (
 		<thead>
 			<tr>
 				<th>Name</th>
 				<th>Type</th>
 				<th>Weight (lb)</th>
-				{/* TODO: handle custom table data */}
 				<th>
 					Cost (
 					<a
@@ -166,7 +164,7 @@ function renderHeader(header: InventoryHeader): ReactNode {
 /**
  * Renders the table body.
  */
-function renderInventoryData(data: InventoryItem[]): ReactNode {
+function renderInventoryData(data: Inventory): React.ReactNode {
 	return (
 		<tbody>
 			{data.map((row) => {
@@ -179,17 +177,11 @@ function renderInventoryData(data: InventoryItem[]): ReactNode {
 /**
  * Renders a data row
  */
-function renderRow(row: InventoryItem): ReactNode {
+function renderRow(row: InventoryItem): React.ReactNode {
 	return (
 		<tr>
 			<td>
-				<a
-					href={`https://sw5e.com/searchResults?searchText=${encodeURIComponent(
-						row.name,
-					)}`}
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<a href={getResourceUrl(row)} target="_blank" rel="noopener noreferrer">
 					{row.name}
 				</a>
 			</td>
@@ -202,40 +194,22 @@ function renderRow(row: InventoryItem): ReactNode {
 	);
 }
 
-/**
- * Renders an individual cell.
- */
-function renderCell(cell: Cell | string, isHeaderCell: boolean): ReactNode {
-	if (typeof cell === 'string') {
-		return isHeaderCell ? <th>{cell}</th> : <td>{cell}</td>;
-	} else {
-		let render = <>{cell.text}</>;
-
-		if (cell.link) {
-			render = (
-				<a href={cell.link} target="_blank" rel="noopener noreferrer">
-					text
-				</a>
-			);
-		}
-
-		if (cell.popOverText) {
-			// TODO: pop-over support
-		}
-
-		return isHeaderCell ? <th>{render}</th> : <td>{render}</td>;
+function getResourceUrl(item: InventoryItem): string {
+	if (item.resourceUrl) {
+		return item.resourceUrl;
 	}
+	// TODO: use a better link mechanism here
+	return `https://sw5e.com/searchResults?searchText=${encodeURIComponent(item.name)}`;
 }
 
 /**
- * Gets the text from a cell.
+ * Renders an "insert new item" footer iff the user is permitted to make edits.
  */
-function getCellText(cell: Cell | string): string {
-	if (typeof cell === 'string') {
-		return cell;
-	} else {
-		return cell.text;
+function renderInsertFooter(): React.ReactNode {
+	if (canEdit) {
+		return <></>; // TODO
 	}
+	return <></>;
 }
 
 /**

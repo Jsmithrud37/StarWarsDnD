@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 import { CHANGE_SHOP, LOAD_INVENTORY, ShopActionTypes } from './Actions';
-import { Inventory } from './InventoryItem';
+import { Inventory } from './Inventory';
 import { ShopId } from './ShopId';
 
 /**
