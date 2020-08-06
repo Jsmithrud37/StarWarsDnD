@@ -1,6 +1,5 @@
-import { Button } from '@material-ui/core';
+import { Button, Modal } from '@material-ui/core';
 import React from 'react';
-import Card from 'react-bootstrap/Card';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
@@ -10,6 +9,7 @@ import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
+import ItemEditForm from './ItemEditForm';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 
@@ -17,6 +17,16 @@ import { AppState } from './State';
  * State parameters used by the Datapad app component.
  */
 type Parameters = AppState;
+
+/**
+ * Modal state local to the Shops app.
+ */
+interface ModalState {
+	/**
+	 * Indicates that the app is in the modal state of adding a new item to the inventory.
+	 */
+	insertingItem: boolean;
+}
 
 /**
  * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
@@ -32,9 +42,12 @@ const canEdit = process.env.NODE_ENV !== 'production';
 /**
  *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-class ShopComponent extends React.Component<Props> {
+class ShopComponent extends React.Component<Props, ModalState> {
 	public constructor(props: Props) {
 		super(props);
+		this.state = {
+			insertingItem: false,
+		};
 	}
 
 	private async fetchInventory(): Promise<void> {
@@ -58,6 +71,10 @@ class ShopComponent extends React.Component<Props> {
 		}
 	}
 
+	private setIsInsertingItem(value: boolean): void {
+		this.setState({ ...this.state, insertingItem: value });
+	}
+
 	public render(): React.ReactNode {
 		let view;
 		if (!this.props.inventory) {
@@ -68,16 +85,29 @@ class ShopComponent extends React.Component<Props> {
 		}
 
 		return (
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					height: '100%',
-				}}
-			>
-				{this.renderMenu()}
-				{view}
-			</div>
+			<>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						height: '100%',
+					}}
+				>
+					{this.renderMenu()}
+					{view}
+				</div>
+				<Modal
+					open={this.state.insertingItem}
+					onClose={() => this.setIsInsertingItem(false)}
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+					}}
+				>
+					<ItemEditForm />
+				</Modal>
+			</>
 		);
 	}
 
@@ -136,10 +166,14 @@ class ShopComponent extends React.Component<Props> {
 
 	public renderApp(): React.ReactNode {
 		return (
-			<Scrollbars autoHide={true} autoHeight={false}>
-				<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
-				{renderInsertFooter()}
-			</Scrollbars>
+			<>
+				<Scrollbars autoHide={true} autoHeight={false}>
+					<div style={{ height: '100%', padding: '5px' }}>
+						{this.renderInventory()}
+						{this.renderInsertFooter()}
+					</div>
+				</Scrollbars>
+			</>
 		);
 	}
 
@@ -147,56 +181,83 @@ class ShopComponent extends React.Component<Props> {
 	 * Renders the inventory view for the indicated shop
 	 */
 	public renderInventory(): React.ReactNode {
+		return (
+			<Table bordered hover responsive striped variant="dark">
+				{this.renderHeader()}
+				{this.renderInventoryData()}
+			</Table>
+		);
+	}
+
+	/**
+	 * Renders the inventory header.
+	 */
+	private renderHeader(): React.ReactNode {
+		return (
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Type</th>
+					<th>Weight (lb)</th>
+					<th>
+						Cost (
+						<a
+							href="https://sw5e.com/rules/phb/equipment#currency"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							cr
+						</a>
+						)
+					</th>
+					<th>Stock</th>
+				</tr>
+			</thead>
+		);
+	}
+
+	/**
+	 * Renders the table body.
+	 */
+	private renderInventoryData(): React.ReactNode {
 		if (!this.props.inventory) {
 			throw new Error('Inventory not loaded.');
 		}
 		return (
-			<Table bordered hover responsive striped variant="dark">
-				{renderHeader()}
-				{renderInventoryData(this.props.inventory)}
-			</Table>
+			<tbody>
+				{this.props.inventory.map((row) => {
+					return <>{renderRow(row)}</>;
+				})}
+			</tbody>
 		);
 	}
-}
 
-/**
- * Renders the inventory header.
- */
-function renderHeader(): React.ReactNode {
-	return (
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Type</th>
-				<th>Weight (lb)</th>
-				<th>
-					Cost (
-					<a
-						href="https://sw5e.com/rules/phb/equipment#currency"
-						target="_blank"
-						rel="noopener noreferrer"
+	// TODO: upon clicking button, open up modal form for inserting new item.
+	/**
+	 * Renders an "insert new item" footer iff the user is permitted to make edits.
+	 */
+	private renderInsertFooter(): React.ReactNode {
+		if (canEdit) {
+			return (
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row-reverse',
+						margin: '5px',
+					}}
+				>
+					<Button
+						variant="outlined"
+						color="primary"
+						onClick={() => this.setIsInsertingItem(true)}
 					>
-						cr
-					</a>
-					)
-				</th>
-				<th>Stock</th>
-			</tr>
-		</thead>
-	);
-}
-
-/**
- * Renders the table body.
- */
-function renderInventoryData(data: Inventory): React.ReactNode {
-	return (
-		<tbody>
-			{data.map((row) => {
-				return <>{renderRow(row)}</>;
-			})}
-		</tbody>
-	);
+						+
+					</Button>
+				</div>
+			);
+		}
+		return <></>;
+	}
 }
 
 /**
@@ -229,29 +290,6 @@ function getResourceUrl(item: InventoryItem): string {
 	}
 	// TODO: use a better link mechanism here
 	return `https://sw5e.com/searchResults?searchText=${encodeURIComponent(item.name)}`;
-}
-
-// TODO: upon clicking button, open up modal form for inserting new item.
-/**
- * Renders an "insert new item" footer iff the user is permitted to make edits.
- */
-function renderInsertFooter(): React.ReactNode {
-	if (canEdit) {
-		return (
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row-reverse',
-					margin: '5px',
-				}}
-			>
-				<Button variant="outlined" color="primary">
-					+
-				</Button>
-			</div>
-		);
-	}
-	return <></>;
 }
 
 /**
