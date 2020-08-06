@@ -1,9 +1,11 @@
+import { Button } from '@material-ui/core';
 import React from 'react';
 import Card from 'react-bootstrap/Card';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
@@ -75,7 +77,13 @@ class ShopComponent extends React.Component<Props> {
 		}
 
 		return (
-			<div className="Shops">
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%',
+				}}
+			>
 				{this.renderMenu()}
 				{view}
 			</div>
@@ -85,10 +93,36 @@ class ShopComponent extends React.Component<Props> {
 	// TODO: de-dup with Contacts.
 	private renderLoadingScreen(): React.ReactNode {
 		return (
-			<>
-				<div>Loading {this.props.shopSelection} inventory...</div>
-				<Spinner animation="border" variant="light"></Spinner>
-			</>
+			<div
+				style={{
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					textAlign: 'center',
+				}}
+			>
+				<div
+					style={{
+						padding: '15px',
+					}}
+				>
+					Loading {this.props.shopSelection} inventory...
+				</div>
+				<div
+					style={{
+						padding: '15px',
+						textAlign: 'center',
+					}}
+				>
+					<div
+						style={{
+							display: 'inline-block',
+						}}
+					>
+						<Spinner animation="border" variant="light"></Spinner>
+					</div>
+				</div>
+			</div>
 		);
 	}
 
@@ -111,9 +145,10 @@ class ShopComponent extends React.Component<Props> {
 
 	public renderApp(): React.ReactNode {
 		return (
-			<Card bg="dark" text="light">
+			<Scrollbars autoHide={true} autoHeight={false}>
 				<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
-			</Card>
+				{renderInsertFooter()}
+			</Scrollbars>
 		);
 	}
 
@@ -128,7 +163,6 @@ class ShopComponent extends React.Component<Props> {
 			<Table bordered hover responsive striped variant="dark">
 				{renderHeader()}
 				{renderInventoryData(this.props.inventory)}
-				{renderInsertFooter()}
 			</Table>
 		);
 	}
@@ -206,12 +240,25 @@ function getResourceUrl(item: InventoryItem): string {
 	return `https://sw5e.com/searchResults?searchText=${encodeURIComponent(item.name)}`;
 }
 
+// TODO: upon clicking button, open up modal form for inserting new item.
 /**
  * Renders an "insert new item" footer iff the user is permitted to make edits.
  */
 function renderInsertFooter(): React.ReactNode {
 	if (canEdit) {
-		return <></>; // TODO
+		return (
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row-reverse',
+					margin: '5px',
+				}}
+			>
+				<Button variant="outlined" color="primary">
+					+
+				</Button>
+			</div>
+		);
 	}
 	return <></>;
 }
