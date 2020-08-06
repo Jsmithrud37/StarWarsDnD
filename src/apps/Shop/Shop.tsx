@@ -37,15 +37,6 @@ class ShopComponent extends React.Component<Props> {
 		super(props);
 	}
 
-	/**
-	 * {@inheritdoc React.Component.componentDidMount}
-	 */
-	public componentDidMount(): void {
-		if (!this.props.inventory) {
-			this.fetchInventory();
-		}
-	}
-
 	private async fetchInventory(): Promise<void> {
 		const getContactsFunction = 'GetShopInventory';
 		const getContactsParameters = [
