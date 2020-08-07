@@ -5,6 +5,7 @@ export interface Contact {
 	_id: Id;
 	name: string;
 	imageUrl?: string;
+	// TODO: rename to "species" once database entries have been updated.
 	race?: string; // undefined === "Unkown"
 	gender?: string; // undefined === "Unkown"
 	affiliations?: string[]; // undefined === "None"
