@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
-import ItemEditForm from './ItemEditForm';
+import ItemEditForm, { BooleanEntry, DataEntry, StringEntry } from './ItemEditForm';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 
@@ -84,6 +84,13 @@ class ShopComponent extends React.Component<Props, ModalState> {
 			view = this.renderApp();
 		}
 
+		const formSchemas = new Map<string, DataEntry>([
+			['name', new StringEntry('', 'Name', undefined, undefined)],
+			['race', new StringEntry('', 'Race', undefined, undefined)],
+			['player-character', new BooleanEntry(false, 'Is Player Character', undefined)],
+			['active', new BooleanEntry(true, 'Is Active', undefined)],
+		]);
+
 		return (
 			<>
 				<div
@@ -105,10 +112,18 @@ class ShopComponent extends React.Component<Props, ModalState> {
 						justifyContent: 'center',
 					}}
 				>
-					<ItemEditForm />
+					<ItemEditForm
+						schemas={formSchemas}
+						onSubmit={(item) => this.onInsertItem(item)}
+					/>
 				</Modal>
 			</>
 		);
+	}
+
+	private onInsertItem(item: Map<string, boolean | string | number>): void {
+		console.log(`Inserting item ${item.get('name')}`);
+		this.setIsInsertingItem(false);
 	}
 
 	// TODO: de-dup with Contacts.
@@ -226,7 +241,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		return (
 			<tbody>
 				{this.props.inventory.map((row) => {
-					return <>{renderRow(row)}</>;
+					return <React.Fragment key={row.name}>{renderRow(row)}</React.Fragment>;
 				})}
 			</tbody>
 		);
