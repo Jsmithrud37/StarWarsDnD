@@ -315,7 +315,7 @@ class ContactsComponent extends React.Component<Props> {
 
 	private getSpeciesLinkUrl(contact: Contact): string | undefined {
 		return contact.race
-			? `https://starwars.fandom.com/wiki/${contact.race.replace(' ', '_')}/Legends`
+			? `https://starwars.fandom.com/wiki/${contact.race.replace(' ', '_')}`
 			: undefined;
 	}
 
