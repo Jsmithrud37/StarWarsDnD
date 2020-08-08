@@ -6,10 +6,16 @@ import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
+import {
+	BooleanEntry,
+	DataEntry,
+	NumberEntry,
+	StringEntry,
+} from '../../shared-components/EditItemForm/DataEntry';
+import ItemEditForm from '../../shared-components/EditItemForm/EditItemForm';
 import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
-import ItemEditForm, { BooleanEntry, DataEntry, StringEntry } from './ItemEditForm';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 
@@ -86,9 +92,11 @@ class ShopComponent extends React.Component<Props, ModalState> {
 
 		const formSchemas = new Map<string, DataEntry>([
 			['name', new StringEntry('', 'Name', undefined, undefined)],
-			['race', new StringEntry('', 'Race', undefined, undefined)],
+			['species', new StringEntry('', 'Species', undefined, undefined)],
 			['player-character', new BooleanEntry(false, 'Is Player Character', undefined)],
 			['active', new BooleanEntry(true, 'Is Active', undefined)],
+			['level', new NumberEntry(7, 'Level', undefined, 0, 20, false)],
+			['bio', new StringEntry('', 'Character Bio', undefined, false, true)],
 		]);
 
 		return (
@@ -122,7 +130,12 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	}
 
 	private onInsertItem(item: Map<string, boolean | string | number>): void {
-		console.log(`Inserting item ${item.get('name')}`);
+		console.log(`Adding item ${item.get('name')} to ${this.props.shopSelection}`);
+		console.group();
+		item.forEach((value, key) => {
+			console.log(`${key}: ${value}`);
+		});
+		console.groupEnd();
 		this.setIsInsertingItem(false);
 	}
 

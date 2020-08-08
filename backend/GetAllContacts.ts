@@ -2,7 +2,7 @@
 
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { Connection } from 'mongoose';
-import { collectionName, contactSchema, databaseName } from './contacts';
+import { collectionName, contactSchema } from './contacts';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
