@@ -229,7 +229,7 @@ class ContactsComponent extends React.Component<Props> {
 			>
 				<Card.Body>
 					<>
-						{this.renderRace(contact)}
+						{this.renderSpecies(contact)}
 						{this.renderGender(contact)}
 						{this.renderStatus(contact)}
 					</>
@@ -238,14 +238,14 @@ class ContactsComponent extends React.Component<Props> {
 		);
 	}
 
-	private renderRace(contact: Contact): React.ReactNode {
-		const raceLink = this.getRaceLinkUrl(contact);
+	private renderSpecies(contact: Contact): React.ReactNode {
+		const speciesLink = this.getRaceLinkUrl(contact);
 		return (
 			<p>
-				<b>Race: </b>
-				{contact.race ? (
-					<a href={raceLink} target="_blank" rel="noopener noreferrer">
-						{contact.race}
+				<b>Species: </b>
+				{contact.species ? (
+					<a href={speciesLink} target="_blank" rel="noopener noreferrer">
+						{contact.species}
 					</a>
 				) : (
 					'Unkown'
@@ -314,8 +314,8 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private getRaceLinkUrl(contact: Contact): string | undefined {
-		return contact.race
-			? `https://starwars.fandom.com/wiki/${contact.race.replace(' ', '_')}/Legends`
+		return contact.species
+			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}/Legends`
 			: undefined;
 	}
 
