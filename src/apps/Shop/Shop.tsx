@@ -1,4 +1,7 @@
 import { Button, Modal } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import React from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
@@ -7,7 +10,6 @@ import Tabs from 'react-bootstrap/Tabs';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import {
-	BooleanEntry,
 	DataEntry,
 	NumberEntry,
 	StringEntry,
@@ -29,9 +31,9 @@ type Parameters = AppState;
  */
 interface ModalState {
 	/**
-	 * Indicates that the app is in the modal state of adding a new item to the inventory.
+	 * Indicates that the app is in the modal state of editing or adding an item.
 	 */
-	insertingItem: boolean;
+	editing?: EditType;
 }
 
 /**
@@ -45,6 +47,11 @@ type Props = Actions & Parameters;
  */
 const canEdit = process.env.NODE_ENV !== 'production';
 
+enum EditType {
+	Insert,
+	Edit,
+}
+
 /**
  *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
@@ -52,7 +59,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
-			insertingItem: false,
+			editing: undefined,
 		};
 	}
 
@@ -77,8 +84,8 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		}
 	}
 
-	private setIsInsertingItem(value: boolean): void {
-		this.setState({ ...this.state, insertingItem: value });
+	private setIsEditing(value?: EditType): void {
+		this.setState({ ...this.state, editing: value });
 	}
 
 	public render(): React.ReactNode {
@@ -90,14 +97,27 @@ class ShopComponent extends React.Component<Props, ModalState> {
 			view = this.renderApp();
 		}
 
+		// TODO: get as component input
 		const formSchemas = new Map<string, DataEntry>([
 			['name', new StringEntry('', 'Name', undefined, undefined)],
-			['species', new StringEntry('', 'Species', undefined, undefined)],
-			['player-character', new BooleanEntry(false, 'Is Player Character', undefined)],
-			['active', new BooleanEntry(true, 'Is Active', undefined)],
-			['level', new NumberEntry(7, 'Level', undefined, 0, 20, false)],
-			['bio', new StringEntry('', 'Character Bio', undefined, false, true)],
+			['type', new StringEntry('', 'Type', undefined, undefined)],
+			['weight', new NumberEntry(7, 'Weight(lb)', undefined, undefined, undefined, true)],
+			['stock', new NumberEntry(7, 'Stock', undefined, undefined, undefined, true)],
 		]);
+
+		let modalTitle = '';
+		if (this.state.editing !== undefined) {
+			switch (this.state.editing) {
+				case EditType.Edit:
+					modalTitle = 'Edit item';
+					break;
+				case EditType.Insert:
+					modalTitle = 'Insert new item';
+					break;
+				default:
+					throw new Error(`Unrecognized EditType: ${this.state.editing}`);
+			}
+		}
 
 		return (
 			<>
@@ -112,8 +132,8 @@ class ShopComponent extends React.Component<Props, ModalState> {
 					{view}
 				</div>
 				<Modal
-					open={this.state.insertingItem}
-					onClose={() => this.setIsInsertingItem(false)}
+					open={this.state.editing !== undefined}
+					onClose={() => this.setIsEditing(undefined)}
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -121,6 +141,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 					}}
 				>
 					<ItemEditForm
+						title={modalTitle}
 						schemas={formSchemas}
 						onSubmit={(item) => this.onInsertItem(item)}
 					/>
@@ -136,7 +157,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 			console.log(`${key}: ${value}`);
 		});
 		console.groupEnd();
-		this.setIsInsertingItem(false);
+		this.setIsEditing(undefined);
 	}
 
 	// TODO: de-dup with Contacts.
@@ -254,9 +275,45 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		return (
 			<tbody>
 				{this.props.inventory.map((row) => {
-					return <React.Fragment key={row.name}>{renderRow(row)}</React.Fragment>;
+					return <React.Fragment key={row.name}>{this.renderRow(row)}</React.Fragment>;
 				})}
 			</tbody>
+		);
+	}
+
+	/**
+	 * Renders a data row
+	 */
+	private renderRow(row: InventoryItem): React.ReactNode {
+		return (
+			<tr>
+				<td>
+					<a href={getResourceUrl(row)} target="_blank" rel="noopener noreferrer">
+						{row.name}
+					</a>
+				</td>
+				<td>{row.type}</td>
+				<td>{row.weight}</td>
+				{/* TODO: handle custom table data */}
+				<td>{row.cost}</td>
+				<td>{row.stock < 0 ? '∞' : row.stock}</td>
+				{canEdit ? (
+					<td>
+						<Button onClick={() => this.setIsEditing(EditType.Edit)}>
+							<CreateIcon color="secondary" />
+						</Button>
+						<Button
+							onClick={() => {
+								/* TODO: delete item (after confirmation modal) */
+							}}
+						>
+							<DeleteForeverIcon color="secondary" />
+						</Button>
+					</td>
+				) : (
+					<></>
+				)}
+			</tr>
 		);
 	}
 
@@ -276,36 +333,16 @@ class ShopComponent extends React.Component<Props, ModalState> {
 				>
 					<Button
 						variant="outlined"
-						color="primary"
-						onClick={() => this.setIsInsertingItem(true)}
+						color="secondary"
+						onClick={() => this.setIsEditing(EditType.Insert)}
 					>
-						+
+						<AddIcon color="secondary" />
 					</Button>
 				</div>
 			);
 		}
 		return <></>;
 	}
-}
-
-/**
- * Renders a data row
- */
-function renderRow(row: InventoryItem): React.ReactNode {
-	return (
-		<tr>
-			<td>
-				<a href={getResourceUrl(row)} target="_blank" rel="noopener noreferrer">
-					{row.name}
-				</a>
-			</td>
-			<td>{row.type}</td>
-			<td>{row.weight}</td>
-			{/* TODO: handle custom table data */}
-			<td>{row.cost}</td>
-			<td>{row.stock}</td>
-		</tr>
-	);
 }
 
 /**

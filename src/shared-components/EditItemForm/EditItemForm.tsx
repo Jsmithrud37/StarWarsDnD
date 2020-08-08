@@ -4,6 +4,7 @@ import Card from 'react-bootstrap/Card';
 import { BooleanEntry, DataEntry, DataType, NumberEntry, StringEntry } from './DataEntry';
 
 interface Props {
+	title: string;
 	schemas: Map<string, DataEntry>;
 	onSubmit: (data: Map<string, boolean | string | number>) => void;
 }
@@ -76,7 +77,7 @@ class ItemEditForm extends React.Component<Props, State> {
 
 		return (
 			<Card bg="dark" text="light">
-				<Card.Header>Insert a new item</Card.Header>
+				<Card.Header>{this.props.title}</Card.Header>
 				<Card.Body>
 					<Grid container spacing={3}>
 						{childNodes}
