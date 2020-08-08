@@ -55,6 +55,7 @@
 		"react-iframe": "1.8.0",
 		"react-image": "^4.0.3",
 		"react-list": "^0.8.15",
+		"react-markdown": "^4.3.1",
 		"react-redux": "^7.2.0",
 		"react-scripts": "^3.4.1",
 		"react-vertical-timeline-component": "^3.0.2",
