@@ -6,6 +6,8 @@ import { collectionName, contactSchema, databaseName } from './contacts';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
+const databaseName = 'datapad';
+
 /**
  * Gets all contacts from the database.
  * Netlify function.
