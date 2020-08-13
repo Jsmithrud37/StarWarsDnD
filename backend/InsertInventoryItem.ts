@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { databaseName, getShopName, getSchema as getShopSchema, getCollectionName } from './shops';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
+import { InventoryItemBase } from './shops/InventoryItemSchemaBase';
 
 /**
  * Gets the item inventory from the specified
@@ -19,27 +20,43 @@ async function getShopInventoryHandler(
 		throw new Error('Caller did not specify `shopName` parameter in query.');
 	}
 
+	if (!parameters.item) {
+		throw new Error('Caller did not provide an item to insert.');
+	}
+
 	const shopName = getShopName(parameters.shopName);
+
+	const newItem = JSON.parse(parameters.item) as InventoryItemBase;
 
 	console.log(`Loading inventory from shop: ${shopName}`);
 
 	try {
-		const inventory = await withDbConnection(databaseName, async (db: Connection) => {
+		await withDbConnection(databaseName, async (db: Connection) => {
 			const schema = getShopSchema(shopName);
 			const collectionName = getCollectionName(shopName);
 			const model = db.model('Contact', schema, collectionName);
 
-			console.log(`Retrieved ${collectionName} shop collection.`);
-			console.log('Querying for results...');
-			const inventory = await model.find().sort({ name: 1 });
+			console.log(
+				`Inserting item "${newItem.name} into ${collectionName} shop collection...`,
+			);
 
-			console.log(`Found ${inventory.length} results.`);
-			return inventory;
+			// TODO: find single insert option?
+			try {
+				await model.insertMany([newItem]);
+			} catch (error) {
+				console.error('Encountered an error while inserting item:');
+				console.group();
+				console.log(error);
+				console.groupEnd();
+				throw error;
+			}
+
+			console.log(`Item inserted!`);
 		});
 
 		const resultBody = {
-			shopName,
-			inventory,
+			shopName: parameters.shopName,
+			item: parameters.item,
 		};
 
 		return successResponse(resultBody);
