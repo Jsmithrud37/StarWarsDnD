@@ -16,5 +16,6 @@
 		{ "language": "typescriptreact", "autoFix": true }
 	],
 	"editor.formatOnSave": true,
-	"editor.insertSpaces": false
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false
 }
