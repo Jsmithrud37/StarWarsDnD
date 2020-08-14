@@ -12,7 +12,7 @@ export abstract class DataEntry<T = any> {
 	/**
 	 * Initial value for the form.
 	 */
-	public readonly initialValue: T;
+	public readonly initialValue: T | undefined;
 
 	/**
 	 * Form label
@@ -30,7 +30,7 @@ export abstract class DataEntry<T = any> {
 	 * @arg label - {@inheritdoc DataEntry.label}
 	 * @arg elementId - {@inheritdoc DataEntry.elementId} If not provided, will use `label`.
 	 */
-	protected constructor(initialValue: T, label: string, elementId?: string) {
+	protected constructor(initialValue: T | undefined, label: string, elementId?: string) {
 		this.initialValue = initialValue;
 		this.label = label;
 		this.elementId = elementId ?? label;
@@ -80,7 +80,7 @@ export class NumberEntry extends DataEntry<number> {
 
 	// TODO: only ints?
 	public constructor(
-		initialValue: number,
+		initialValue: number | undefined,
 		label: string,
 		elementId?: string,
 		min?: number,
@@ -132,7 +132,7 @@ export class StringEntry extends DataEntry<string> {
 	 * Default is false.
 	 */
 	public constructor(
-		initialValue: string,
+		initialValue: string | undefined,
 		label: string,
 		elementId?: string,
 		canBeEmpty = false,

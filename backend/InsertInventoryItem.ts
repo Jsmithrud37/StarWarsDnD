@@ -37,7 +37,7 @@ async function getShopInventoryHandler(
 			const model = db.model('Contact', schema, collectionName);
 
 			console.log(
-				`Inserting item "${newItem.name} into ${collectionName} shop collection...`,
+				`Inserting item "${newItem.name}" into ${collectionName} shop collection...`,
 			);
 
 			// TODO: find single insert option?

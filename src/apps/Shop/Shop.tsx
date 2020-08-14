@@ -15,7 +15,7 @@ import {
 	StringEntry,
 } from '../../shared-components/EditItemForm/DataEntry';
 import ItemEditForm from '../../shared-components/EditItemForm/EditItemForm';
-import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
@@ -50,6 +50,7 @@ const canEdit = process.env.NODE_ENV !== 'production';
 enum EditType {
 	Insert,
 	Edit,
+	Pending,
 }
 
 /**
@@ -71,12 +72,13 @@ class ShopComponent extends React.Component<Props, ModalState> {
 				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
 			},
 		];
-		const response = await fetchFromBackendFunction(getContactsFunction, getContactsParameters);
+		const response = await executeBackendFunction(getContactsFunction, getContactsParameters);
 		const shopName = response.shopName;
 
 		// If the shop selection has changed since we requested inventory from the server,
 		// disregard the response.
 		if (shopName === this.props.shopSelection.toLowerCase()) {
+			// TODO: is this check needed?
 			const inventory: Inventory = response.inventory;
 			if (inventory.length > 0) {
 				this.props.loadInventory(inventory);
@@ -98,21 +100,51 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		}
 
 		// TODO: get as component input
+		// TODO: real handling -1 => infinity
+		// TODO: empty-string => undefined for optional string entries?
 		const formSchemas = new Map<string, DataEntry>([
 			['name', new StringEntry('', 'Name', undefined, undefined)],
 			['type', new StringEntry('', 'Type', undefined, undefined)],
-			['weight', new NumberEntry(7, 'Weight(lb)', undefined, undefined, undefined, true)],
-			['stock', new NumberEntry(7, 'Stock', undefined, undefined, undefined, true)],
+			[
+				'weight',
+				new NumberEntry(7, 'Weight(lb)', undefined, 0, Number.POSITIVE_INFINITY, true),
+			],
+			[
+				'cost',
+				new NumberEntry(7, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false),
+			],
+			['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
+			[
+				'resourceUrl',
+				new StringEntry(undefined, 'Custom Resource URL', undefined, true, false),
+			],
 		]);
 
-		let modalTitle = '';
+		let modalContent: React.ReactElement = <></>;
 		if (this.state.editing !== undefined) {
 			switch (this.state.editing) {
 				case EditType.Edit:
-					modalTitle = 'Edit item';
+					modalContent = (
+						<ItemEditForm
+							title="Editing item"
+							schemas={formSchemas}
+							onSubmit={() => {
+								/* TODO */
+							}}
+						/>
+					);
 					break;
 				case EditType.Insert:
-					modalTitle = 'Insert new item';
+					modalContent = (
+						<ItemEditForm
+							title="Insert new item"
+							schemas={formSchemas}
+							onSubmit={(item) => this.onInsertItem(item)}
+						/>
+					);
+					break;
+				case EditType.Pending:
+					modalContent = <Spinner animation="border" variant="light" />;
 					break;
 				default:
 					throw new Error(`Unrecognized EditType: ${this.state.editing}`);
@@ -140,23 +172,51 @@ class ShopComponent extends React.Component<Props, ModalState> {
 						justifyContent: 'center',
 					}}
 				>
-					<ItemEditForm
-						title={modalTitle}
-						schemas={formSchemas}
-						onSubmit={(item) => this.onInsertItem(item)}
-					/>
+					{modalContent}
 				</Modal>
 			</>
 		);
 	}
 
-	private onInsertItem(item: Map<string, boolean | string | number>): void {
-		console.log(`Adding item ${item.get('name')} to ${this.props.shopSelection}`);
+	private async onInsertItem(
+		itemProperties: Map<string, boolean | string | number>,
+	): Promise<void> {
+		console.log(`Adding item ${itemProperties.get('name')} to ${this.props.shopSelection}`);
 		console.group();
-		item.forEach((value, key) => {
+
+		// Create new item from provided properties mapping
+		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+		itemProperties.forEach((value, key) => {
+			item[key] = value;
 			console.log(`${key}: ${value}`);
 		});
 		console.groupEnd();
+
+		// Set active state to "pending" so that component will show spinner
+		// until we have gotten a response from the server.
+		this.setIsEditing(EditType.Pending);
+
+		// Submit new item to the server
+		const insertInventoryItemFunction = 'InsertInventoryItem';
+		const insertInventoryItemParameters = [
+			{
+				name: 'shopName',
+				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
+			},
+			{
+				name: 'item',
+				value: JSON.stringify(item),
+			},
+		];
+
+		await executeBackendFunction(insertInventoryItemFunction, insertInventoryItemParameters);
+
+		// Reload inventory with new item to update local store
+		// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
+		const newInventory: Inventory = this.props.inventory
+			? [...this.props.inventory, item]
+			: [item];
+		this.props.loadInventory(newInventory);
 		this.setIsEditing(undefined);
 	}
 
@@ -189,7 +249,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 							display: 'inline-block',
 						}}
 					>
-						<Spinner animation="border" variant="light"></Spinner>
+						<Spinner animation="border" variant="light" />
 					</div>
 				</div>
 			</div>

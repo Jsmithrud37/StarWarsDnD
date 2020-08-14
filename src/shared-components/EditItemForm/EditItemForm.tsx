@@ -203,7 +203,10 @@ class ItemEditForm extends React.Component<Props, State> {
 /**
  * Ensures the provided value is of the specified type. Throws if this is not the case.
  */
-function ensureType(value: unknown, expectedType: string): void {
+function ensureType(value: unknown | undefined, expectedType: string): void {
+	if (value === undefined) {
+		return;
+	}
 	if (typeof value !== expectedType) {
 		throw new Error(`Value was of type ${typeof value}. Expected ${expectedType}`);
 	}

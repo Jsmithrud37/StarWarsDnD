@@ -15,7 +15,7 @@ import {
 	renderContactImage,
 	renderFactionEmblem,
 } from '../../utilities/ImageUtilities';
-import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
 import { Contact, isDroid } from './Contact';
 import { AppState } from './State';
@@ -51,7 +51,7 @@ class ContactsComponent extends React.Component<Props> {
 
 	private async fetchContacts(): Promise<void> {
 		const getContactsFunction = 'GetAllContacts';
-		const response = await fetchFromBackendFunction(getContactsFunction);
+		const response = await executeBackendFunction(getContactsFunction);
 		const contacts: Contact[] = response.contacts;
 
 		if (contacts.length > 0) {

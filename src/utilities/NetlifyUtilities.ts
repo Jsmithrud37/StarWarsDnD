@@ -18,7 +18,7 @@ export interface QueryParameter {
  * and must correspond to a valid backend function.
  * @arg queryParameters - Query parameters to be sent to the backend
  */
-export async function fetchFromBackendFunction(
+export async function executeBackendFunction(
 	functionName: string,
 	queryParameters?: QueryParameter[],
 ): // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,9 +29,15 @@ Promise<any> {
 
 	const functionUrl = generateFunctionUrl(functionName, queryParameters);
 
+	// TODO: either return full response, or handle errors here.
 	const response = await fetch(functionUrl);
-	const responseContent = await response.json();
-	return responseContent;
+
+	if (response.ok) {
+		const responseContent = await response.json();
+		return responseContent;
+	} else {
+		throw new Error('Error encountered.');
+	}
 }
 
 /**
