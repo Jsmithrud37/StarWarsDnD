@@ -11,9 +11,7 @@ import { InventoryItemBase } from './shops/InventoryItemSchemaBase';
  * Gets the item inventory from the specified
  * Netlify function.
  */
-async function getShopInventoryHandler(
-	event: APIGatewayProxyEvent,
-): Promise<APIGatewayProxyResult> {
+async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	const parameters = event.queryStringParameters;
 
 	if (!parameters.shopName) {
@@ -65,4 +63,4 @@ async function getShopInventoryHandler(
 	}
 }
 
-exports.handler = getShopInventoryHandler;
+exports.handler = handler;
