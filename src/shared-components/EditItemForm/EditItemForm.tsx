@@ -46,7 +46,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		this.props.schemas.forEach((schema, key) => {
 			const state = this.state.entryState.get(key);
 			if (state === undefined) {
-				throw new Error(`Bad state. No state value mapped from ${key}.`);
+				return;
 			}
 
 			if (!schema.isValueValid(state)) {

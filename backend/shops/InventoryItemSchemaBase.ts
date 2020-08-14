@@ -13,7 +13,7 @@ export interface InventoryItemBase {
 }
 
 export const inventoryItemBaseSchema: SchemaDefinition = {
-	name: { type: String, required: true },
+	name: { type: String, unique: true },
 	type: { type: String, required: true },
 	weight: { type: Number, required: true },
 	cost: { type: Number, required: true },

@@ -10,6 +10,8 @@ import { InventoryItemBase } from './shops/InventoryItemSchemaBase';
 /**
  * Gets the item inventory from the specified
  * Netlify function.
+ *
+ * TODO: prevent duplicate names?
  */
 async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	const parameters = event.queryStringParameters;
@@ -32,7 +34,7 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 		await withDbConnection(databaseName, async (db: Connection) => {
 			const schema = getShopSchema(shopName);
 			const collectionName = getCollectionName(shopName);
-			const model = db.model('Contact', schema, collectionName);
+			const model = db.model('InventoryItem', schema, collectionName);
 
 			console.log(
 				`Inserting item "${newItem.name}" into ${collectionName} shop collection...`,

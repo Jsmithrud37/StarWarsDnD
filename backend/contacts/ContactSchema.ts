@@ -5,7 +5,7 @@ import { Schema } from 'mongoose';
  */
 export const contactSchema = new Schema(
 	{
-		name: { type: String, required: true },
+		name: { type: String, unique: true },
 		imageUrl: { type: String, required: false },
 		species: { type: String, required: false },
 		gender: { type: String, required: false },

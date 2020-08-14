@@ -5,7 +5,6 @@ import { Connection } from 'mongoose';
 import { databaseName, getShopName, getSchema as getShopSchema, getCollectionName } from './shops';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
-import { InventoryItemBase } from './shops/InventoryItemSchemaBase';
 
 /**
  * Gets the item inventory from the specified
@@ -18,38 +17,34 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 		throw new Error('Caller did not specify `shopName` parameter in query.');
 	}
 
-	if (!parameters.item) {
-		throw new Error('Caller did not provide an item to insert.');
+	if (!parameters.itemName) {
+		throw new Error('Caller did not specify `itemName` parameter in query.');
 	}
 
 	const shopName = getShopName(parameters.shopName);
+	const itemName = parameters.itemName;
 
-	const newItem = JSON.parse(parameters.item) as InventoryItemBase;
-
-	console.log(`Loading inventory from shop: ${shopName}`);
+	console.log(`Deleting item "${itemName} from shop: ${shopName}`);
 
 	try {
 		await withDbConnection(databaseName, async (db: Connection) => {
 			const schema = getShopSchema(shopName);
 			const collectionName = getCollectionName(shopName);
-			const model = db.model('Contact', schema, collectionName);
+			const model = db.model('InventoryItem', schema, collectionName);
 
-			console.log(
-				`Inserting item "${newItem.name}" into ${collectionName} shop collection...`,
-			);
+			console.log(`Deleting item from ${collectionName} shop collection...`);
 
-			// TODO: find single insert option?
 			try {
-				await model.insertMany([newItem]);
+				await model.deleteOne({ name: itemName });
 			} catch (error) {
-				console.error('Encountered an error while inserting item:');
+				console.error('Encountered an error while deleting item:');
 				console.group();
 				console.log(error);
 				console.groupEnd();
 				throw error;
 			}
 
-			console.log(`Item inserted!`);
+			console.log(`Item Deleted!`);
 		});
 
 		const resultBody = {

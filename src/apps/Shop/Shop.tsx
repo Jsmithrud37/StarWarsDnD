@@ -220,6 +220,39 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		this.setIsEditing(undefined);
 	}
 
+	private async onDeleteItem(itemName: string): Promise<void> {
+		console.log(`Deleting item "${itemName}" from ${this.props.shopSelection}...`);
+
+		// Set active state to "pending" so that component will show spinner
+		// until we have gotten a response from the server.
+		this.setIsEditing(EditType.Pending);
+
+		// Submit new item to the server
+		const deleteInventoryItemFunction = 'DeleteInventoryItem';
+		const deleteInventoryItemParameters = [
+			{
+				name: 'shopName',
+				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
+			},
+			{
+				name: 'itemName',
+				value: itemName,
+			},
+		];
+
+		await executeBackendFunction(deleteInventoryItemFunction, deleteInventoryItemParameters);
+
+		// Reload inventory with new item to update local store
+		// TODO: add helper to props for removing item so we don't have to blow away entire inventory
+		if (this.props.inventory) {
+			const newInventory: Inventory = this.props.inventory.filter((value) => {
+				return value.name !== itemName;
+			});
+			this.props.loadInventory(newInventory);
+		}
+		this.setIsEditing(undefined);
+	}
+
 	// TODO: de-dup with Contacts.
 	private renderLoadingScreen(): React.ReactNode {
 		return (
@@ -364,7 +397,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 						</Button>
 						<Button
 							onClick={() => {
-								/* TODO: delete item (after confirmation modal) */
+								this.onDeleteItem(row.name);
 							}}
 						>
 							<DeleteForeverIcon color="secondary" />
