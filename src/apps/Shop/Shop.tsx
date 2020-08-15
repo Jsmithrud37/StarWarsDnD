@@ -20,6 +20,7 @@ import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
+import { stringify } from 'querystring';
 
 /**
  * State parameters used by the Datapad app component.
@@ -65,6 +66,11 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	}
 
 	private async fetchInventory(): Promise<void> {
+		interface FetchInventoryResult {
+			shopName: string;
+			inventory: Inventory;
+		}
+
 		const getContactsFunction = 'GetShopInventory';
 		const getContactsParameters = [
 			{
@@ -72,17 +78,121 @@ class ShopComponent extends React.Component<Props, ModalState> {
 				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
 			},
 		];
-		const response = await executeBackendFunction(getContactsFunction, getContactsParameters);
-		const shopName = response.shopName;
-
-		// If the shop selection has changed since we requested inventory from the server,
-		// disregard the response.
-		if (shopName === this.props.shopSelection.toLowerCase()) {
-			// TODO: is this check needed?
-			const inventory: Inventory = response.inventory;
-			if (inventory.length > 0) {
-				this.props.loadInventory(inventory);
+		const response = await executeBackendFunction<FetchInventoryResult>(
+			getContactsFunction,
+			getContactsParameters,
+		);
+		if (response) {
+			// If the shop selection has changed since we requested inventory from the server,
+			// disregard the response.
+			if (response.shopName === this.props.shopSelection.toLowerCase()) {
+				// TODO: is this check needed?
+				const inventory: Inventory = response.inventory;
+				if (inventory.length > 0) {
+					this.props.loadInventory(inventory);
+				}
 			}
+		} else {
+			// TODO: Report error message
+		}
+	}
+
+	private async onInsertItem(
+		itemProperties: Map<string, boolean | string | number>,
+	): Promise<void> {
+		interface InsertItemQueryResult {
+			shopName: string;
+			item: InventoryItem;
+		}
+
+		console.log(`Adding item ${itemProperties.get('name')} to ${this.props.shopSelection}`);
+		console.group();
+
+		// Create new item from provided properties mapping
+		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+		itemProperties.forEach((value, key) => {
+			item[key] = value;
+			console.log(`${key}: ${value}`);
+		});
+		console.groupEnd();
+
+		// Set active state to "pending" so that component will show spinner
+		// until we have gotten a response from the server.
+		this.setIsEditing(EditType.Pending);
+
+		// Submit new item to the server
+		const insertInventoryItemFunction = 'InsertInventoryItem';
+		const insertInventoryItemParameters = [
+			{
+				name: 'shopName',
+				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
+			},
+			{
+				name: 'item',
+				value: JSON.stringify(item),
+			},
+		];
+
+		const result = await executeBackendFunction<InsertItemQueryResult>(
+			insertInventoryItemFunction,
+			insertInventoryItemParameters,
+		);
+
+		if (result) {
+			// Reload inventory with new item to update local store
+			// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
+			const newInventory: Inventory = this.props.inventory
+				? [...this.props.inventory, item]
+				: [item];
+			this.props.loadInventory(newInventory);
+			this.setIsEditing(undefined);
+		} else {
+			// TODO: Display error to user
+		}
+	}
+
+	private async onDeleteItem(itemName: string): Promise<void> {
+		interface DeleteItemQueryResult {
+			shopName: string;
+			item: InventoryItem;
+		}
+
+		console.log(`Deleting item "${itemName}" from ${this.props.shopSelection}...`);
+
+		// Set active state to "pending" so that component will show spinner
+		// until we have gotten a response from the server.
+		this.setIsEditing(EditType.Pending);
+
+		// Submit new item to the server
+		const deleteInventoryItemFunction = 'DeleteInventoryItem';
+		const deleteInventoryItemParameters = [
+			{
+				name: 'shopName',
+				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
+			},
+			{
+				name: 'itemName',
+				value: itemName,
+			},
+		];
+
+		const result = await executeBackendFunction<DeleteItemQueryResult>(
+			deleteInventoryItemFunction,
+			deleteInventoryItemParameters,
+		);
+
+		if (result) {
+			// Reload inventory with new item to update local store
+			// TODO: add helper to props for removing item so we don't have to blow away entire inventory
+			if (this.props.inventory) {
+				const newInventory: Inventory = this.props.inventory.filter((value) => {
+					return value.name !== itemName;
+				});
+				this.props.loadInventory(newInventory);
+			}
+			this.setIsEditing(undefined);
+		} else {
+			// TODO: display error to user
 		}
 	}
 
@@ -176,81 +286,6 @@ class ShopComponent extends React.Component<Props, ModalState> {
 				</Modal>
 			</>
 		);
-	}
-
-	private async onInsertItem(
-		itemProperties: Map<string, boolean | string | number>,
-	): Promise<void> {
-		console.log(`Adding item ${itemProperties.get('name')} to ${this.props.shopSelection}`);
-		console.group();
-
-		// Create new item from provided properties mapping
-		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-		itemProperties.forEach((value, key) => {
-			item[key] = value;
-			console.log(`${key}: ${value}`);
-		});
-		console.groupEnd();
-
-		// Set active state to "pending" so that component will show spinner
-		// until we have gotten a response from the server.
-		this.setIsEditing(EditType.Pending);
-
-		// Submit new item to the server
-		const insertInventoryItemFunction = 'InsertInventoryItem';
-		const insertInventoryItemParameters = [
-			{
-				name: 'shopName',
-				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
-			},
-			{
-				name: 'item',
-				value: JSON.stringify(item),
-			},
-		];
-
-		await executeBackendFunction(insertInventoryItemFunction, insertInventoryItemParameters);
-
-		// Reload inventory with new item to update local store
-		// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
-		const newInventory: Inventory = this.props.inventory
-			? [...this.props.inventory, item]
-			: [item];
-		this.props.loadInventory(newInventory);
-		this.setIsEditing(undefined);
-	}
-
-	private async onDeleteItem(itemName: string): Promise<void> {
-		console.log(`Deleting item "${itemName}" from ${this.props.shopSelection}...`);
-
-		// Set active state to "pending" so that component will show spinner
-		// until we have gotten a response from the server.
-		this.setIsEditing(EditType.Pending);
-
-		// Submit new item to the server
-		const deleteInventoryItemFunction = 'DeleteInventoryItem';
-		const deleteInventoryItemParameters = [
-			{
-				name: 'shopName',
-				value: this.props.shopSelection.toLowerCase(), // TODO: find a way to not have to do this here
-			},
-			{
-				name: 'itemName',
-				value: itemName,
-			},
-		];
-
-		await executeBackendFunction(deleteInventoryItemFunction, deleteInventoryItemParameters);
-
-		// Reload inventory with new item to update local store
-		// TODO: add helper to props for removing item so we don't have to blow away entire inventory
-		if (this.props.inventory) {
-			const newInventory: Inventory = this.props.inventory.filter((value) => {
-				return value.name !== itemName;
-			});
-			this.props.loadInventory(newInventory);
-		}
-		this.setIsEditing(undefined);
 	}
 
 	// TODO: de-dup with Contacts.

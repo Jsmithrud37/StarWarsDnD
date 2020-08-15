@@ -13,16 +13,21 @@ export interface QueryParameter {
 }
 
 /**
+ * Result from a backend query. Will either be a valid query result, or will be `false`,
+ * indicating that an error occurred when executing the query.
+ */
+export type QueryResult<T> = T | false;
+
+/**
  * Runs the specified backend query function with the specified query parameters.
  * @arg functionName - Name of the backend function to query. Must be non-empty,
  * and must correspond to a valid backend function.
  * @arg queryParameters - Query parameters to be sent to the backend
  */
-export async function executeBackendFunction(
+export async function executeBackendFunction<T = never>(
 	functionName: string,
 	queryParameters?: QueryParameter[],
-): // eslint-disable-next-line @typescript-eslint/no-explicit-any
-Promise<any> {
+): Promise<QueryResult<T>> {
 	if (functionName.length === 0) {
 		throw new Error('Cannot process empty query function.');
 	}
@@ -34,9 +39,10 @@ Promise<any> {
 
 	if (response.ok) {
 		const responseContent = await response.json();
-		return responseContent;
+		return responseContent as T;
 	} else {
-		throw new Error('Error encountered.');
+		console.error(`Error encountered: ${response.statusText}`);
+		return false;
 	}
 }
 

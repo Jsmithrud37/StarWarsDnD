@@ -50,12 +50,23 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		const getContactsFunction = 'GetAllContacts';
-		const response = await executeBackendFunction(getContactsFunction);
-		const contacts: Contact[] = response.contacts;
+		interface FetchContactsQueryResult {
+			contacts: Contact[];
+		}
 
-		if (contacts.length > 0) {
-			this.props.loadContacts(contacts);
+		const getContactsFunction = 'GetAllContacts';
+		const response = await executeBackendFunction<FetchContactsQueryResult>(
+			getContactsFunction,
+		);
+
+		if (response) {
+			const contacts: Contact[] = response.contacts;
+
+			if (contacts.length > 0) {
+				this.props.loadContacts(contacts);
+			}
+		} else {
+			// TODO: display error to user
 		}
 	}
 
