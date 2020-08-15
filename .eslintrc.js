@@ -51,4 +51,11 @@ module.exports = {
 		'jsdoc/require-returns-type': 'off',
 		'jsdoc/valid-types': 'error',
 	},
+	overrides: [
+		{
+			files: ['*.yaml', '*.yml'],
+			plugins: ['yaml'],
+			extends: ['plugin:yaml/recommended'],
+		},
+	],
 };
