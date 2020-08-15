@@ -4,11 +4,11 @@ import { Id } from '../../utilities/DatabaseUtilities';
 export interface Contact {
 	_id: Id;
 	name: string;
-	imageUrl?: string;
 	species?: string; // undefined === "Unkown"
 	gender?: string; // undefined === "Unkown"
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
+	bio?: string; // undefined === no bio
 }
 
 /**

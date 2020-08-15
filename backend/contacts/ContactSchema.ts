@@ -5,11 +5,12 @@ import { Schema } from 'mongoose';
  */
 export const contactSchema = new Schema(
 	{
-		name: { type: String, required: true },
-		imageUrl: { type: String, required: false },
+		name: { type: String, unique: true },
 		species: { type: String, required: false },
 		gender: { type: String, required: false },
 		affiliations: { type: [String], required: false },
+		status: { type: String, required: false },
+		bio: { type: String, required: false },
 	},
 	{
 		timestamps: true,
