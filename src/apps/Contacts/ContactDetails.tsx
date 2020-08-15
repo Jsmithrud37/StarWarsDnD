@@ -1,9 +1,11 @@
-import { AppBar, Grid, Tab, Tabs } from '@material-ui/core';
+import { AppBar, Tab, Tabs } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
+import PersonIcon from '@material-ui/icons/Person';
+import DescriptionIcon from '@material-ui/icons/Description';
+import PeopleIcon from '@material-ui/icons/People';
 import ReactMarkdown from 'react-markdown';
 import SwipeableViews from 'react-swipeable-views';
 import React from 'react';
-import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import {
 	ImageContainerShape,
@@ -19,6 +21,7 @@ import './Styling/Contacts.css';
  */
 enum DetailsTab {
 	GeneralInfo,
+	Affiliations,
 	Bio,
 }
 
@@ -29,6 +32,8 @@ function stringFromTabType(tabType: DetailsTab): string {
 	switch (tabType) {
 		case DetailsTab.GeneralInfo:
 			return 'General Info';
+		case DetailsTab.Affiliations:
+			return 'Affiliations';
 		case DetailsTab.Bio:
 			return 'Bio';
 		default:
@@ -62,12 +67,51 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	public render(): React.ReactNode {
 		const contact = this.props.contact;
 
+		const hasAffiliations: boolean =
+			contact.affiliations !== undefined && contact.affiliations.length > 0;
+		const hasBio: boolean = contact.bio !== undefined;
+
 		const basicsTab = this.renderBasicsTab(contact);
-		const bioTab = contact.bio ? this.renderBioTab(contact.bio) : <></>;
+		const affiliationsTab = hasAffiliations ? (
+			this.renderAffiliationsTab(contact.affiliations as string[])
+		) : (
+			<></>
+		);
+		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
 		const heightInPixels = 450;
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
 		const bodyHeightInPixels = heightInPixels - headerHeightInPixels;
+
+		const tabPanelStyle = {
+			height: `${bodyHeightInPixels}px`,
+		};
+
+		const tabPanels: React.ReactNodeArray = [
+			<TabPanel
+				key={DetailsTab.GeneralInfo}
+				value={stringFromTabType(DetailsTab.GeneralInfo)}
+				style={tabPanelStyle}
+			>
+				{basicsTab}
+			</TabPanel>,
+		];
+
+		if (hasAffiliations) {
+			tabPanels.push(
+				<TabPanel value={stringFromTabType(DetailsTab.Affiliations)} style={tabPanelStyle}>
+					{affiliationsTab}
+				</TabPanel>,
+			);
+		}
+
+		if (hasBio) {
+			tabPanels.push(
+				<TabPanel value={stringFromTabType(DetailsTab.Bio)} style={tabPanelStyle}>
+					{bioTab}
+				</TabPanel>,
+			);
+		}
 
 		return (
 			<div
@@ -77,6 +121,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			>
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
+						color="default"
 						position="static"
 						style={{
 							height: `${headerHeightInPixels}px`,
@@ -84,42 +129,35 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					>
 						<Tabs
 							centered
-							indicatorColor="primary"
+							indicatorColor="secondary"
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
 						>
 							<Tab
-								label={stringFromTabType(DetailsTab.GeneralInfo)}
+								label={<PersonIcon />}
+								color="inherit"
 								value={DetailsTab.GeneralInfo}
 							/>
 							<Tab
-								label={stringFromTabType(DetailsTab.Bio)}
+								label={
+									<PeopleIcon color={hasAffiliations ? 'inherit' : 'disabled'} />
+								}
+								value={DetailsTab.Affiliations}
+								disabled={!hasAffiliations}
+							/>
+							<Tab
+								label={<DescriptionIcon color={hasBio ? 'inherit' : 'disabled'} />}
 								value={DetailsTab.Bio}
-								disabled={contact.bio === undefined}
+								disabled={!hasBio}
 							/>
 						</Tabs>
 					</AppBar>
 					<SwipeableViews
 						axis="x"
 						index={this.state.selectedTab}
-						onChangeIndex={(event, newSelection) => this.onTabSelection(newSelection)}
+						onChangeIndex={(newSelection) => this.onTabSelection(newSelection)}
 					>
-						<TabPanel
-							value={stringFromTabType(DetailsTab.GeneralInfo)}
-							style={{
-								height: `${bodyHeightInPixels}px`,
-							}}
-						>
-							{basicsTab}
-						</TabPanel>
-						<TabPanel
-							value={stringFromTabType(DetailsTab.Bio)}
-							style={{
-								height: `${bodyHeightInPixels}px`,
-							}}
-						>
-							{bioTab}
-						</TabPanel>
+						{tabPanels}
 					</SwipeableViews>
 				</TabContext>
 			</div>
@@ -132,23 +170,47 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
-		const itemStyle = {
-			padding: 3,
+		const divStyle = {
+			width: '100%',
+			padding: '10px',
 		};
 
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<Grid container justify="space-between">
-					<Grid item style={itemStyle}>
-						{contactImage}
-					</Grid>
-					<Grid item style={itemStyle}>
-						{this.renderBasicDetails(contact)}
-					</Grid>
-					<Grid item style={itemStyle}>
-						{this.renderAffilliations(contact)}
-					</Grid>
-				</Grid>
+				<div style={divStyle}>{contactImage}</div>
+				<Table variant="dark">
+					{this.renderSpecies(contact)}
+					{this.renderGender(contact)}
+					{this.renderStatus(contact)}
+				</Table>
+			</Scrollbars>
+		);
+	}
+
+	private renderAffiliationsTab(affiliations: string[]): React.ReactNode {
+		const divStyle = {
+			width: '100%',
+			padding: '10px',
+		};
+
+		const affiliationEntries = affiliations.map((affiliation) => {
+			const affilliationImage = this.renderFactionImage(affiliation, 30);
+			return (
+				<tr key={affiliation}>
+					<td>{affiliation}</td>
+					<td>{affilliationImage}</td>
+				</tr>
+			);
+		});
+
+		return (
+			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
+				<div style={divStyle}>
+					<div style={divStyle}>
+						<b>Known Affiliation</b>
+					</div>
+					<Table variant="dark">{affiliationEntries}</Table>
+				</div>
 			</Scrollbars>
 		);
 	}
@@ -161,38 +223,23 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private renderBasicDetails(contact: Contact): React.ReactNode {
-		return (
-			<Card
-				bg="dark"
-				style={{
-					minWidth: 100,
-				}}
-			>
-				<Card.Body>
-					<>
-						{this.renderSpecies(contact)}
-						{this.renderGender(contact)}
-						{this.renderStatus(contact)}
-					</>
-				</Card.Body>
-			</Card>
-		);
-	}
-
 	private renderSpecies(contact: Contact): React.ReactNode {
 		const speciesLink = this.getSpeciesLinkUrl(contact);
 		return (
-			<p>
-				<b>Species: </b>
-				{contact.species ? (
-					<a href={speciesLink} target="_blank" rel="noopener noreferrer">
-						{contact.species}
-					</a>
-				) : (
-					'Unkown'
-				)}
-			</p>
+			<tr>
+				<td>
+					<b>Species: </b>
+				</td>
+				<td>
+					{contact.species ? (
+						<a href={speciesLink} target="_blank" rel="noopener noreferrer">
+							{contact.species}
+						</a>
+					) : (
+						'Unkown'
+					)}
+				</td>
+			</tr>
 		);
 	}
 
@@ -202,57 +249,24 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			return <></>;
 		}
 		return (
-			<p>
-				<b>Gender: </b>
-				{this.stringOrUnknown(contact.gender)}
-			</p>
+			<tr>
+				<td>
+					<b>Gender: </b>
+				</td>
+				<td>{this.stringOrUnknown(contact.gender)}</td>
+			</tr>
 		);
 	}
 
 	private renderStatus(contact: Contact): React.ReactNode {
 		return (
-			<p>
-				<b>Status: </b>
-				{this.stringOrUnknown(contact.status)}
-			</p>
+			<tr>
+				<td>
+					<b>Status: </b>
+				</td>
+				<td>{this.stringOrUnknown(contact.status)}</td>
+			</tr>
 		);
-	}
-
-	private renderAffilliations(contact: Contact): React.ReactNode {
-		let cardBody;
-		if (contact.affiliations && contact.affiliations.length > 0) {
-			const affiliationEntries = contact.affiliations.map((faction) => {
-				const affilliationImage = this.renderFactionImage(faction, 30);
-				return (
-					<tr key={faction}>
-						<td>{faction}</td>
-						<td>{affilliationImage}</td>
-					</tr>
-				);
-			});
-			cardBody = (
-				<Card.Body
-					style={{
-						padding: 5,
-						minWidth: 200,
-					}}
-				>
-					<b>Known Affiliations</b>
-					<Table variant="dark">{affiliationEntries}</Table>
-				</Card.Body>
-			);
-		} else {
-			cardBody = (
-				<Card.Body>
-					<p>
-						<b>Known Affiliations: </b>
-						None
-					</p>
-				</Card.Body>
-			);
-		}
-
-		return <Card bg="dark">{cardBody}</Card>;
 	}
 
 	private getSpeciesLinkUrl(contact: Contact): string | undefined {
@@ -262,7 +276,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private stringOrUnknown(value: string | undefined): string {
-		return value ?? 'unkown';
+		return value ?? 'Unkown';
 	}
 
 	private renderFactionImage(
