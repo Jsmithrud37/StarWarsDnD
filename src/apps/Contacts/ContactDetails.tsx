@@ -181,6 +181,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 				<Table variant="dark">
 					{this.renderSpecies(contact)}
 					{this.renderGender(contact)}
+					{this.renderHomeworld(contact)}
 					{this.renderStatus(contact)}
 				</Table>
 			</Scrollbars>
@@ -218,13 +219,19 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	private renderBioTab(bio: string): React.ReactNode {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<ReactMarkdown source={bio} linkTarget="_blank" escapeHtml={false} />
+				<div
+					style={{
+						textAlign: 'left',
+					}}
+				>
+					<ReactMarkdown source={bio} linkTarget="_blank" escapeHtml={false} />
+				</div>
 			</Scrollbars>
 		);
 	}
 
 	private renderSpecies(contact: Contact): React.ReactNode {
-		const speciesLink = this.getSpeciesLinkUrl(contact);
+		const speciesLink = this.getSpeciesLinkUrl(contact.species);
 		return (
 			<tr>
 				<td>
@@ -244,7 +251,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderGender(contact: Contact): React.ReactNode {
-		// If the contact is a droid, then it does not
+		// If the contact is a droid, then it does not display gender information
 		if (isDroid(contact)) {
 			return <></>;
 		}
@@ -254,6 +261,26 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					<b>Gender: </b>
 				</td>
 				<td>{this.stringOrUnknown(contact.gender)}</td>
+			</tr>
+		);
+	}
+
+	private renderHomeworld(contact: Contact): React.ReactNode {
+		const homeworldLink = this.getPlanetLinkUrl(contact.homeworld);
+		return (
+			<tr>
+				<td>
+					<b>Homeworld: </b>
+				</td>
+				<td>
+					{contact.homeworld ? (
+						<a href={homeworldLink} target="_blank" rel="noopener noreferrer">
+							{contact.homeworld}
+						</a>
+					) : (
+						'Unkown'
+					)}
+				</td>
 			</tr>
 		);
 	}
@@ -269,10 +296,14 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private getSpeciesLinkUrl(contact: Contact): string | undefined {
-		return contact.species
-			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}`
+	private getSpeciesLinkUrl(species: string | undefined): string | undefined {
+		return species
+			? `https://starwars.fandom.com/wiki/${species.replace(' ', '_')}`
 			: undefined;
+	}
+
+	private getPlanetLinkUrl(planet: string | undefined): string | undefined {
+		return planet ? `https://starwars.fandom.com/wiki/${planet.replace(' ', '_')}` : undefined;
 	}
 
 	private stringOrUnknown(value: string | undefined): string {

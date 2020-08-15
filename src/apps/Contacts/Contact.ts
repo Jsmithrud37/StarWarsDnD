@@ -6,6 +6,7 @@ export interface Contact {
 	name: string;
 	species?: string; // undefined === "Unkown"
 	gender?: string; // undefined === "Unkown"
+	homeworld?: string; // undefined === "Unknown"
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
 	bio?: string; // undefined === no bio
