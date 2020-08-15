@@ -1,6 +1,7 @@
 import { AppBar, Grid, Tab, Tabs } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import ReactMarkdown from 'react-markdown';
+import SwipeableViews from 'react-swipeable-views';
 import React from 'react';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
@@ -13,9 +14,26 @@ import { Contact, isDroid } from './Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './Styling/Contacts.css';
 
+/**
+ * Tabs in the contact card view
+ */
 enum DetailsTab {
-	GeneralInfo = 'General Info',
-	Bio = 'Bio',
+	GeneralInfo,
+	Bio,
+}
+
+/**
+ * Gets the string representation of the provided tab type
+ */
+function stringFromTabType(tabType: DetailsTab): string {
+	switch (tabType) {
+		case DetailsTab.GeneralInfo:
+			return 'General Info';
+		case DetailsTab.Bio:
+			return 'Bio';
+		default:
+			throw new Error(`Unrecognized DetailsTab value: ${tabType}`);
+	}
 }
 
 export interface ContactCardProps {
@@ -57,7 +75,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					maxHeight: `${heightInPixels}px`,
 				}}
 			>
-				<TabContext value={this.state.selectedTab}>
+				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
 						position="static"
 						style={{
@@ -70,30 +88,39 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
 						>
-							<Tab label={DetailsTab.GeneralInfo} value={DetailsTab.GeneralInfo} />
 							<Tab
-								label={DetailsTab.Bio}
+								label={stringFromTabType(DetailsTab.GeneralInfo)}
+								value={DetailsTab.GeneralInfo}
+							/>
+							<Tab
+								label={stringFromTabType(DetailsTab.Bio)}
 								value={DetailsTab.Bio}
 								disabled={contact.bio === undefined}
 							/>
 						</Tabs>
 					</AppBar>
-					<TabPanel
-						value={DetailsTab.GeneralInfo}
-						style={{
-							height: `${bodyHeightInPixels}px`,
-						}}
+					<SwipeableViews
+						axis="x"
+						index={this.state.selectedTab}
+						onChangeIndex={(event, newSelection) => this.onTabSelection(newSelection)}
 					>
-						{basicsTab}
-					</TabPanel>
-					<TabPanel
-						value={DetailsTab.Bio}
-						style={{
-							height: `${bodyHeightInPixels}px`,
-						}}
-					>
-						{bioTab}
-					</TabPanel>
+						<TabPanel
+							value={stringFromTabType(DetailsTab.GeneralInfo)}
+							style={{
+								height: `${bodyHeightInPixels}px`,
+							}}
+						>
+							{basicsTab}
+						</TabPanel>
+						<TabPanel
+							value={stringFromTabType(DetailsTab.Bio)}
+							style={{
+								height: `${bodyHeightInPixels}px`,
+							}}
+						>
+							{bioTab}
+						</TabPanel>
+					</SwipeableViews>
 				</TabContext>
 			</div>
 		);
