@@ -95,24 +95,21 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			>
 				{basicsTab}
 			</TabPanel>,
-		];
-
-		if (hasAffiliations) {
-			tabPanels.push(
+			hasAffiliations ? (
 				<TabPanel value={stringFromTabType(DetailsTab.Affiliations)} style={tabPanelStyle}>
 					{affiliationsTab}
-				</TabPanel>,
-			);
-		}
-
-		if (hasBio) {
-			tabPanels.push(
+				</TabPanel>
+			) : (
+				<div style={tabPanelStyle} />
+			),
+			hasBio ? (
 				<TabPanel value={stringFromTabType(DetailsTab.Bio)} style={tabPanelStyle}>
 					{bioTab}
-				</TabPanel>,
-			);
-		}
-
+				</TabPanel>
+			) : (
+				<div style={tabPanelStyle} />
+			),
+		];
 		return (
 			<div
 				style={{
