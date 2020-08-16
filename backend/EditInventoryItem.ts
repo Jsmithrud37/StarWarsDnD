@@ -8,8 +8,7 @@ import { errorResponse, successResponse } from './utilities/Responses';
 import { InventoryItemBase } from './shops/InventoryItemSchemaBase';
 
 /**
- * Inserts a new item into the shop inventory.
- * Item name must be unique.
+ * Updates an existing entry for the specified item.
  */
 async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	const parameters = event.queryStringParameters;
@@ -24,7 +23,7 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 
 	const shopName = getShopName(parameters.shopName);
 
-	const newItem = JSON.parse(parameters.item) as InventoryItemBase;
+	const itemToModify = JSON.parse(parameters.item) as InventoryItemBase;
 
 	console.log(`Loading inventory from shop: ${shopName}`);
 
@@ -35,14 +34,13 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 			const model = db.model('InventoryItem', schema, collectionName);
 
 			console.log(
-				`Inserting item "${newItem.name}" into ${collectionName} shop collection...`,
+				`Editing item "${itemToModify.name}" in ${collectionName} shop collection...`,
 			);
 
-			// TODO: find single insert option?
 			try {
-				await model.insertMany([newItem]);
+				await model.findOneAndUpdate({ name: itemToModify.name }, itemToModify);
 			} catch (error) {
-				console.error('Encountered an error while inserting item:');
+				console.error('Encountered an error while editing item:');
 				console.group();
 				console.log(error);
 				console.groupEnd();

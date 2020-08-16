@@ -8,11 +8,11 @@ export enum DataType {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export abstract class DataEntry<T = any> {
+export abstract class DataEntry<T extends boolean | string | number = boolean | string | number> {
 	/**
 	 * Initial value for the form.
 	 */
-	public readonly initialValue: T | undefined;
+	public readonly initialValue: T;
 
 	/**
 	 * Form label
@@ -30,7 +30,7 @@ export abstract class DataEntry<T = any> {
 	 * @arg label - {@inheritdoc DataEntry.label}
 	 * @arg elementId - {@inheritdoc DataEntry.elementId} If not provided, will use `label`.
 	 */
-	protected constructor(initialValue: T | undefined, label: string, elementId?: string) {
+	protected constructor(initialValue: T, label: string, elementId?: string) {
 		this.initialValue = initialValue;
 		this.label = label;
 		this.elementId = elementId ?? label;
@@ -80,7 +80,7 @@ export class NumberEntry extends DataEntry<number> {
 
 	// TODO: only ints?
 	public constructor(
-		initialValue: number | undefined,
+		initialValue: number,
 		label: string,
 		elementId?: string,
 		min?: number,
@@ -132,7 +132,7 @@ export class StringEntry extends DataEntry<string> {
 	 * Default is false.
 	 */
 	public constructor(
-		initialValue: string | undefined,
+		initialValue: string,
 		label: string,
 		elementId?: string,
 		canBeEmpty = false,

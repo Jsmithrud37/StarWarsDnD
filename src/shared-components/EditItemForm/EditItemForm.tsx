@@ -10,7 +10,7 @@ interface Props {
 }
 
 interface State {
-	entryState: Map<string, boolean | string | number>;
+	entries: Map<string, boolean | string | number>;
 	inErrorState: boolean;
 }
 
@@ -27,24 +27,31 @@ class ItemEditForm extends React.Component<Props, State> {
 		});
 
 		this.state = {
-			entryState: initialStateMap,
+			entries: initialStateMap,
 			inErrorState: false,
 		};
 	}
 
 	private updateState(key: string, data: boolean | string | number): void {
-		const stateMap = new Map<string, boolean | string | number>(this.state.entryState);
+		const schema = this.props.schemas.get(key);
+
+		if (!schema) {
+			throw new Error(`Invalid state. No schema found for key: ${key}`);
+		}
+
+		const stateMap = new Map<string, boolean | string | number>(this.state.entries);
 		stateMap.set(key, data);
 		this.setState({
 			...this.state,
-			entryState: stateMap,
+			entries: stateMap,
 		});
 	}
 
+	// TODO: don't allow submit if nothing has changed
 	private onSubmit(): void {
 		let validState = true;
 		this.props.schemas.forEach((schema, key) => {
-			const state = this.state.entryState.get(key);
+			const state = this.state.entries.get(key);
 			if (state === undefined) {
 				return;
 			}
@@ -55,7 +62,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		});
 
 		if (validState) {
-			this.props.onSubmit(this.state.entryState);
+			this.props.onSubmit(this.state.entries);
 		} else {
 			this.setState({
 				...this.state,
@@ -92,7 +99,7 @@ class ItemEditForm extends React.Component<Props, State> {
 
 	public renderForm(key: string, dataEntry: DataEntry): React.ReactNode {
 		const dataType = dataEntry.dataType();
-		const currentValue = this.state.entryState.get(key);
+		const currentValue = this.state.entries.get(key);
 		switch (dataType) {
 			case DataType.Boolean:
 				ensureType(currentValue, 'boolean');

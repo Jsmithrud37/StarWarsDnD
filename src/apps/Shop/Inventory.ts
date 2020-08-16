@@ -8,9 +8,25 @@ export interface InventoryItem {
 	name: string;
 
 	/**
-	 * Item type
+	 * Item category (Armor, Weapon, Adventuring Gear, etc.)
+	 */
+	category: string;
+
+	/**
+	 * Item type (sub-heading of `category`)
 	 */
 	type: string;
+
+	/**
+	 * Item sub-type (sub-heading of `type`)
+	 */
+	subType?: string;
+
+	/**
+	 * Item rarity.
+	 * TODO: Enum
+	 */
+	rarity: string;
 
 	/**
 	 * Weight of the item in pounds.
