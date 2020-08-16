@@ -1,4 +1,3 @@
-import { Grid } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import Card from 'react-bootstrap/Card';
@@ -7,19 +6,15 @@ import Collapse from 'react-bootstrap/Collapse';
 import Fade from 'react-bootstrap/Fade';
 import Media from 'react-bootstrap/Media';
 import Spinner from 'react-bootstrap/Spinner';
-import Table from 'react-bootstrap/Table';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
-import {
-	ImageContainerShape,
-	renderContactImage,
-	renderFactionEmblem,
-} from '../../utilities/ImageUtilities';
 import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
+import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
-import { Contact, isDroid } from './Contact';
+import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
+import { ContactDetails } from './ContactDetails';
 
 /**
  * State parameters used by the Datapad app component.
@@ -118,7 +113,6 @@ class ContactsComponent extends React.Component<Props> {
 	private renderContact(contact: Contact): React.ReactNode {
 		const isSelected = this.isSelected(contact);
 		const cardHeader = this.renderContactCardHeader(contact);
-		const cardBody = this.renderContactCardBody(contact);
 		return (
 			<Card
 				bg="dark"
@@ -139,7 +133,9 @@ class ContactsComponent extends React.Component<Props> {
 			>
 				{cardHeader}
 				<Collapse in={isSelected}>
-					<div>{cardBody}</div>
+					<div>
+						<ContactDetails contact={contact} />
+					</div>
 				</Collapse>
 			</Card>
 		);
@@ -191,33 +187,6 @@ class ContactsComponent extends React.Component<Props> {
 		);
 	}
 
-	private renderContactCardBody(contact: Contact): React.ReactNode {
-		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: 150,
-			containerShape: ImageContainerShape.RoundedRectangle,
-		});
-
-		const itemStyle = {
-			padding: 5,
-		};
-
-		return (
-			<Card.Body>
-				<Grid container justify="space-between">
-					<Grid item style={itemStyle}>
-						{contactImage}
-					</Grid>
-					<Grid item style={itemStyle}>
-						{this.renderBasicDetails(contact)}
-					</Grid>
-					<Grid item style={itemStyle}>
-						{this.renderAffilliations(contact)}
-					</Grid>
-				</Grid>
-			</Card.Body>
-		);
-	}
-
 	private renderName(contact: Contact): React.ReactNode {
 		return (
 			<div
@@ -228,120 +197,6 @@ class ContactsComponent extends React.Component<Props> {
 				{contact.name}
 			</div>
 		);
-	}
-
-	private renderBasicDetails(contact: Contact): React.ReactNode {
-		return (
-			<Card
-				bg="dark"
-				style={{
-					minWidth: 200,
-				}}
-			>
-				<Card.Body>
-					<>
-						{this.renderSpecies(contact)}
-						{this.renderGender(contact)}
-						{this.renderStatus(contact)}
-					</>
-				</Card.Body>
-			</Card>
-		);
-	}
-
-	private renderSpecies(contact: Contact): React.ReactNode {
-		const speciesLink = this.getSpeciesLinkUrl(contact);
-		return (
-			<p>
-				<b>Species: </b>
-				{contact.species ? (
-					<a href={speciesLink} target="_blank" rel="noopener noreferrer">
-						{contact.species}
-					</a>
-				) : (
-					'Unkown'
-				)}
-			</p>
-		);
-	}
-
-	private renderGender(contact: Contact): React.ReactNode {
-		// If the contact is a droid, then it does not
-		if (isDroid(contact)) {
-			return <></>;
-		}
-		return (
-			<p>
-				<b>Gender: </b>
-				{this.stringOrUnknown(contact.gender)}
-			</p>
-		);
-	}
-
-	private renderStatus(contact: Contact): React.ReactNode {
-		return (
-			<p>
-				<b>Status: </b>
-				{this.stringOrUnknown(contact.status)}
-			</p>
-		);
-	}
-
-	private renderAffilliations(contact: Contact): React.ReactNode {
-		let cardBody;
-		if (contact.affiliations && contact.affiliations.length > 0) {
-			const affiliationEntries = contact.affiliations.map((faction) => {
-				const affilliationImage = this.renderFactionImage(faction, 30);
-				return (
-					<tr key={faction}>
-						<td>{faction}</td>
-						<td>{affilliationImage}</td>
-					</tr>
-				);
-			});
-			cardBody = (
-				<Card.Body
-					style={{
-						padding: 5,
-						minWidth: 200,
-					}}
-				>
-					<b>Known Affiliations</b>
-					<Table variant="dark">{affiliationEntries}</Table>
-				</Card.Body>
-			);
-		} else {
-			cardBody = (
-				<Card.Body>
-					<p>
-						<b>Known Affiliations: </b>
-						None
-					</p>
-				</Card.Body>
-			);
-		}
-
-		return <Card bg="dark">{cardBody}</Card>;
-	}
-
-	private getSpeciesLinkUrl(contact: Contact): string | undefined {
-		return contact.species
-			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}`
-			: undefined;
-	}
-
-	private stringOrUnknown(value: string | undefined): string {
-		return value ?? 'unkown';
-	}
-
-	private renderFactionImage(
-		factionName: string,
-		displayHeightInPixels: number,
-	): React.ReactNode {
-		return renderFactionEmblem(factionName, {
-			displayHeightInPixels,
-			containerShape: ImageContainerShape.Rectangle,
-		});
 	}
 }
 
