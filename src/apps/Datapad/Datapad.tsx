@@ -135,15 +135,42 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 
 	public render(): ReactNode {
 		const appView: ReactNode = (
-			<div className="Datapad-view" id={viewId}>
+			<div
+				id={viewId}
+				style={{
+					textAlign: 'center',
+					float: 'right',
+					flex: 1,
+				}}
+			>
 				{this.renderApp()}
 			</div>
 		);
 		const menu = this.renderMenu();
 		return (
-			<div className="App">
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					backgroundColor: '#3b414d',
+					position: 'absolute',
+					textAlign: 'center',
+					width: '100%',
+					height: '100%',
+					color: 'white',
+				}}
+			>
 				{this.renderHeader()}
-				<div className="Datapad" id={appId}>
+				<div
+					id={appId}
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						textAlign: 'center',
+						flex: 1,
+						overflow: 'clip',
+					}}
+				>
 					{menu}
 					{appView}
 				</div>
@@ -170,12 +197,22 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 */
 	private renderHeader(): ReactNode {
 		return (
-			<header className="App-header">
+			<header
+				style={{
+					position: 'relative',
+					backgroundColor: '#282c34',
+				}}
+			>
 				{this.renderMenuBurgerButton()}
 				<img
-					className="App-header-logo"
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
 					alt="Campaign logo"
+					style={{
+						height: '75px',
+						margin: '15px',
+						pointerEvents: 'none',
+						objectFit: 'scale-down',
+					}}
 				/>
 			</header>
 		);
@@ -204,7 +241,6 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				customCrossIcon={false}
 			>
 				<HamburgerSqueeze
-					className="App-header-burger-button"
 					barColor="white"
 					buttonWidth={`${buttonWidthInPixels}`}
 					isActive={!this.props.isMenuCollapsed}
@@ -216,6 +252,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					buttonStyle={{
 						left: `${sliderWidthInPixels}px`,
 						top: '60px',
+						position: 'absolute',
 					}}
 				/>
 			</SlideMenu>
