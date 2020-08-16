@@ -476,7 +476,15 @@ class ShopComponent extends React.Component<Props, ModalState> {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							cr
+							<img
+								src="images/Credit.svg"
+								alt="Galactic Credit"
+								style={{
+									height: '13px',
+									margin: '2px',
+									objectFit: 'scale-down',
+								}}
+							/>
 						</a>
 						)
 					</th>
