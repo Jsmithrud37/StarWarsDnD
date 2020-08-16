@@ -17,5 +17,6 @@
 	],
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
-	"editor.detectIndentation": false
+	"editor.detectIndentation": false,
+	"editor.dragAndDrop": false
 }
