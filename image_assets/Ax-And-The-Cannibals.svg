@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="Ax-And-The-Cannibals.svg"
+   id="svg4"
+   version="1.1"
+   viewBox="0 0 110 110">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg4"
+     inkscape:window-maximized="1"
+     inkscape:window-y="1072"
+     inkscape:window-x="-2"
+     inkscape:cy="59.939565"
+     inkscape:cx="56.05126"
+     inkscape:zoom="5.6568542"
+     showgrid="false"
+     id="namedview6"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     inkscape:export-ydpi="1666.0601"
+     inkscape:export-xdpi="1666.0601"
+     inkscape:export-filename="C:\Users\Jsmit\OneDrive\Desktop\CannibalsLogo.png"
+     d="M 51.669922 8.25 C 46.120707 18.471925 38.626948 25.158316 27.597656 32.021484 L 31.222656 35.601562 L 5.953125 60.871094 L 10.953125 65.871094 L 35.953125 40.871094 C 45.537207 47.055853 53.992514 54.834736 60.953125 63.871094 C 62.923838 62.145395 64.168994 58.165441 65.113281 55.816406 L 66.136719 50.197266 L 61.865234 53.017578 C 61.5941 52.674943 61.325214 52.330535 61.058594 51.984375 L 61.476562 45.019531 L 57.779297 47.460938 C 56.999535 46.319831 56.243513 45.162681 55.511719 43.990234 L 55.783203 39.455078 L 53.640625 40.869141 C 52.697691 39.228884 50.563216 34.202823 49.714844 32.511719 C 51.132974 34.645372 55.712354 38.231557 58.158203 39.267578 L 57.841797 44.533203 L 62.955078 41.15625 C 63.465952 41.342718 63.978339 41.525016 64.492188 41.703125 L 64.181641 46.863281 L 69.566406 43.308594 C 70.190356 43.487859 70.816036 43.661045 71.443359 43.828125 L 71.123047 49.177734 L 77.162109 45.189453 C 76.856539 45.132784 76.569018 45.074558 77.183594 45.175781 C 79.078736 43.754425 84.531769 42.766236 85.953125 40.871094 C 75.672968 34.257554 66.692469 25.815253 59.457031 15.962891 L 60.695312 14.707031 L 56.400391 10.353516 L 55.117188 11.654297 L 51.669922 8.25 z M 77.183594 45.175781 L 77.162109 45.189453 C 77.483434 45.249044 77.825301 45.306913 77.183594 45.175781 z M 52.914062 14.550781 C 51.564368 19.026487 55.066604 23.101598 59.566406 27.822266 C 51.565412 29.04396 47.188221 20.676528 52.914062 14.550781 z "
+     style="fill:#647c00;fill-opacity:1"
+     id="path2" />
+</svg>
