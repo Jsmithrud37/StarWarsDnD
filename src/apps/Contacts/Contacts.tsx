@@ -5,7 +5,6 @@ import CardColumns from 'react-bootstrap/CardColumns';
 import Collapse from 'react-bootstrap/Collapse';
 import Fade from 'react-bootstrap/Fade';
 import Media from 'react-bootstrap/Media';
-import Spinner from 'react-bootstrap/Spinner';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
