@@ -20,6 +20,7 @@ import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
+import LoadingScreen from '../../shared-components/LoadingScreen';
 
 /**
  * State parameters used by the Datapad app component.
@@ -312,7 +313,7 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		let view;
 		if (!this.props.inventory) {
 			this.fetchInventory();
-			view = this.renderLoadingScreen();
+			view = <LoadingScreen text={`Loading ${this.props.shopSelection} inventory...`} />;
 		} else {
 			view = this.renderApp();
 		}
@@ -375,42 +376,6 @@ class ShopComponent extends React.Component<Props, ModalState> {
 					{modalContent}
 				</Modal>
 			</>
-		);
-	}
-
-	// TODO: de-dup with Contacts.
-	private renderLoadingScreen(): React.ReactNode {
-		return (
-			<div
-				style={{
-					height: '100%',
-					display: 'flex',
-					flexDirection: 'column',
-					textAlign: 'center',
-				}}
-			>
-				<div
-					style={{
-						padding: '15px',
-					}}
-				>
-					Loading {this.props.shopSelection} inventory...
-				</div>
-				<div
-					style={{
-						padding: '15px',
-						textAlign: 'center',
-					}}
-				>
-					<div
-						style={{
-							display: 'inline-block',
-						}}
-					>
-						<Spinner animation="border" variant="light" />
-					</div>
-				</div>
-			</div>
 		);
 	}
 

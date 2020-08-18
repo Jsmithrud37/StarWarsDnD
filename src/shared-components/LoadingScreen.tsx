@@ -23,11 +23,30 @@ class LoadingScreen extends React.Component<Props> {
 				style={{
 					flex: 1,
 					textAlign: 'center',
+					display: 'flex',
+					flexDirection: 'column',
 				}}
 			>
-				<div>{this.props.text}</div>
-				<div>
-					<Spinner animation="border" variant="light"></Spinner>
+				<div
+					style={{
+						padding: '15px',
+					}}
+				>
+					{this.props.text}
+				</div>
+				<div
+					style={{
+						padding: '15px',
+						textAlign: 'center',
+					}}
+				>
+					<div
+						style={{
+							display: 'inline-block',
+						}}
+					>
+						<Spinner animation="border" variant="light" />
+					</div>
 				</div>
 			</div>
 		);
