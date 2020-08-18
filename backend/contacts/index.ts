@@ -9,11 +9,11 @@ export const collectionName = 'contacts';
 
 // router.route('/add').post((req, res) => {
 // 	const name = req.body.name;
-// 	const race = req.body.race;
+// 	const species = req.body.species;
 // 	const gender = req.body.gender;
 // 	const affiliations = req.body.affiliations;
 
-// 	const newContact = new Contact({ name, race, gender, affiliations });
+// 	const newContact = new Contact({ name, species, gender, affiliations });
 
 // 	newContact
 // 		.save()
@@ -37,7 +37,7 @@ export const collectionName = 'contacts';
 // 	Contact.findById(req.params.id)
 // 		.then((contact) => {
 // 			contact.name = req.body.name;
-// 			contact.race = req.body.race;
+// 			contact.species = req.body.species;
 // 			contact.gender = req.body.gender;
 // 			contact.affiliations = req.body.affiliations;
 

@@ -4,16 +4,17 @@ import { Id } from '../../utilities/DatabaseUtilities';
 export interface Contact {
 	_id: Id;
 	name: string;
-	imageUrl?: string;
-	race?: string; // undefined === "Unkown"
+	species?: string; // undefined === "Unkown"
 	gender?: string; // undefined === "Unkown"
+	homeworld?: string; // undefined === "Unknown"
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
+	bio?: string; // undefined === no bio
 }
 
 /**
  * Returns whether or not the contact is a Droid.
  */
 export function isDroid(contact: Contact): boolean {
-	return contact.race === 'Droid';
+	return contact.species === 'Droid';
 }
