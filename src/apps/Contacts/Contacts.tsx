@@ -15,6 +15,7 @@ import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 import { ContactDetails } from './ContactDetails';
+import LoadingScreen from '../../shared-components/LoadingScreen';
 
 /**
  * State parameters used by the Datapad app component.
@@ -58,16 +59,7 @@ class ContactsComponent extends React.Component<Props> {
 		if (this.props.contacts) {
 			return <div className="Contacts">{this.renderContacts()}</div>;
 		}
-		return this.renderLoadingScreen();
-	}
-
-	private renderLoadingScreen(): ReactNode {
-		return (
-			<>
-				<div>Loading contacts...</div>
-				<Spinner animation="border" variant="light"></Spinner>
-			</>
-		);
+		return <LoadingScreen text="Loading contacts..." />;
 	}
 
 	/**
