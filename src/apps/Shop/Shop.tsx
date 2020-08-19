@@ -1,11 +1,20 @@
-import { Button, Modal } from '@material-ui/core';
+import {
+	Button,
+	Modal,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableRow,
+	TableContainer,
+	TablePagination,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import React from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
-import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
@@ -44,6 +53,23 @@ interface ModalState {
 }
 
 /**
+ * State related to the table being rendered.
+ */
+interface TableState {
+	/**
+	 * The number of rows to be rendered per page in the table. Can be edited by the user.
+	 */
+	rowsPerPage: number;
+
+	/**
+	 * Currently selected page index.
+	 */
+	selectedPageIndex: number;
+}
+
+type State = ModalState & TableState;
+
+/**
  * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
 type Props = Actions & Parameters;
@@ -76,12 +102,14 @@ const newItemFormSchemas = new Map<string, DataEntry>([
 /**
  *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-class ShopComponent extends React.Component<Props, ModalState> {
+class ShopComponent extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
 			editing: undefined,
 			itemBeingEdited: undefined,
+			rowsPerPage: 10, // TODO: different on mobile v desktop?
+			selectedPageIndex: 0,
 		};
 	}
 
@@ -251,6 +279,40 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		}
 	}
 
+	private rowCount(): number {
+		if (!this.props.inventory) {
+			return 0;
+		}
+		return this.props.inventory.length;
+	}
+
+	private pageCount(): number {
+		if (!this.props.inventory) {
+			return 0;
+		}
+		const rowCount = this.rowCount();
+		return Math.ceil(rowCount / this.state.rowsPerPage);
+	}
+
+	private onChangePage(newPageSelection: number): void {
+		this.setState({
+			...this.state,
+			selectedPageIndex: newPageSelection,
+		});
+	}
+
+	private onChangeRowsPerPage(newRowsPerPage: number): void {
+		if (newRowsPerPage <= 0) {
+			throw new Error(`Invalid "rowsPerPage" value: ${newRowsPerPage}`);
+		}
+		const newPageIndex = 0; // TODO: find page containing first item on existing page?
+		this.setState({
+			...this.state,
+			rowsPerPage: newRowsPerPage,
+			selectedPageIndex: newPageIndex,
+		});
+	}
+
 	private setIsEditing(value?: EditType, itemBeingEdited?: InventoryItem): void {
 		this.setState({ ...this.state, editing: value, itemBeingEdited });
 	}
@@ -398,14 +460,9 @@ class ShopComponent extends React.Component<Props, ModalState> {
 
 	public renderApp(): React.ReactNode {
 		return (
-			<>
-				<Scrollbars autoHide={true} autoHeight={false}>
-					<div style={{ height: '100%', padding: '5px' }}>
-						{this.renderInventory()}
-						{this.renderInsertFooter()}
-					</div>
-				</Scrollbars>
-			</>
+			<Scrollbars autoHide={true} autoHeight={false}>
+				<div style={{ height: '100%', padding: '5px' }}>{this.renderInventory()}</div>
+			</Scrollbars>
 		);
 	}
 
@@ -413,11 +470,28 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	 * Renders the inventory view for the indicated shop
 	 */
 	public renderInventory(): React.ReactNode {
+		if (!this.props.inventory) {
+			throw new Error('Inventory not loaded yet.');
+		}
+
 		return (
-			<Table bordered hover responsive striped variant="dark">
-				{this.renderHeader()}
-				{this.renderInventoryData()}
-			</Table>
+			<TableContainer>
+				<Table stickyHeader={true}>
+					{this.renderHeader()}
+					{this.renderInventoryData()}
+				</Table>
+				<TablePagination
+					rowsPerPageOptions={[5, 10, 25]}
+					component="div"
+					count={this.props.inventory.length}
+					rowsPerPage={this.state.rowsPerPage}
+					page={this.state.selectedPageIndex}
+					onChangePage={(event, newPage) => this.onChangePage(newPage)}
+					onChangeRowsPerPage={(event) =>
+						this.onChangeRowsPerPage(parseInt(event.target.value, 10))
+					}
+				/>
+			</TableContainer>
 		);
 	}
 
@@ -426,15 +500,27 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	 */
 	private renderHeader(): React.ReactNode {
 		return (
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Category</th>
-					<th>Type</th>
-					<th>Sub-Type</th>
-					<th>Rarity</th>
-					<th>Weight (lb)</th>
-					<th>
+			<TableHead>
+				<TableRow>
+					<TableCell key="NameHeader" align={'center'}>
+						Name
+					</TableCell>
+					<TableCell key="CategoryHeader" align={'center'}>
+						Category
+					</TableCell>
+					<TableCell key="TypeHeader" align={'center'}>
+						Type
+					</TableCell>
+					<TableCell key="SubTypeHeader" align={'center'}>
+						Sub-Type
+					</TableCell>
+					<TableCell key="RarityHeader" align={'center'}>
+						Rarity
+					</TableCell>
+					<TableCell key="WeightHeader" align={'center'}>
+						Weight (lb)
+					</TableCell>
+					<TableCell key="CostHeader" align={'center'}>
 						Cost (
 						<a
 							href="https://sw5e.com/rules/phb/equipment#currency"
@@ -452,10 +538,25 @@ class ShopComponent extends React.Component<Props, ModalState> {
 							/>
 						</a>
 						)
-					</th>
-					<th>Stock</th>
-				</tr>
-			</thead>
+					</TableCell>
+					<TableCell key="StockHeader" align={'center'}>
+						Stock
+					</TableCell>
+					{canEdit ? (
+						<TableCell key="EditingHeader" align={'center'}>
+							<Button
+								variant="outlined"
+								color="secondary"
+								onClick={() => this.setIsEditing(EditType.Insert)}
+							>
+								<AddIcon color="secondary" />
+							</Button>
+						</TableCell>
+					) : (
+						React.Fragment
+					)}
+				</TableRow>
+			</TableHead>
 		);
 	}
 
@@ -466,12 +567,19 @@ class ShopComponent extends React.Component<Props, ModalState> {
 		if (!this.props.inventory) {
 			throw new Error('Inventory not loaded.');
 		}
+
+		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
+		const rowsToRender = this.props.inventory.slice(
+			firstItemOnPageIndex,
+			firstItemOnPageIndex + this.state.rowsPerPage,
+		);
+
 		return (
-			<tbody>
-				{this.props.inventory.map((row) => {
+			<TableBody>
+				{rowsToRender.map((row) => {
 					return <React.Fragment key={row.name}>{this.renderRow(row)}</React.Fragment>;
 				})}
-			</tbody>
+			</TableBody>
 		);
 	}
 
@@ -480,21 +588,21 @@ class ShopComponent extends React.Component<Props, ModalState> {
 	 */
 	private renderRow(row: InventoryItem): React.ReactNode {
 		return (
-			<tr>
-				<td>
+			<TableRow hover>
+				<TableCell align={'center'}>
 					<a href={getResourceUrl(row)} target="_blank" rel="noopener noreferrer">
 						{row.name}
 					</a>
-				</td>
-				<td>{row.category}</td>
-				<td>{row.type}</td>
-				<td>{row.subType}</td>
-				<td>{row.rarity}</td>
-				<td>{row.weight}</td>
-				<td>{row.cost}</td>
-				<td>{row.stock < 0 ? '∞' : row.stock}</td>
+				</TableCell>
+				<TableCell align={'center'}>{row.category}</TableCell>
+				<TableCell align={'center'}>{row.type}</TableCell>
+				<TableCell align={'center'}>{row.subType}</TableCell>
+				<TableCell align={'center'}>{row.rarity}</TableCell>
+				<TableCell align={'center'}>{row.weight}</TableCell>
+				<TableCell align={'center'}>{row.cost}</TableCell>
+				<TableCell align={'center'}>{row.stock < 0 ? '∞' : row.stock}</TableCell>
 				{canEdit ? (
-					<td>
+					<TableCell align={'center'}>
 						<Button onClick={() => this.setIsEditing(EditType.Edit, row)}>
 							<CreateIcon color="secondary" />
 						</Button>
@@ -505,39 +613,12 @@ class ShopComponent extends React.Component<Props, ModalState> {
 						>
 							<DeleteForeverIcon color="secondary" />
 						</Button>
-					</td>
+					</TableCell>
 				) : (
 					<></>
 				)}
-			</tr>
+			</TableRow>
 		);
-	}
-
-	// TODO: upon clicking button, open up modal form for inserting new item.
-	/**
-	 * Renders an "insert new item" footer iff the user is permitted to make edits.
-	 */
-	private renderInsertFooter(): React.ReactNode {
-		if (canEdit) {
-			return (
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'row-reverse',
-						margin: '5px',
-					}}
-				>
-					<Button
-						variant="outlined"
-						color="secondary"
-						onClick={() => this.setIsEditing(EditType.Insert)}
-					>
-						<AddIcon color="secondary" />
-					</Button>
-				</div>
-			);
-		}
-		return <></>;
 	}
 }
 
