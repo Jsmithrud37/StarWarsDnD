@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/Card';
-import Table from 'react-bootstrap/Table';
 import { connect } from 'react-redux';
 import { Actions, changeShop } from './Actions';
 import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
@@ -8,7 +7,7 @@ import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryT
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
-import { Tabs, Tab } from '@material-ui/core';
+import { Tabs, Tab, TableRow, TableHead, TableCell, Table } from '@material-ui/core';
 
 /**
  * State parameters used by the Datapad app component.
@@ -88,7 +87,7 @@ class ShopComponent extends React.Component<Props> {
  */
 function renderInventory(inventory: Inventory): ReactNode {
 	return (
-		<Table bordered hover responsive striped variant="dark">
+		<Table>
 			{renderHeader(inventory.header)}
 			{renderInventoryData(inventory.data)}
 		</Table>
@@ -100,13 +99,13 @@ function renderInventory(inventory: Inventory): ReactNode {
  */
 function renderHeader(header: InventoryHeader): ReactNode {
 	return (
-		<thead>
-			<tr>
-				<th>Name</th>
+		<TableHead>
+			<TableRow>
+				<TableCell>Name</TableCell>
 				{header.map((cell) => {
-					return <>{renderCell(cell, true)}</>;
+					return <TableCell>{renderCell(cell, true)}</TableCell>;
 				})}
-				<th>
+				<TableCell>
 					Cost (
 					<a
 						href="https://sw5e.com/rules/phb/equipment#currency"
@@ -116,10 +115,10 @@ function renderHeader(header: InventoryHeader): ReactNode {
 						cr
 					</a>
 					)
-				</th>
-				<th>Stock</th>
-			</tr>
-		</thead>
+				</TableCell>
+				<TableCell>Stock</TableCell>
+			</TableRow>
+		</TableHead>
 	);
 }
 
@@ -141,8 +140,8 @@ function renderInventoryData(data: InventoryItem[]): ReactNode {
  */
 function renderRow(row: InventoryItem): ReactNode {
 	return (
-		<tr>
-			<td>{row.name}</td>
+		<TableRow>
+			<TableCell>{row.name}</TableCell>
 			{row.otherData.map((cell) => {
 				return (
 					<React.Fragment key={getCellText(cell)}>
@@ -150,9 +149,9 @@ function renderRow(row: InventoryItem): ReactNode {
 					</React.Fragment>
 				);
 			})}
-			<td>{row.cost}</td>
-			<td>{row.stock}</td>
-		</tr>
+			<TableCell>{row.cost}</TableCell>
+			<TableCell>{row.stock}</TableCell>
+		</TableRow>
 	);
 }
 
@@ -161,7 +160,7 @@ function renderRow(row: InventoryItem): ReactNode {
  */
 function renderCell(cell: Cell | string, isHeaderCell: boolean): ReactNode {
 	if (typeof cell === 'string') {
-		return isHeaderCell ? <th>{cell}</th> : <td>{cell}</td>;
+		return isHeaderCell ? <TableHead>{cell}</TableHead> : <TableCell>{cell}</TableCell>;
 	} else {
 		let render = <>{cell.text}</>;
 
@@ -177,7 +176,7 @@ function renderCell(cell: Cell | string, isHeaderCell: boolean): ReactNode {
 			// TODO: pop-over support
 		}
 
-		return isHeaderCell ? <th>{render}</th> : <td>{render}</td>;
+		return isHeaderCell ? <TableHead>{render}</TableHead> : <TableCell>{render}</TableCell>;
 	}
 }
 
