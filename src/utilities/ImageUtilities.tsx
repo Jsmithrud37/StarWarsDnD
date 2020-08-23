@@ -3,8 +3,8 @@
  */
 
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
 import { Img as ReactImage } from 'react-image';
+import { CircularProgress } from '@material-ui/core';
 
 const baseImageUrl = 'https://datapadassets.blob.core.windows.net';
 
@@ -76,7 +76,7 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	return (
 		<ReactImage
 			src={imageUrls}
-			loader={<Spinner animation="border" variant="light"></Spinner>}
+			loader={<CircularProgress color="primary"></CircularProgress>}
 			height={options.displayHeightInPixels}
 			style={{
 				borderRadius,

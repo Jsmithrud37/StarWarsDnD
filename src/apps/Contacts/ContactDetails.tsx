@@ -43,6 +43,7 @@ function stringFromTabType(tabType: DetailsTab): string {
 
 export interface ContactCardProps {
 	contact: Contact;
+	heightInPixels: number;
 }
 
 interface State {
@@ -79,9 +80,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
-		const heightInPixels = 450;
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
-		const bodyHeightInPixels = heightInPixels - headerHeightInPixels;
+		const bodyHeightInPixels = this.props.heightInPixels - headerHeightInPixels;
 
 		const tabPanelStyle = {
 			height: `${bodyHeightInPixels}px`,
@@ -113,7 +113,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		return (
 			<div
 				style={{
-					maxHeight: `${heightInPixels}px`,
+					maxHeight: `${this.props.heightInPixels}px`,
 				}}
 			>
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
