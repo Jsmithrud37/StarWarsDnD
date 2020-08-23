@@ -1,15 +1,6 @@
 import React, { ReactNode } from 'react';
-import { HamburgerSqueeze } from 'react-animated-burgers';
-import { push as PushMenu, slide as SlideMenu, State as BurgerMenuState } from 'react-burger-menu';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
-import {
-	AccordionMenu,
-	AccordionMenuItemBuilder,
-	AccordionMenuItemStyle,
-	SimpleAccordionMenuItemBuilder,
-} from '../../shared-components/AccordionMenu';
-import { DisabledAccordionMenuItemBuilder } from '../../shared-components/AccordionMenu/DisabledAccordionMenuItem';
 import Contacts, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
@@ -19,39 +10,26 @@ import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
 import './Styling/Datapad.css';
+import {
+	List,
+	ListItem,
+	ListItemIcon,
+	ListItemText,
+	Drawer,
+	Divider,
+	IconButton,
+} from '@material-ui/core';
+import MapIcon from '@material-ui/icons/Map';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import PeopleIcon from '@material-ui/icons/People';
+import TimelineIcon from '@material-ui/icons/Timeline';
+import MessageIcon from '@material-ui/icons/Message';
+import MenuIcon from '@material-ui/icons/Menu';
+import CloseIcon from '@material-ui/icons/Close';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
 const menuId = 'datapad-menu';
-
-const menuWidthInPixels = 225;
-
-/**
- * Menu item style used for items which are not currently selected.
- */
-const menuItemStyleDefault: AccordionMenuItemStyle = {
-	backgroundColor: 'dark',
-	textColor: 'light',
-	borderColor: 'dark',
-};
-
-/**
- * Menu item style used for selected items.
- */
-const menuItemStyleSelected: AccordionMenuItemStyle = {
-	backgroundColor: 'primary',
-	textColor: 'light',
-	borderColor: 'light',
-};
-
-/**
- * Menu item style used for selected items.
- */
-const menuItemStyleDisabled: AccordionMenuItemStyle = {
-	backgroundColor: 'secondary',
-	textColor: 'light',
-	borderColor: 'dark',
-};
 
 /**
  * Determines which apps in the Datapad are enabled. Set by the consumer.
@@ -171,54 +149,20 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	private renderHeader(): ReactNode {
 		return (
 			<header className="App-header">
-				{this.renderMenuBurgerButton()}
+				<IconButton
+					onClick={() => this.props.expandMenu()}
+					style={{
+						float: 'left',
+					}}
+				>
+					<MenuIcon />
+				</IconButton>
 				<img
 					className="App-header-logo"
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
 					alt="Campaign logo"
 				/>
 			</header>
-		);
-	}
-
-	/**
-	 * Renders the burger menu button that controls revealing and hiding the side menu,
-	 * which lives in the header above the menu.
-	 */
-	private renderMenuBurgerButton(): ReactNode {
-		const buttonWidthInPixels = 25;
-		const sliderWidthInPixels =
-			Math.min(menuWidthInPixels, this.state.viewPortWidthInPixels / 4.3) -
-			1.75 * buttonWidthInPixels;
-
-		return (
-			<SlideMenu
-				width={`${sliderWidthInPixels}px`}
-				onStateChange={(state) => {
-					this.onMenuStateChange(state);
-				}}
-				isOpen={!this.props.isMenuCollapsed}
-				disableOverlayClick={true}
-				noOverlay={true}
-				customBurgerIcon={false}
-				customCrossIcon={false}
-			>
-				<HamburgerSqueeze
-					className="App-header-burger-button"
-					barColor="white"
-					buttonWidth={`${buttonWidthInPixels}`}
-					isActive={!this.props.isMenuCollapsed}
-					toggleButton={
-						this.props.isMenuCollapsed
-							? () => this.props.expandMenu()
-							: () => this.props.collapseMenu()
-					}
-					buttonStyle={{
-						left: `${sliderWidthInPixels}px`,
-						top: '60px',
-					}}
-				/>
-			</SlideMenu>
 		);
 	}
 
@@ -254,8 +198,8 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	/**
 	 * Function to be invoked by state-change on BurgerMenu implementation of Datapad menu.
 	 */
-	private onMenuStateChange(menuState: BurgerMenuState): void {
-		if (menuState.isOpen) {
+	private onMenuStateChange(isNowOpen: boolean): void {
+		if (isNowOpen) {
 			this.props.expandMenu();
 		} else {
 			this.props.collapseMenu();
@@ -267,61 +211,57 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 */
 	private renderMenu(): ReactNode {
 		return (
-			<PushMenu
+			<Drawer
 				id={menuId}
-				pageWrapId={viewId}
-				outerContainerId={appId}
-				width={`${menuWidthInPixels}px`}
-				onStateChange={(state) => {
-					this.onMenuStateChange(state);
+				onClose={() => {
+					this.props.collapseMenu();
 				}}
-				isOpen={!this.props.isMenuCollapsed}
-				disableOverlayClick={this.props.isMenuCollapsed}
-				noOverlay={this.props.isMenuCollapsed}
-				customBurgerIcon={false}
-				customCrossIcon={false}
+				open={!this.props.isMenuCollapsed}
 			>
-				<AccordionMenu
-					className="Datapad-app-menu"
-					initialSelectionIndex={this.props.appSelection}
-					onSelectionChange={(appSelection: AppId) => this.props.changeApp(appSelection)}
-					defaultItemStyle={menuItemStyleDefault}
-					selectedItemStyle={menuItemStyleSelected}
-					menuItemBuilders={[
-						// TODO: update builders to take AppId and return it in onClick
-						createMenuItemBuilder('Galaxy Map', this.props.galaxyMapEnabled ?? true),
-						createMenuItemBuilder('Shops', this.props.shopsEnabled ?? true),
-						createMenuItemBuilder(
-							'Contacts (beta)',
-							this.props.contactsEnabled ?? true,
-						),
-						createMenuItemBuilder('Messenger', this.props.messengerEnabled ?? true),
-						createMenuItemBuilder('Timeline', this.props.timelineEnabled ?? true),
-					]}
-				/>
-			</PushMenu>
+				<List
+					component="nav"
+					disablePadding={true}
+					style={{
+						width: `225px`,
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row-reverse',
+						}}
+					>
+						<IconButton onClick={() => this.props.collapseMenu()}>
+							<CloseIcon />
+						</IconButton>
+					</div>
+					<Divider orientation="horizontal" />
+					{/* TODO: user details */}
+					{/* <Divider orientation="horizontal"></Divider> */}
+					{this.createMenuItem('Galaxy Map', <MapIcon />, AppId.GalaxyMap)}
+					{this.createMenuItem('Shops (beta)', <ShoppingCartIcon />, AppId.Shops)}
+					{this.createMenuItem('Contacts (beta)', <PeopleIcon />, AppId.Contacts)}
+					{this.createMenuItem('Timeline (test)', <TimelineIcon />, AppId.Timeline)}
+					{this.createMenuItem('Messenger', <MessageIcon />, AppId.Messenger)}
+					<Divider orientation="horizontal" />
+				</List>
+			</Drawer>
 		);
 	}
-}
 
-/**
- * Creates the appropriate form of menu item builder based on whether or not the app is enabled.
- */
-function createMenuItemBuilder(label: string, appEnabled: boolean): AccordionMenuItemBuilder {
-	const menuItemClassName = 'Datapad-menu-item';
-	return appEnabled
-		? new SimpleAccordionMenuItemBuilder(
-				label,
-				menuItemStyleDefault,
-				menuItemStyleSelected,
-				menuItemClassName,
-		  )
-		: new DisabledAccordionMenuItemBuilder(
-				label,
-				menuItemStyleDisabled,
-				'Coming Soon',
-				menuItemClassName,
-		  );
+	private createMenuItem(text: string, icon: React.ReactElement, appId: AppId): React.ReactNode {
+		return (
+			<ListItem
+				button
+				selected={appId === this.props.appSelection}
+				onClick={() => this.props.changeApp(appId)}
+				key={appId}
+			>
+				<ListItemIcon>{icon}</ListItemIcon>
+				<ListItemText primary={text} />
+			</ListItem>
+		);
+	}
 }
 
 /**
