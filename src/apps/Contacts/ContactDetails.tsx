@@ -1,4 +1,4 @@
-import { AppBar, Tab, Tabs } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -6,7 +6,6 @@ import PeopleIcon from '@material-ui/icons/People';
 import ReactMarkdown from 'react-markdown';
 import SwipeableViews from 'react-swipeable-views';
 import React from 'react';
-import Table from 'react-bootstrap/Table';
 import {
 	ImageContainerShape,
 	renderContactImage,
@@ -15,6 +14,7 @@ import {
 import { Contact, isDroid } from './Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './Styling/Contacts.css';
+import { background4 } from '../../Theming';
 
 /**
  * Tabs in the contact card view
@@ -43,6 +43,7 @@ function stringFromTabType(tabType: DetailsTab): string {
 
 export interface ContactCardProps {
 	contact: Contact;
+	heightInPixels: number;
 }
 
 interface State {
@@ -79,9 +80,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
-		const heightInPixels = 450;
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
-		const bodyHeightInPixels = heightInPixels - headerHeightInPixels;
+		const bodyHeightInPixels = this.props.heightInPixels - headerHeightInPixels;
 
 		const tabPanelStyle = {
 			height: `${bodyHeightInPixels}px`,
@@ -113,20 +113,20 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		return (
 			<div
 				style={{
-					maxHeight: `${heightInPixels}px`,
+					maxHeight: `${this.props.heightInPixels}px`,
 				}}
 			>
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
-						color="default"
 						position="static"
 						style={{
 							height: `${headerHeightInPixels}px`,
+							backgroundColor: background4,
 						}}
 					>
 						<Tabs
 							centered
-							indicatorColor="secondary"
+							indicatorColor="primary"
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
 						>
@@ -175,11 +175,13 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
 				<div style={divStyle}>{contactImage}</div>
-				<Table variant="dark">
-					{this.renderSpecies(contact)}
-					{this.renderGender(contact)}
-					{this.renderHomeworld(contact)}
-					{this.renderStatus(contact)}
+				<Table>
+					<TableBody>
+						{this.renderSpecies(contact)}
+						{this.renderGender(contact)}
+						{this.renderHomeworld(contact)}
+						{this.renderStatus(contact)}
+					</TableBody>
 				</Table>
 			</Scrollbars>
 		);
@@ -194,10 +196,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		const affiliationEntries = affiliations.map((affiliation) => {
 			const affilliationImage = this.renderFactionImage(affiliation, 30);
 			return (
-				<tr key={affiliation}>
-					<td>{affiliation}</td>
-					<td>{affilliationImage}</td>
-				</tr>
+				<TableRow key={affiliation}>
+					<TableCell align="left">{affiliation}</TableCell>
+					<TableCell align="center">{affilliationImage}</TableCell>
+				</TableRow>
 			);
 		});
 
@@ -207,7 +209,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					<div style={divStyle}>
 						<b>Known Affiliation</b>
 					</div>
-					<Table variant="dark">{affiliationEntries}</Table>
+					<Table>
+						<TableBody>{affiliationEntries}</TableBody>
+					</Table>
 				</div>
 			</Scrollbars>
 		);
@@ -230,11 +234,11 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	private renderSpecies(contact: Contact): React.ReactNode {
 		const speciesLink = this.getSpeciesLinkUrl(contact.species);
 		return (
-			<tr>
-				<td>
+			<TableRow>
+				<TableCell>
 					<b>Species: </b>
-				</td>
-				<td>
+				</TableCell>
+				<TableCell>
 					{contact.species ? (
 						<a href={speciesLink} target="_blank" rel="noopener noreferrer">
 							{contact.species}
@@ -242,8 +246,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					) : (
 						'Unkown'
 					)}
-				</td>
-			</tr>
+				</TableCell>
+			</TableRow>
 		);
 	}
 
@@ -253,23 +257,23 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			return <></>;
 		}
 		return (
-			<tr>
-				<td>
+			<TableRow>
+				<TableCell>
 					<b>Gender: </b>
-				</td>
-				<td>{this.stringOrUnknown(contact.gender)}</td>
-			</tr>
+				</TableCell>
+				<TableCell>{this.stringOrUnknown(contact.gender)}</TableCell>
+			</TableRow>
 		);
 	}
 
 	private renderHomeworld(contact: Contact): React.ReactNode {
 		const homeworldLink = this.getPlanetLinkUrl(contact.homeworld);
 		return (
-			<tr>
-				<td>
+			<TableRow>
+				<TableCell>
 					<b>Homeworld: </b>
-				</td>
-				<td>
+				</TableCell>
+				<TableCell>
 					{contact.homeworld ? (
 						<a href={homeworldLink} target="_blank" rel="noopener noreferrer">
 							{contact.homeworld}
@@ -277,19 +281,19 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					) : (
 						'Unkown'
 					)}
-				</td>
-			</tr>
+				</TableCell>
+			</TableRow>
 		);
 	}
 
 	private renderStatus(contact: Contact): React.ReactNode {
 		return (
-			<tr>
-				<td>
+			<TableRow>
+				<TableCell>
 					<b>Status: </b>
-				</td>
-				<td>{this.stringOrUnknown(contact.status)}</td>
-			</tr>
+				</TableCell>
+				<TableCell>{this.stringOrUnknown(contact.status)}</TableCell>
+			</TableRow>
 		);
 	}
 
