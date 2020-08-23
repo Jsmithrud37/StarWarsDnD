@@ -192,7 +192,11 @@ class ContactsComponent extends React.Component<Props> {
 
 		return (
 			<CardHeader
-				avatar={<Collapse in={!isSelected}>{contactImage}</Collapse>}
+				avatar={
+					<Collapse in={!isSelected} timeout={150}>
+						{contactImage}
+					</Collapse>
+				}
 				title={name}
 				action={burgerButton}
 				style={{
