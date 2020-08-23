@@ -1,5 +1,5 @@
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
+import { CircularProgress } from '@material-ui/core';
 
 interface Props {
 	/**
@@ -45,7 +45,7 @@ class LoadingScreen extends React.Component<Props> {
 							display: 'inline-block',
 						}}
 					>
-						<Spinner animation="border" variant="light" />
+						<CircularProgress color="primary" />
 					</div>
 				</div>
 			</div>
