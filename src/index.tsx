@@ -6,7 +6,7 @@ import { createStore } from 'redux';
 import Datapad, { reducers } from './apps/Datapad';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { ThemeProvider } from '@material-ui/core';
+import { MuiThemeProvider } from '@material-ui/core';
 import { appTheme } from './Theming';
 
 const dataStore = createStore(reducers);
@@ -15,11 +15,11 @@ const galaxyMapEnabled = true;
 const shopsEnabled = process.env.NODE_ENV !== 'production';
 const contactsEnabled = true;
 const messengerEnabled = true;
-const timelineEnabled = process.env.NODE_ENV !== 'production';
+const timelineEnabled = false; //process.env.NODE_ENV !== 'production';
 
 ReactDOM.render(
 	<Provider store={dataStore}>
-		<ThemeProvider theme={appTheme}>
+		<MuiThemeProvider theme={appTheme}>
 			<Datapad
 				galaxyMapEnabled={galaxyMapEnabled}
 				shopsEnabled={shopsEnabled}
@@ -27,7 +27,7 @@ ReactDOM.render(
 				messengerEnabled={messengerEnabled}
 				timelineEnabled={timelineEnabled}
 			/>
-		</ThemeProvider>
+		</MuiThemeProvider>
 	</Provider>,
 	document.getElementById('root'),
 );

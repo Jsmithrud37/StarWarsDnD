@@ -14,6 +14,7 @@ import {
 import { Contact, isDroid } from './Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './Styling/Contacts.css';
+import { background4 } from '../../Theming';
 
 /**
  * Tabs in the contact card view
@@ -117,15 +118,15 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			>
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
-						color="default"
 						position="static"
 						style={{
 							height: `${headerHeightInPixels}px`,
+							backgroundColor: background4,
 						}}
 					>
 						<Tabs
 							centered
-							indicatorColor="secondary"
+							indicatorColor="primary"
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
 						>
@@ -196,8 +197,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			const affilliationImage = this.renderFactionImage(affiliation, 30);
 			return (
 				<TableRow key={affiliation}>
-					<TableCell>{affiliation}</TableCell>
-					<TableCell>{affilliationImage}</TableCell>
+					<TableCell align="left">{affiliation}</TableCell>
+					<TableCell align="center">{affilliationImage}</TableCell>
 				</TableRow>
 			);
 		});

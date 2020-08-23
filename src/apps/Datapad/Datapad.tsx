@@ -18,6 +18,7 @@ import {
 	Drawer,
 	Divider,
 	IconButton,
+	Paper,
 } from '@material-ui/core';
 import MapIcon from '@material-ui/icons/Map';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
@@ -26,6 +27,7 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
+import { background1 } from '../../Theming';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -113,19 +115,37 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 
 	public render(): ReactNode {
 		const appView: ReactNode = (
-			<div className="Datapad-view" id={viewId}>
+			<div
+				id={viewId}
+				style={{
+					textAlign: 'center',
+					float: 'right',
+					flex: 1,
+				}}
+			>
 				{this.renderApp()}
 			</div>
 		);
 		const menu = this.renderMenu();
 		return (
-			<div className="App">
+			<Paper
+				color="paper"
+				style={{
+					// backgroundColor: '#3b414d',
+					display: 'flex',
+					flexDirection: 'column',
+					position: 'absolute',
+					textAlign: 'center',
+					width: '100%',
+					height: '100%',
+				}}
+			>
 				{this.renderHeader()}
 				<div className="Datapad" id={appId}>
 					{menu}
 					{appView}
 				</div>
-			</div>
+			</Paper>
 		);
 	}
 
@@ -148,7 +168,13 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 */
 	private renderHeader(): ReactNode {
 		return (
-			<header className="App-header">
+			<header
+				className="App-header"
+				style={{
+					position: 'relative',
+					backgroundColor: background1,
+				}}
+			>
 				<IconButton
 					onClick={() => this.props.expandMenu()}
 					style={{
@@ -196,17 +222,6 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	}
 
 	/**
-	 * Function to be invoked by state-change on BurgerMenu implementation of Datapad menu.
-	 */
-	private onMenuStateChange(isNowOpen: boolean): void {
-		if (isNowOpen) {
-			this.props.expandMenu();
-		} else {
-			this.props.collapseMenu();
-		}
-	}
-
-	/**
 	 * Renders the Datapad main menu
 	 */
 	private renderMenu(): ReactNode {
@@ -223,14 +238,28 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					disablePadding={true}
 					style={{
 						width: `225px`,
+						height: '100%',
+						backgroundColor: background1,
 					}}
 				>
 					<div
 						style={{
 							display: 'flex',
-							flexDirection: 'row-reverse',
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'space-around',
 						}}
 					>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								paddingLeft: '10px',
+							}}
+						>
+							<h4>Welcome!</h4>
+						</div>
 						<IconButton onClick={() => this.props.collapseMenu()}>
 							<CloseIcon />
 						</IconButton>
@@ -238,24 +267,55 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					<Divider orientation="horizontal" />
 					{/* TODO: user details */}
 					{/* <Divider orientation="horizontal"></Divider> */}
-					{this.createMenuItem('Galaxy Map', <MapIcon />, AppId.GalaxyMap)}
-					{this.createMenuItem('Shops (beta)', <ShoppingCartIcon />, AppId.Shops)}
-					{this.createMenuItem('Contacts (beta)', <PeopleIcon />, AppId.Contacts)}
-					{this.createMenuItem('Timeline (test)', <TimelineIcon />, AppId.Timeline)}
-					{this.createMenuItem('Messenger', <MessageIcon />, AppId.Messenger)}
+					{this.createMenuItem(
+						'Galaxy Map',
+						<MapIcon />,
+						AppId.GalaxyMap,
+						this.props.galaxyMapEnabled ?? true,
+					)}
+					{this.createMenuItem(
+						'Shops',
+						<ShoppingCartIcon />,
+						AppId.Shops,
+						this.props.shopsEnabled ?? true,
+					)}
+					{this.createMenuItem(
+						'Contacts',
+						<PeopleIcon />,
+						AppId.Contacts,
+						this.props.contactsEnabled ?? true,
+					)}
+					{this.createMenuItem(
+						'Timeline',
+						<TimelineIcon />,
+						AppId.Timeline,
+						this.props.timelineEnabled ?? true,
+					)}
+					{this.createMenuItem(
+						'Messenger',
+						<MessageIcon />,
+						AppId.Messenger,
+						this.props.messengerEnabled ?? true,
+					)}
 					<Divider orientation="horizontal" />
 				</List>
 			</Drawer>
 		);
 	}
 
-	private createMenuItem(text: string, icon: React.ReactElement, appId: AppId): React.ReactNode {
+	private createMenuItem(
+		text: string,
+		icon: React.ReactElement,
+		appId: AppId,
+		enabled: boolean,
+	): React.ReactNode {
 		return (
 			<ListItem
 				button
 				selected={appId === this.props.appSelection}
 				onClick={() => this.props.changeApp(appId)}
 				key={appId}
+				disabled={!enabled}
 			>
 				<ListItemIcon>{icon}</ListItemIcon>
 				<ListItemText primary={text} />

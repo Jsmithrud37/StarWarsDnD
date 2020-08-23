@@ -8,8 +8,17 @@ import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 import { ContactDetails } from './ContactDetails';
-import { Card, Collapse, CardHeader, CardContent, Grid, CircularProgress } from '@material-ui/core';
+import {
+	Card,
+	Collapse,
+	CardHeader,
+	CardContent,
+	Grid,
+	CircularProgress,
+	Paper,
+} from '@material-ui/core';
 import { HamburgerSqueeze } from 'react-animated-burgers';
+import { background2, background3 } from '../../Theming';
 
 /**
  * State parameters used by the Datapad app component.
@@ -53,10 +62,20 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	public render(): ReactNode {
-		if (this.props.contacts) {
-			return <div className="Contacts">{this.renderContacts()}</div>;
-		}
-		return this.renderLoadingScreen();
+		const content = this.props.contacts ? this.renderContacts() : this.renderLoadingScreen();
+		return (
+			<Paper
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					height: '100%',
+					width: '100%',
+					backgroundColor: background2,
+				}}
+			>
+				{content}
+			</Paper>
+		);
 	}
 
 	private renderLoadingScreen(): ReactNode {
@@ -112,10 +131,7 @@ class ContactsComponent extends React.Component<Props> {
 		const cardHeader = this.renderContactCardHeader(contact);
 		return (
 			<Card
-				// bg="dark"
-				// border={isSelected ? 'primary' : undefined}
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				onClick={(event: any) => {
+				onClick={(event) => {
 					if (!isSelected) {
 						this.props.selectContact(contact._id);
 					}
@@ -125,9 +141,10 @@ class ContactsComponent extends React.Component<Props> {
 				}}
 				raised={isSelected}
 				style={{
-					minWidth: 300,
+					minWidth: 360,
 					maxWidth: 500,
 					overflow: 'hidden',
+					backgroundColor: background3,
 				}}
 			>
 				{cardHeader}

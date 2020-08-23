@@ -6,7 +6,8 @@ import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryT
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
-import { Tabs, Tab, TableRow, TableHead, TableCell, Table } from '@material-ui/core';
+import { Tabs, Tab, TableRow, TableHead, TableCell, Table, AppBar } from '@material-ui/core';
+import { background2, background3 } from '../../Theming';
 
 /**
  * State parameters used by the Datapad app component.
@@ -28,7 +29,13 @@ class ShopComponent extends React.Component<Props> {
 
 	public render(): ReactNode {
 		return (
-			<div className="Shops">
+			<div
+				className="Shops"
+				style={{
+					backgroundColor: background2,
+					height: '100%',
+				}}
+			>
 				{this.renderMenu()}
 				{this.renderApp()}
 			</div>
@@ -40,16 +47,25 @@ class ShopComponent extends React.Component<Props> {
 	 */
 	public renderMenu(): ReactNode {
 		return (
-			<Tabs
-				orientation="horizontal"
-				value={this.props.shopSelection}
-				id="shops-menu"
-				onChange={(event, newSelection) => this.props.changeShop(newSelection as ShopId)}
+			<AppBar
+				position="static"
+				style={{
+					backgroundColor: background3,
+				}}
 			>
-				{Object.values(ShopId).map((shop) => (
-					<Tab value={shop} label={shop} key={shop} />
-				))}
-			</Tabs>
+				<Tabs
+					orientation="horizontal"
+					value={this.props.shopSelection}
+					id="shops-menu"
+					onChange={(event, newSelection) =>
+						this.props.changeShop(newSelection as ShopId)
+					}
+				>
+					{Object.values(ShopId).map((shop) => (
+						<Tab value={shop} label={shop} key={shop} />
+					))}
+				</Tabs>
+			</AppBar>
 		);
 	}
 
