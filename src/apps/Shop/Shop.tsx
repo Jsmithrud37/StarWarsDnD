@@ -103,7 +103,7 @@ function renderHeader(header: InventoryHeader): ReactNode {
 			<TableRow>
 				<TableCell>Name</TableCell>
 				{header.map((cell) => {
-					return <TableCell>{renderCell(cell, true)}</TableCell>;
+					return <TableCell key={cell.toString()}>{renderCell(cell, true)}</TableCell>;
 				})}
 				<TableCell>
 					Cost (
