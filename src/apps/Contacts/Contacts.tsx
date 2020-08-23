@@ -23,7 +23,6 @@ type Props = Actions & Parameters;
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
-const contactCardHeightInPixels = contactCardHeaderHeightInPixels + contactCardBodyHeightInPixels;
 
 class ContactsComponent extends React.Component<Props> {
 	public constructor(props: Props) {

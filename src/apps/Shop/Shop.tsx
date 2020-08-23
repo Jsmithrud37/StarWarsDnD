@@ -6,16 +6,7 @@ import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryT
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
-import {
-	Tabs,
-	Tab,
-	TableRow,
-	TableHead,
-	TableCell,
-	Table,
-	Card,
-	CardContent,
-} from '@material-ui/core';
+import { Tabs, Tab, TableRow, TableHead, TableCell, Table } from '@material-ui/core';
 
 /**
  * State parameters used by the Datapad app component.
