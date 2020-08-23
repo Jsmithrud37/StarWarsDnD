@@ -1,8 +1,6 @@
 import React, { ReactNode } from 'react';
 import Card from 'react-bootstrap/Card';
-import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
-import Tabs from 'react-bootstrap/Tabs';
 import { connect } from 'react-redux';
 import { Actions, changeShop } from './Actions';
 import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
@@ -10,6 +8,7 @@ import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryT
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
+import { Tabs, Tab } from '@material-ui/core';
 
 /**
  * State parameters used by the Datapad app component.
@@ -44,12 +43,13 @@ class ShopComponent extends React.Component<Props> {
 	public renderMenu(): ReactNode {
 		return (
 			<Tabs
-				defaultActiveKey={this.props.shopSelection}
+				orientation="horizontal"
+				value={this.props.shopSelection}
 				id="shops-menu"
-				onSelect={(shop: unknown) => this.props.changeShop(shop as ShopId)}
+				onChange={(event, newSelection) => this.props.changeShop(newSelection as ShopId)}
 			>
 				{Object.values(ShopId).map((shop) => (
-					<Tab eventKey={shop} title={shop} key={shop} />
+					<Tab value={shop} label={shop} key={shop} />
 				))}
 			</Tabs>
 		);
