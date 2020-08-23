@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import Card from 'react-bootstrap/Card';
 import { connect } from 'react-redux';
 import { Actions, changeShop } from './Actions';
 import { Cell, Inventory, InventoryHeader, InventoryItem } from './InventoryItem';
@@ -7,7 +6,16 @@ import { getApothicaryInventoryTEMP } from './InventoryTemp/ApothicaryInventoryT
 import { getEquipmentInventoryTEMP } from './InventoryTemp/EquipmentInventoryTemp';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
-import { Tabs, Tab, TableRow, TableHead, TableCell, Table } from '@material-ui/core';
+import {
+	Tabs,
+	Tab,
+	TableRow,
+	TableHead,
+	TableCell,
+	Table,
+	Card,
+	CardContent,
+} from '@material-ui/core';
 
 /**
  * State parameters used by the Datapad app component.
@@ -55,11 +63,7 @@ class ShopComponent extends React.Component<Props> {
 	}
 
 	public renderApp(): ReactNode {
-		return (
-			<Card bg="dark" text="light">
-				<Card.Body className="Shops-body">{this.renderInventory()}</Card.Body>
-			</Card>
-		);
+		return <div className="Shops-body">{this.renderInventory()}</div>;
 	}
 
 	private getInventory(): Inventory {
