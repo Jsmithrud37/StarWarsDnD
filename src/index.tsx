@@ -15,7 +15,7 @@ const galaxyMapEnabled = true;
 const shopsEnabled = process.env.NODE_ENV !== 'production';
 const contactsEnabled = true;
 const messengerEnabled = true;
-const timelineEnabled = false; //process.env.NODE_ENV !== 'production';
+const timelineEnabled = process.env.NODE_ENV !== 'production';
 
 ReactDOM.render(
 	<Provider store={dataStore}>
