@@ -64,7 +64,7 @@ class ContactsComponent extends React.Component<Props> {
 	public render(): ReactNode {
 		const content = this.props.contacts ? this.renderContacts() : this.renderLoadingScreen();
 		return (
-			<Paper
+			<div
 				style={{
 					display: 'flex',
 					flexDirection: 'row',
@@ -74,7 +74,7 @@ class ContactsComponent extends React.Component<Props> {
 				}}
 			>
 				{content}
-			</Paper>
+			</div>
 		);
 	}
 
@@ -192,7 +192,11 @@ class ContactsComponent extends React.Component<Props> {
 
 		return (
 			<CardHeader
-				avatar={<Collapse in={!isSelected}>{contactImage}</Collapse>}
+				avatar={
+					<Collapse in={!isSelected} timeout={150}>
+						{contactImage}
+					</Collapse>
+				}
 				title={name}
 				action={burgerButton}
 				style={{
