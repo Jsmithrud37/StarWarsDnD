@@ -242,64 +242,110 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						backgroundColor: background1,
 					}}
 				>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							alignItems: 'space-around',
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								justifyContent: 'center',
-								paddingLeft: '10px',
-							}}
-						>
-							<h4>Welcome!</h4>
-						</div>
-						<IconButton onClick={() => this.props.collapseMenu()}>
-							<CloseIcon />
-						</IconButton>
-					</div>
+					{this.renderWelcome()}
 					<Divider orientation="horizontal" />
-					{/* TODO: user details */}
-					{/* <Divider orientation="horizontal"></Divider> */}
-					{this.createMenuItem(
-						'Galaxy Map',
-						<MapIcon />,
-						AppId.GalaxyMap,
-						this.props.galaxyMapEnabled ?? true,
-					)}
-					{this.createMenuItem(
-						'Shops',
-						<ShoppingCartIcon />,
-						AppId.Shops,
-						this.props.shopsEnabled ?? true,
-					)}
-					{this.createMenuItem(
-						'Contacts',
-						<PeopleIcon />,
-						AppId.Contacts,
-						this.props.contactsEnabled ?? true,
-					)}
-					{this.createMenuItem(
-						'Timeline',
-						<TimelineIcon />,
-						AppId.Timeline,
-						this.props.timelineEnabled ?? true,
-					)}
-					{this.createMenuItem(
-						'Messenger',
-						<MessageIcon />,
-						AppId.Messenger,
-						this.props.messengerEnabled ?? true,
-					)}
 					<Divider orientation="horizontal" />
+					{this.renderAppsList()}
+					<Divider orientation="horizontal" />
+					<Divider orientation="horizontal" />
+					{this.renderMenuFooter()}
 				</List>
 			</Drawer>
+		);
+	}
+
+	private renderWelcome(): React.ReactNode {
+		return (
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'space-around',
+				}}
+			>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						paddingLeft: '10px',
+					}}
+				>
+					<h4>Welcome!</h4>
+				</div>
+				<IconButton onClick={() => this.props.collapseMenu()}>
+					<CloseIcon />
+				</IconButton>
+			</div>
+		);
+	}
+
+	private renderAppsList(): React.ReactNode {
+		return (
+			<div>
+				{/* TODO: user details */}
+				{/* <Divider orientation="horizontal"></Divider> */}
+				{this.createMenuItem(
+					'Galaxy Map',
+					<MapIcon />,
+					AppId.GalaxyMap,
+					this.props.galaxyMapEnabled ?? true,
+				)}
+				{this.createMenuItem(
+					'Shops',
+					<ShoppingCartIcon />,
+					AppId.Shops,
+					this.props.shopsEnabled ?? true,
+				)}
+				{this.createMenuItem(
+					'Contacts',
+					<PeopleIcon />,
+					AppId.Contacts,
+					this.props.contactsEnabled ?? true,
+				)}
+				{this.createMenuItem(
+					'Timeline',
+					<TimelineIcon />,
+					AppId.Timeline,
+					this.props.timelineEnabled ?? true,
+				)}
+				{this.createMenuItem(
+					'Messenger',
+					<MessageIcon />,
+					AppId.Messenger,
+					this.props.messengerEnabled ?? true,
+				)}
+			</div>
+		);
+	}
+
+	private renderMenuFooter(): React.ReactNode {
+		return (
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					float: 'inline-end',
+					padding: '10px',
+				}}
+			>
+				<h5>Other Resources</h5>
+				<ListItem>
+					<a href="https://sw5e.com/" target="_blank" rel="noopener noreferrer">
+						SW5e
+					</a>
+				</ListItem>
+				<ListItem>
+					<a
+						href="https://drive.google.com/drive/folders/0B0DnV-NrBZTZbHNZb0QzNXRNdE0?usp=sharing"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Drive
+					</a>
+				</ListItem>
+			</div>
 		);
 	}
 
