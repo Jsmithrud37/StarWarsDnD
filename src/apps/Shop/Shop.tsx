@@ -8,14 +8,15 @@ import {
 	TableRow,
 	TableContainer,
 	TablePagination,
+	Tabs,
+	Tab,
+	AppBar,
+	CircularProgress,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import {
@@ -30,6 +31,7 @@ import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
+import { background2, background3, background4 } from '../../Theming';
 
 /**
  * State parameters used by the Datapad app component.
@@ -407,7 +409,7 @@ class ShopComponent extends React.Component<Props, State> {
 					);
 					break;
 				case EditType.Pending:
-					modalContent = <Spinner animation="border" variant="light" />;
+					modalContent = <CircularProgress color="primary" />;
 					break;
 				default:
 					throw new Error(`Unrecognized EditType: ${this.state.editing}`);
@@ -421,6 +423,7 @@ class ShopComponent extends React.Component<Props, State> {
 						display: 'flex',
 						flexDirection: 'column',
 						height: '100%',
+						backgroundColor: background3,
 					}}
 				>
 					{this.renderMenu()}
@@ -446,15 +449,25 @@ class ShopComponent extends React.Component<Props, State> {
 	 */
 	public renderMenu(): React.ReactNode {
 		return (
-			<Tabs
-				defaultActiveKey={this.props.shopSelection}
-				id="shops-menu"
-				onSelect={(shop: unknown) => this.props.changeShop(shop as ShopId)}
+			<AppBar
+				position="static"
+				style={{
+					backgroundColor: background4,
+				}}
 			>
-				{Object.values(ShopId).map((shop) => (
-					<Tab eventKey={shop} title={shop} key={shop} />
-				))}
-			</Tabs>
+				<Tabs
+					orientation="horizontal"
+					value={this.props.shopSelection}
+					id="shops-menu"
+					onChange={(event, newSelection) =>
+						this.props.changeShop(newSelection as ShopId)
+					}
+				>
+					{Object.values(ShopId).map((shop) => (
+						<Tab value={shop} label={shop} key={shop} />
+					))}
+				</Tabs>
+			</AppBar>
 		);
 	}
 
@@ -490,6 +503,9 @@ class ShopComponent extends React.Component<Props, State> {
 					onChangeRowsPerPage={(event) =>
 						this.onChangeRowsPerPage(parseInt(event.target.value, 10))
 					}
+					style={{
+						backgroundColor: background2,
+					}}
 				/>
 			</TableContainer>
 		);
@@ -500,63 +516,73 @@ class ShopComponent extends React.Component<Props, State> {
 	 */
 	private renderHeader(): React.ReactNode {
 		return (
-			<TableHead>
-				<TableRow>
-					<TableCell key="NameHeader" align={'center'}>
-						Name
-					</TableCell>
-					<TableCell key="CategoryHeader" align={'center'}>
-						Category
-					</TableCell>
-					<TableCell key="TypeHeader" align={'center'}>
-						Type
-					</TableCell>
-					<TableCell key="SubTypeHeader" align={'center'}>
-						Sub-Type
-					</TableCell>
-					<TableCell key="RarityHeader" align={'center'}>
-						Rarity
-					</TableCell>
-					<TableCell key="WeightHeader" align={'center'}>
-						Weight (lb)
-					</TableCell>
-					<TableCell key="CostHeader" align={'center'}>
-						Cost (
-						<a
-							href="https://sw5e.com/rules/phb/equipment#currency"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							<img
-								src="images/Credit.svg"
-								alt="Galactic Credit"
-								style={{
-									height: '13px',
-									margin: '2px',
-									objectFit: 'scale-down',
-								}}
-							/>
-						</a>
-						)
-					</TableCell>
-					<TableCell key="StockHeader" align={'center'}>
-						Stock
-					</TableCell>
-					{canEdit ? (
-						<TableCell key="EditingHeader" align={'center'}>
-							<Button
-								variant="outlined"
-								color="secondary"
-								onClick={() => this.setIsEditing(EditType.Insert)}
+			<TableHead
+				style={{
+					background: background2,
+				}}
+			>
+				<TableRow
+					style={{
+						background: background2,
+					}}
+				>
+					{this.renderHeaderCell(<p>Name</p>, 'NameHeader')}
+					{this.renderHeaderCell(<p>Category</p>, 'CategoryHeader')}
+					{this.renderHeaderCell(<p>Type</p>, 'TypeHeader')}
+					{this.renderHeaderCell(<p>Sub-Type</p>, 'SubTypeHeader')}
+					{this.renderHeaderCell(<p>Rarity</p>, 'RarityHeader')}
+					{this.renderHeaderCell(<p>Weight (lb)</p>, 'WeightHeader')}
+					{this.renderHeaderCell(
+						<p>
+							Cost (
+							<a
+								href="https://sw5e.com/rules/phb/equipment#currency"
+								target="_blank"
+								rel="noopener noreferrer"
 							>
-								<AddIcon color="secondary" />
-							</Button>
-						</TableCell>
-					) : (
-						React.Fragment
+								<img
+									src="images/Credit.svg"
+									alt="Galactic Credit"
+									style={{
+										height: '13px',
+										margin: '2px',
+										objectFit: 'scale-down',
+									}}
+								/>
+							</a>
+							)
+						</p>,
+						'CostHeader',
 					)}
+					{this.renderHeaderCell(<p>Stock</p>, 'StockHeader')}
+					{canEdit
+						? this.renderHeaderCell(
+								<Button
+									variant="outlined"
+									color="secondary"
+									onClick={() => this.setIsEditing(EditType.Insert)}
+								>
+									<AddIcon color="secondary" />
+								</Button>,
+								'EditingHeader',
+						  )
+						: React.Fragment}
 				</TableRow>
 			</TableHead>
+		);
+	}
+
+	private renderHeaderCell(child: React.ReactElement | string, key: string): React.ReactNode {
+		return (
+			<TableCell
+				key={key}
+				align={'center'}
+				style={{
+					background: background2,
+				}}
+			>
+				{child}
+			</TableCell>
 		);
 	}
 

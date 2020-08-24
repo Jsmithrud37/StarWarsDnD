@@ -1,7 +1,17 @@
-import { Button, Checkbox, FormControlLabel, Grid, TextField } from '@material-ui/core';
+import {
+	Card,
+	CardHeader,
+	CardContent,
+	CardActionArea,
+	Button,
+	Checkbox,
+	FormControlLabel,
+	Grid,
+	TextField,
+} from '@material-ui/core';
 import React, { ChangeEvent } from 'react';
-import Card from 'react-bootstrap/Card';
 import { BooleanEntry, DataEntry, DataType, NumberEntry, StringEntry } from './DataEntry';
+import { background2 } from '../../Theming';
 
 interface Props {
 	title: string;
@@ -83,16 +93,20 @@ class ItemEditForm extends React.Component<Props, State> {
 		});
 
 		return (
-			<Card bg="dark" text="light">
-				<Card.Header>{this.props.title}</Card.Header>
-				<Card.Body>
+			<Card
+				style={{
+					backgroundColor: background2,
+				}}
+			>
+				<CardHeader>{this.props.title}</CardHeader>
+				<CardContent>
 					<Grid container spacing={3}>
 						{childNodes}
 					</Grid>
-				</Card.Body>
-				<Card.Footer>
+				</CardContent>
+				<CardActionArea>
 					<Button onClick={() => this.onSubmit()}>Submit</Button>
-				</Card.Footer>
+				</CardActionArea>
 			</Card>
 		);
 	}
