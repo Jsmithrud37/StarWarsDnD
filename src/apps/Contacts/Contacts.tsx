@@ -9,15 +9,7 @@ import { AppState } from './State';
 import './Styling/Contacts.css';
 import { ContactDetails } from './ContactDetails';
 import LoadingScreen from '../../shared-components/LoadingScreen';
-import {
-	Card,
-	Collapse,
-	CardHeader,
-	CardContent,
-	Grid,
-	CircularProgress,
-	Paper,
-} from '@material-ui/core';
+import { Card, Collapse, CardHeader, CardContent, Grid, CircularProgress } from '@material-ui/core';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
 
