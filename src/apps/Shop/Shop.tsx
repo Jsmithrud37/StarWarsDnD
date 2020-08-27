@@ -281,21 +281,6 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private rowCount(): number {
-		if (!this.props.inventory) {
-			return 0;
-		}
-		return this.props.inventory.length;
-	}
-
-	private pageCount(): number {
-		if (!this.props.inventory) {
-			return 0;
-		}
-		const rowCount = this.rowCount();
-		return Math.ceil(rowCount / this.state.rowsPerPage);
-	}
-
 	private onChangePage(newPageSelection: number): void {
 		this.setState({
 			...this.state,
