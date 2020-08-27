@@ -115,6 +115,14 @@ class ShopComponent extends React.Component<Props, State> {
 		};
 	}
 
+	private currentInventory(): Inventory | undefined {
+		return this.props.inventory.get(this.props.shopSelection);
+	}
+
+	private isInventoryLoaded(): boolean {
+		return this.currentInventory() !== undefined;
+	}
+
 	private async fetchInventory(): Promise<void> {
 		interface FetchInventoryResult {
 			shopName: string;
@@ -139,7 +147,7 @@ class ShopComponent extends React.Component<Props, State> {
 				// TODO: is this check needed?
 				const inventory: Inventory = response.inventory;
 				if (inventory.length > 0) {
-					this.props.loadInventory(inventory);
+					this.props.loadInventory(this.props.shopSelection, inventory);
 				}
 			}
 		} else {
@@ -169,11 +177,12 @@ class ShopComponent extends React.Component<Props, State> {
 		const insertInventoryItemFunction = 'InsertInventoryItem';
 		const result = this.onSubmitInsertOrEdit(item, insertInventoryItemFunction);
 
-		if (result && this.props.inventory) {
+		const currentInventory = this.currentInventory();
+		if (result && currentInventory) {
 			// Reload inventory with new item to update local store
 			// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
-			const newInventory: Inventory = [...this.props.inventory, item];
-			this.props.loadInventory(newInventory);
+			const newInventory: Inventory = [...currentInventory, item];
+			this.props.loadInventory(this.props.shopSelection, newInventory);
 			this.setIsEditing(undefined);
 		} else {
 			// TODO: Display error to user
@@ -199,13 +208,14 @@ class ShopComponent extends React.Component<Props, State> {
 		const editInventoryItemFunction = 'EditInventoryItem';
 		const result = await this.onSubmitInsertOrEdit(edittedItem, editInventoryItemFunction);
 
-		if (result && this.props.inventory) {
+		const currentInventory = this.currentInventory();
+		if (result && currentInventory) {
 			// Replace the edited item with the new value
 			// TODO: add helper to props for editing item so we don't have to blow away entire inventory
-			const newInventory: Inventory = this.props.inventory.map((item) => {
+			const newInventory: Inventory = currentInventory.map((item) => {
 				return item.name === edittedItem.name ? edittedItem : item;
 			});
-			this.props.loadInventory(newInventory);
+			this.props.loadInventory(this.props.shopSelection, newInventory);
 			this.setIsEditing(undefined);
 		} else {
 			// TODO: Display error to user
@@ -244,6 +254,11 @@ class ShopComponent extends React.Component<Props, State> {
 
 		console.log(`Deleting item "${itemName}" from ${this.props.shopSelection}...`);
 
+		const currentInventory = this.currentInventory();
+		if (!currentInventory) {
+			throw new Error(`Attempting to delete item "${itemName}" from empty inventory.`);
+		}
+
 		// Set active state to "pending" so that component will show spinner
 		// until we have gotten a response from the server.
 		this.setIsEditing(EditType.Pending);
@@ -269,12 +284,12 @@ class ShopComponent extends React.Component<Props, State> {
 		if (result) {
 			// Reload inventory with new item to update local store
 			// TODO: add helper to props for removing item so we don't have to blow away entire inventory
-			if (this.props.inventory) {
-				const newInventory: Inventory = this.props.inventory.filter((value) => {
-					return value.name !== itemName;
-				});
-				this.props.loadInventory(newInventory);
-			}
+
+			const newInventory: Inventory = currentInventory.filter((value) => {
+				return value.name !== itemName;
+			});
+			this.props.loadInventory(this.props.shopSelection, newInventory);
+
 			this.setIsEditing(undefined);
 		} else {
 			// TODO: display error to user
@@ -360,11 +375,11 @@ class ShopComponent extends React.Component<Props, State> {
 
 	public render(): React.ReactNode {
 		let view;
-		if (!this.props.inventory) {
+		if (this.isInventoryLoaded()) {
+			view = this.renderApp();
+		} else {
 			this.fetchInventory();
 			view = <LoadingScreen text={`Loading ${this.props.shopSelection} inventory...`} />;
-		} else {
-			view = this.renderApp();
 		}
 
 		let modalContent: React.ReactElement = <></>;
@@ -468,7 +483,8 @@ class ShopComponent extends React.Component<Props, State> {
 	 * Renders the inventory view for the indicated shop
 	 */
 	public renderInventory(): React.ReactNode {
-		if (!this.props.inventory) {
+		const inventory = this.currentInventory();
+		if (!inventory) {
 			throw new Error('Inventory not loaded yet.');
 		}
 
@@ -481,7 +497,7 @@ class ShopComponent extends React.Component<Props, State> {
 				<TablePagination
 					rowsPerPageOptions={[5, 10, 25]}
 					component="div"
-					count={this.props.inventory.length}
+					count={inventory.length}
 					rowsPerPage={this.state.rowsPerPage}
 					page={this.state.selectedPageIndex}
 					onChangePage={(event, newPage) => this.onChangePage(newPage)}
@@ -575,12 +591,13 @@ class ShopComponent extends React.Component<Props, State> {
 	 * Renders the table body.
 	 */
 	private renderInventoryData(): React.ReactNode {
-		if (!this.props.inventory) {
-			throw new Error('Inventory not loaded.');
+		const inventory = this.currentInventory();
+		if (!inventory) {
+			throw new Error('Inventory not loaded yet.');
 		}
 
 		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
-		const rowsToRender = this.props.inventory.slice(
+		const rowsToRender = inventory.slice(
 			firstItemOnPageIndex,
 			firstItemOnPageIndex + this.state.rowsPerPage,
 		);

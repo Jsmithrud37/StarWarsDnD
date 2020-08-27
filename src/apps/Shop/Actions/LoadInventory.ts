@@ -1,4 +1,5 @@
 import { Inventory } from '../Inventory';
+import { ShopId } from '../ShopId';
 
 /**
  * Dispatch ID for the LoadInventory action
@@ -15,15 +16,17 @@ export type LOAD_INVENTORY = typeof LOAD_INVENTORY;
  */
 export interface LoadInventory {
 	type: LOAD_INVENTORY;
+	shopId: ShopId;
 	inventory: Inventory;
 }
 
 /**
  * LoadInventory {@link https://redux.js.org/basics/actions#action-creators | Action Creator}
  */
-export function loadInventory(inventory: Inventory): LoadInventory {
+export function loadInventory(shopId: ShopId, inventory: Inventory): LoadInventory {
 	return {
 		type: LOAD_INVENTORY,
+		shopId,
 		inventory,
 	};
 }
@@ -31,4 +34,4 @@ export function loadInventory(inventory: Inventory): LoadInventory {
 /**
  * Loads shop inventory.
  */
-export type LoadInventoryFunction = (inventory: Inventory) => void;
+export type LoadInventoryFunction = (shopId: ShopId, inventory: Inventory) => void;
