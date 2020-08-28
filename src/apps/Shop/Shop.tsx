@@ -1,23 +1,5 @@
-import {
-	Button,
-	Modal,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableRow,
-	TableContainer,
-	TablePagination,
-	Tabs,
-	Tab,
-	AppBar,
-	CircularProgress,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import CreateIcon from '@material-ui/icons/Create';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import { Modal, Table, Tabs, Tab, AppBar, CircularProgress } from '@material-ui/core';
 import React from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import {
 	DataEntry,
@@ -31,7 +13,8 @@ import { Inventory, InventoryItem } from './Inventory';
 import { ShopId } from './ShopId';
 import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
-import { background2, background3, background4 } from '../../Theming';
+import { background3, background4 } from '../../Theming';
+import { InventoryTable } from './InventoryTable';
 
 /**
  * State parameters used by the Datapad app component.
@@ -54,33 +37,12 @@ interface ModalState {
 	itemBeingEdited?: InventoryItem;
 }
 
-/**
- * State related to the table being rendered.
- */
-interface TableState {
-	/**
-	 * The number of rows to be rendered per page in the table. Can be edited by the user.
-	 */
-	rowsPerPage: number;
-
-	/**
-	 * Currently selected page index.
-	 */
-	selectedPageIndex: number;
-}
-
-type State = ModalState & TableState;
+type State = ModalState;
 
 /**
  * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
 type Props = Actions & Parameters;
-
-/**
- * Whether or not inventories may be edited.
- * TODO: permissions based on user roles.
- */
-const canEdit = process.env.NODE_ENV !== 'production';
 
 enum EditType {
 	Insert,
@@ -110,17 +72,11 @@ class ShopComponent extends React.Component<Props, State> {
 		this.state = {
 			editing: undefined,
 			itemBeingEdited: undefined,
-			rowsPerPage: 10, // TODO: different on mobile v desktop?
-			selectedPageIndex: 0,
 		};
 	}
 
 	private currentInventory(): Inventory | undefined {
 		return this.props.inventory.get(this.props.shopSelection);
-	}
-
-	private isInventoryLoaded(): boolean {
-		return this.currentInventory() !== undefined;
 	}
 
 	private async fetchInventory(): Promise<void> {
@@ -296,25 +252,6 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private onChangePage(newPageSelection: number): void {
-		this.setState({
-			...this.state,
-			selectedPageIndex: newPageSelection,
-		});
-	}
-
-	private onChangeRowsPerPage(newRowsPerPage: number): void {
-		if (newRowsPerPage <= 0) {
-			throw new Error(`Invalid "rowsPerPage" value: ${newRowsPerPage}`);
-		}
-		const newPageIndex = 0; // TODO: find page containing first item on existing page?
-		this.setState({
-			...this.state,
-			rowsPerPage: newRowsPerPage,
-			selectedPageIndex: newPageIndex,
-		});
-	}
-
 	private setIsEditing(value?: EditType, itemBeingEdited?: InventoryItem): void {
 		this.setState({ ...this.state, editing: value, itemBeingEdited });
 	}
@@ -374,9 +311,18 @@ class ShopComponent extends React.Component<Props, State> {
 	}
 
 	public render(): React.ReactNode {
+		const inventory = this.currentInventory();
+
 		let view;
-		if (this.isInventoryLoaded()) {
-			view = this.renderApp();
+		if (inventory) {
+			view = (
+				<InventoryTable
+					inventory={inventory}
+					onInsertItem={() => this.setIsEditing(EditType.Insert)}
+					onEditItem={(item) => this.setIsEditing(EditType.Edit, item)}
+					onDeleteItem={(item) => this.onDeleteItem(item.name)}
+				/>
+			);
 		} else {
 			this.fetchInventory();
 			view = <LoadingScreen text={`Loading ${this.props.shopSelection} inventory...`} />;
@@ -470,184 +416,6 @@ class ShopComponent extends React.Component<Props, State> {
 			</AppBar>
 		);
 	}
-
-	public renderApp(): React.ReactNode {
-		return (
-			<Scrollbars autoHide={true} autoHeight={false}>
-				<div style={{ height: '100%', padding: '5px' }}>{this.renderInventory()}</div>
-			</Scrollbars>
-		);
-	}
-
-	/**
-	 * Renders the inventory view for the indicated shop
-	 */
-	public renderInventory(): React.ReactNode {
-		const inventory = this.currentInventory();
-		if (!inventory) {
-			throw new Error('Inventory not loaded yet.');
-		}
-
-		return (
-			<TableContainer>
-				<Table stickyHeader={true}>
-					{this.renderHeader()}
-					{this.renderInventoryData()}
-				</Table>
-				<TablePagination
-					rowsPerPageOptions={[5, 10, 25]}
-					component="div"
-					count={inventory.length}
-					rowsPerPage={this.state.rowsPerPage}
-					page={this.state.selectedPageIndex}
-					onChangePage={(event, newPage) => this.onChangePage(newPage)}
-					onChangeRowsPerPage={(event) =>
-						this.onChangeRowsPerPage(parseInt(event.target.value, 10))
-					}
-					style={{
-						backgroundColor: background2,
-					}}
-				/>
-			</TableContainer>
-		);
-	}
-
-	/**
-	 * Renders the inventory header.
-	 */
-	private renderHeader(): React.ReactNode {
-		return (
-			<TableHead
-				style={{
-					background: background2,
-				}}
-			>
-				<TableRow
-					style={{
-						background: background2,
-					}}
-				>
-					{this.renderHeaderCell(<p>Name</p>, 'NameHeader')}
-					{this.renderHeaderCell(<p>Category</p>, 'CategoryHeader')}
-					{this.renderHeaderCell(<p>Type</p>, 'TypeHeader')}
-					{this.renderHeaderCell(<p>Sub-Type</p>, 'SubTypeHeader')}
-					{this.renderHeaderCell(<p>Rarity</p>, 'RarityHeader')}
-					{this.renderHeaderCell(<p>Weight (lb)</p>, 'WeightHeader')}
-					{this.renderHeaderCell(
-						<p>
-							Cost (
-							<a
-								href="https://sw5e.com/rules/phb/equipment#currency"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<img
-									src="images/Credit.svg"
-									alt="Galactic Credit"
-									style={{
-										height: '13px',
-										margin: '2px',
-										objectFit: 'scale-down',
-									}}
-								/>
-							</a>
-							)
-						</p>,
-						'CostHeader',
-					)}
-					{this.renderHeaderCell(<p>Stock</p>, 'StockHeader')}
-					{canEdit
-						? this.renderHeaderCell(
-								<Button
-									variant="outlined"
-									color="secondary"
-									onClick={() => this.setIsEditing(EditType.Insert)}
-								>
-									<AddIcon color="secondary" />
-								</Button>,
-								'EditingHeader',
-						  )
-						: React.Fragment}
-				</TableRow>
-			</TableHead>
-		);
-	}
-
-	private renderHeaderCell(child: React.ReactElement | string, key: string): React.ReactNode {
-		return (
-			<TableCell
-				key={key}
-				align={'center'}
-				style={{
-					background: background2,
-				}}
-			>
-				{child}
-			</TableCell>
-		);
-	}
-
-	/**
-	 * Renders the table body.
-	 */
-	private renderInventoryData(): React.ReactNode {
-		const inventory = this.currentInventory();
-		if (!inventory) {
-			throw new Error('Inventory not loaded yet.');
-		}
-
-		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
-		const rowsToRender = inventory.slice(
-			firstItemOnPageIndex,
-			firstItemOnPageIndex + this.state.rowsPerPage,
-		);
-
-		return (
-			<TableBody>
-				{rowsToRender.map((row) => {
-					return <React.Fragment key={row.name}>{this.renderRow(row)}</React.Fragment>;
-				})}
-			</TableBody>
-		);
-	}
-
-	/**
-	 * Renders a data row
-	 */
-	private renderRow(row: InventoryItem): React.ReactNode {
-		return (
-			<TableRow hover>
-				<TableCell align={'center'}>
-					<a href={getResourceUrl(row)} target="_blank" rel="noopener noreferrer">
-						{row.name}
-					</a>
-				</TableCell>
-				<TableCell align={'center'}>{row.category}</TableCell>
-				<TableCell align={'center'}>{row.type}</TableCell>
-				<TableCell align={'center'}>{row.subType}</TableCell>
-				<TableCell align={'center'}>{row.rarity}</TableCell>
-				<TableCell align={'center'}>{row.weight}</TableCell>
-				<TableCell align={'center'}>{row.cost}</TableCell>
-				<TableCell align={'center'}>{row.stock < 0 ? '∞' : row.stock}</TableCell>
-				{canEdit ? (
-					<TableCell align={'center'}>
-						<Button onClick={() => this.setIsEditing(EditType.Edit, row)}>
-							<CreateIcon color="secondary" />
-						</Button>
-						<Button
-							onClick={() => {
-								this.onDeleteItem(row.name);
-							}}
-						>
-							<DeleteForeverIcon color="secondary" />
-						</Button>
-					</TableCell>
-				) : (
-					<></>
-				)}
-			</TableRow>
-		);
-	}
 }
 
 /**
@@ -656,18 +424,6 @@ class ShopComponent extends React.Component<Props, State> {
 interface ItemQueryResult {
 	shopName: string;
 	item: InventoryItem;
-}
-
-/**
- * Gets the resource url for the provided item. Gets it from the item itself if present, otherwise
- * generates a default.
- */
-function getResourceUrl(item: InventoryItem): string {
-	if (item.resourceUrl) {
-		return item.resourceUrl;
-	}
-	// TODO: use a better link mechanism here
-	return `https://sw5e.com/searchResults?searchText=${encodeURIComponent(item.name)}`;
 }
 
 /**
