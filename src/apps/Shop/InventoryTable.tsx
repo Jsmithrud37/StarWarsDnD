@@ -7,6 +7,7 @@ import {
 	TableRow,
 	TableContainer,
 	TablePagination,
+	TableSortLabel,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
@@ -40,6 +41,16 @@ interface State {
 	 * Currently selected page index.
 	 */
 	selectedPageIndex: number;
+
+	/**
+	 * Indicates the column by which the table contents are currently sorted.
+	 */
+	sortingColumnKey: string;
+
+	/**
+	 * Whether or not the sorted column is sorted in `ascending` or `descending` order.
+	 */
+	sortInAscendingOrder: boolean;
 }
 
 /**
@@ -57,6 +68,8 @@ export class InventoryTable extends React.Component<Props, State> {
 		this.state = {
 			rowsPerPage: 10, // TODO: different on mobile v desktop?
 			selectedPageIndex: 0,
+			sortingColumnKey: 'name',
+			sortInAscendingOrder: true,
 		};
 	}
 
@@ -64,6 +77,15 @@ export class InventoryTable extends React.Component<Props, State> {
 		this.setState({
 			...this.state,
 			selectedPageIndex: newPageSelection,
+		});
+	}
+
+	private onSortColumn(columnKey: string, ascending: boolean): void {
+		this.setState({
+			...this.state,
+			selectedPageIndex: 0, // Set page back to 0 when sorting changes
+			sortingColumnKey: columnKey,
+			sortInAscendingOrder: ascending,
 		});
 	}
 
@@ -123,14 +145,14 @@ export class InventoryTable extends React.Component<Props, State> {
 						background: background2,
 					}}
 				>
-					{this.renderHeaderCell(<p>Name</p>, 'NameHeader')}
-					{this.renderHeaderCell(<p>Category</p>, 'CategoryHeader')}
-					{this.renderHeaderCell(<p>Type</p>, 'TypeHeader')}
-					{this.renderHeaderCell(<p>Sub-Type</p>, 'SubTypeHeader')}
-					{this.renderHeaderCell(<p>Rarity</p>, 'RarityHeader')}
-					{this.renderHeaderCell(<p>Weight (lb)</p>, 'WeightHeader')}
+					{this.renderHeaderCell('Name', 'name')}
+					{this.renderHeaderCell('Category', 'category')}
+					{this.renderHeaderCell('Type', 'type')}
+					{this.renderHeaderCell('Sub-Type', 'subType')}
+					{this.renderHeaderCell('Rarity', 'rarity')}
+					{this.renderHeaderCell('Weight (lb)', 'weight')}
 					{this.renderHeaderCell(
-						<p>
+						<>
 							Cost (
 							<a
 								href="https://sw5e.com/rules/phb/equipment#currency"
@@ -148,28 +170,37 @@ export class InventoryTable extends React.Component<Props, State> {
 								/>
 							</a>
 							)
-						</p>,
-						'CostHeader',
+						</>,
+						'cost',
 					)}
-					{this.renderHeaderCell(<p>Stock</p>, 'StockHeader')}
-					{canEdit
-						? this.renderHeaderCell(
-								<Button
-									variant="outlined"
-									color="secondary"
-									onClick={() => this.props.onInsertItem()}
-								>
-									<AddIcon color="secondary" />
-								</Button>,
-								'EditingHeader',
-						  )
-						: React.Fragment}
+					{this.renderHeaderCell('Stock', 'stock')}
+					{canEdit ? (
+						<TableCell
+							key={'editing'}
+							align={'center'}
+							style={{
+								background: background2,
+							}}
+						>
+							<Button
+								variant="outlined"
+								color="secondary"
+								onClick={() => this.props.onInsertItem()}
+							>
+								<AddIcon color="secondary" />
+							</Button>
+						</TableCell>
+					) : (
+						React.Fragment
+					)}
 				</TableRow>
 			</TableHead>
 		);
 	}
 
 	private renderHeaderCell(child: React.ReactElement | string, key: string): React.ReactNode {
+		const sortedColumn = key === this.state.sortingColumnKey;
+
 		return (
 			<TableCell
 				key={key}
@@ -178,7 +209,18 @@ export class InventoryTable extends React.Component<Props, State> {
 					background: background2,
 				}}
 			>
-				{child}
+				<TableSortLabel
+					active={sortedColumn}
+					direction={this.state.sortInAscendingOrder ? 'asc' : 'desc'}
+					onClick={() =>
+						this.onSortColumn(
+							key,
+							sortedColumn ? !this.state.sortInAscendingOrder : true,
+						)
+					}
+				>
+					{child}
+				</TableSortLabel>
 			</TableCell>
 		);
 	}
@@ -187,8 +229,18 @@ export class InventoryTable extends React.Component<Props, State> {
 	 * Renders the table body.
 	 */
 	private renderInventoryData(): React.ReactNode {
+		// TODO: this is needlessly expensive...
+		const sortedInventory = this.props.inventory.sort((a, b) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const aKey: string = (a as any)[this.state.sortingColumnKey].toString();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const bKey: string = (b as any)[this.state.sortingColumnKey].toString();
+			const compare = aKey.localeCompare(bKey);
+			return this.state.sortInAscendingOrder ? compare : -compare;
+		});
+
 		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
-		const rowsToRender = this.props.inventory.slice(
+		const rowsToRender = sortedInventory.slice(
 			firstItemOnPageIndex,
 			firstItemOnPageIndex + this.state.rowsPerPage,
 		);
@@ -208,15 +260,15 @@ export class InventoryTable extends React.Component<Props, State> {
 	private renderRow(item: InventoryItem): React.ReactNode {
 		return (
 			<TableRow hover>
-				<TableCell align={'center'}>
+				<TableCell align={'left'}>
 					<a href={getResourceUrl(item)} target="_blank" rel="noopener noreferrer">
 						{item.name}
 					</a>
 				</TableCell>
-				<TableCell align={'center'}>{item.category}</TableCell>
-				<TableCell align={'center'}>{item.type}</TableCell>
-				<TableCell align={'center'}>{item.subType}</TableCell>
-				<TableCell align={'center'}>{item.rarity}</TableCell>
+				<TableCell align={'left'}>{item.category}</TableCell>
+				<TableCell align={'left'}>{item.type}</TableCell>
+				<TableCell align={'left'}>{item.subType}</TableCell>
+				<TableCell align={'left'}>{item.rarity}</TableCell>
 				<TableCell align={'center'}>{item.weight}</TableCell>
 				<TableCell align={'center'}>{item.cost}</TableCell>
 				<TableCell align={'center'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
