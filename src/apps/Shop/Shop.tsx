@@ -10,7 +10,7 @@ import ItemEditForm from '../../shared-components/EditItemForm/EditItemForm';
 import { executeBackendFunction, QueryResult } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
-import { ShopId } from './ShopId';
+import { ShopId, shopIdFromString } from './ShopId';
 import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
 import { background3, background4 } from '../../Theming';
@@ -97,14 +97,11 @@ class ShopComponent extends React.Component<Props, State> {
 			getInventoryParameters,
 		);
 		if (response) {
-			// If the shop selection has changed since we requested inventory from the server,
-			// disregard the response.
-			if (response.shopName === this.props.shopSelection.toLowerCase()) {
-				// TODO: is this check needed?
-				const inventory: Inventory = response.inventory;
-				if (inventory.length > 0) {
-					this.props.loadInventory(this.props.shopSelection, inventory);
-				}
+			// TODO: is this check needed?
+			const inventory: Inventory = response.inventory;
+			if (inventory.length > 0) {
+				const shopId = shopIdFromString(response.shopName);
+				this.props.loadInventory(shopId, inventory);
 			}
 		} else {
 			// TODO: Report error message
