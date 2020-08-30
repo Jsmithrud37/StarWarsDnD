@@ -24,7 +24,7 @@ interface Props {
 	inventory: Inventory;
 
 	onInsertItem: () => void;
-	onEditItem: (item: InventoryItem) => void;
+	onEditItem: (editedItem: InventoryItem) => void;
 	onDeleteItem: (item: InventoryItem) => void;
 }
 
