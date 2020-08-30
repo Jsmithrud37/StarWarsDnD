@@ -17,6 +17,7 @@ interface Props {
 	title: string;
 	schemas: Map<string, DataEntry>;
 	onSubmit: (data: Map<string, boolean | string | number>) => void;
+	onCancel: () => void;
 }
 
 interface State {
@@ -104,9 +105,21 @@ class ItemEditForm extends React.Component<Props, State> {
 						{childNodes}
 					</Grid>
 				</CardContent>
-				<CardActionArea>
-					<Button onClick={() => this.onSubmit()}>Submit</Button>
-				</CardActionArea>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+						padding: '15px',
+					}}
+				>
+					<Button fullWidth={false} onClick={() => this.onSubmit()}>
+						Submit
+					</Button>
+					<Button fullWidth={false} onClick={() => this.props.onCancel()}>
+						Cancel
+					</Button>
+				</div>
 			</Card>
 		);
 	}

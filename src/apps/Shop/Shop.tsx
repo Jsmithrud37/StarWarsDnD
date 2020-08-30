@@ -310,6 +310,8 @@ class ShopComponent extends React.Component<Props, State> {
 	public render(): React.ReactNode {
 		const inventory = this.currentInventory();
 
+		// If inventory is loaded, render inventory table. Otherwise, issue fetch request and
+		// display loading screen until it has returned.
 		let view;
 		if (inventory) {
 			view = (
@@ -325,38 +327,10 @@ class ShopComponent extends React.Component<Props, State> {
 			view = <LoadingScreen text={`Loading ${this.props.shopSelection} inventory...`} />;
 		}
 
+		// Render item-edit form. Will only be displayed if in editing mode, as a modal dialogue.
 		let modalContent: React.ReactElement = <></>;
 		if (this.state.editing !== undefined) {
-			switch (this.state.editing) {
-				case EditType.Edit:
-					if (!this.state.itemBeingEdited) {
-						throw new Error('Invalid state. Item being edited not set.');
-					}
-					modalContent = (
-						<ItemEditForm
-							title={`Editing item: "${this.state.itemBeingEdited.name}"`}
-							schemas={this.createEditSchemas(
-								this.state.itemBeingEdited as InventoryItem,
-							)}
-							onSubmit={(item) => this.onSubmitEdit(item)}
-						/>
-					);
-					break;
-				case EditType.Insert:
-					modalContent = (
-						<ItemEditForm
-							title="Insert new item"
-							schemas={newItemFormSchemas}
-							onSubmit={(item) => this.onSubmitInsert(item)}
-						/>
-					);
-					break;
-				case EditType.Pending:
-					modalContent = <CircularProgress color="primary" />;
-					break;
-				default:
-					throw new Error(`Unrecognized EditType: ${this.state.editing}`);
-			}
+			modalContent = this.renderEditForm();
 		}
 
 		return (
@@ -385,6 +359,38 @@ class ShopComponent extends React.Component<Props, State> {
 				</Modal>
 			</>
 		);
+	}
+
+	private renderEditForm(): React.ReactElement {
+		switch (this.state.editing) {
+			case EditType.Edit:
+				if (!this.state.itemBeingEdited) {
+					throw new Error('Invalid state. Item being edited not set.');
+				}
+				return (
+					<ItemEditForm
+						title={`Editing item: "${this.state.itemBeingEdited.name}"`}
+						schemas={this.createEditSchemas(
+							this.state.itemBeingEdited as InventoryItem,
+						)}
+						onSubmit={(item) => this.onSubmitEdit(item)}
+						onCancel={() => this.setIsEditing(undefined)}
+					/>
+				);
+			case EditType.Insert:
+				return (
+					<ItemEditForm
+						title="Insert new item"
+						schemas={newItemFormSchemas}
+						onSubmit={(item) => this.onSubmitInsert(item)}
+						onCancel={() => this.setIsEditing(undefined)}
+					/>
+				);
+			case EditType.Pending:
+				return <CircularProgress color="primary" />;
+			default:
+				throw new Error(`Unrecognized EditType: ${this.state.editing}`);
+		}
 	}
 
 	/**
