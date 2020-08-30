@@ -1,6 +1,6 @@
-import { Modal, Table, Tabs, Tab, AppBar, CircularProgress } from '@material-ui/core';
 import React from 'react';
 import { connect } from 'react-redux';
+import { Modal, Tabs, Tab, AppBar, CircularProgress } from '@material-ui/core';
 import {
 	DataEntry,
 	NumberEntry,
