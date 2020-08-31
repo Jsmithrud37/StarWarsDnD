@@ -272,8 +272,11 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'center'}>{item.cost}</TableCell>
 				<TableCell align={'center'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
 				<TableCell align={'center'}>
-					<IconButton onClick={() => this.props.onPurchaseItem(item)}>
-						<ShoppingCartIcon color="primary" />
+					<IconButton
+						onClick={() => this.props.onPurchaseItem(item)}
+						disabled={item.stock === 0}
+					>
+						<ShoppingCartIcon color={item.stock === 0 ? 'disabled' : 'primary'} />
 					</IconButton>
 					{canEdit ? (
 						<>
