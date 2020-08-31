@@ -108,7 +108,7 @@ export class InventoryTable extends React.Component<Props, State> {
 			<Scrollbars autoHide={true} autoHeight={false}>
 				<div style={{ height: '100%', width: '100%', padding: '5px' }}>
 					<TableContainer>
-						<Table stickyHeader={true}>
+						<Table stickyHeader={true} size="small">
 							{this.renderHeader()}
 							{this.renderInventoryData()}
 						</Table>
