@@ -1,5 +1,5 @@
 import {
-	Button,
+	IconButton,
 	Table,
 	TableBody,
 	TableCell,
@@ -12,6 +12,7 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
@@ -26,6 +27,7 @@ interface Props {
 	onInsertItem: () => void;
 	onEditItem: (editedItem: InventoryItem) => void;
 	onDeleteItem: (item: InventoryItem) => void;
+	onPurchaseItem: (item: InventoryItem) => void;
 }
 
 /**
@@ -104,7 +106,7 @@ export class InventoryTable extends React.Component<Props, State> {
 	public render(): React.ReactNode {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false}>
-				<div style={{ height: '100%', padding: '5px' }}>
+				<div style={{ height: '100%', width: '100%', padding: '5px' }}>
 					<TableContainer>
 						<Table stickyHeader={true}>
 							{this.renderHeader()}
@@ -174,25 +176,22 @@ export class InventoryTable extends React.Component<Props, State> {
 						'cost',
 					)}
 					{this.renderHeaderCell('Stock', 'stock')}
-					{canEdit ? (
-						<TableCell
-							key={'editing'}
-							align={'center'}
-							style={{
-								background: background2,
-							}}
-						>
-							<Button
-								variant="outlined"
-								color="secondary"
-								onClick={() => this.props.onInsertItem()}
-							>
+
+					<TableCell
+						key={'editing'}
+						align={'center'}
+						style={{
+							background: background2,
+						}}
+					>
+						{canEdit ? (
+							<IconButton color="secondary" onClick={() => this.props.onInsertItem()}>
 								<AddIcon color="secondary" />
-							</Button>
-						</TableCell>
-					) : (
-						React.Fragment
-					)}
+							</IconButton>
+						) : (
+							React.Fragment
+						)}
+					</TableCell>
 				</TableRow>
 			</TableHead>
 		);
@@ -272,22 +271,27 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'center'}>{item.weight}</TableCell>
 				<TableCell align={'center'}>{item.cost}</TableCell>
 				<TableCell align={'center'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
-				{canEdit ? (
-					<TableCell align={'center'}>
-						<Button onClick={() => this.props.onEditItem(item)}>
-							<CreateIcon color="secondary" />
-						</Button>
-						<Button
-							onClick={() => {
-								this.props.onDeleteItem(item);
-							}}
-						>
-							<DeleteForeverIcon color="secondary" />
-						</Button>
-					</TableCell>
-				) : (
-					<></>
-				)}
+				<TableCell align={'center'}>
+					<IconButton onClick={() => this.props.onPurchaseItem(item)}>
+						<ShoppingCartIcon color="primary" />
+					</IconButton>
+					{canEdit ? (
+						<>
+							<IconButton onClick={() => this.props.onEditItem(item)}>
+								<CreateIcon color="secondary" />
+							</IconButton>
+							<IconButton
+								onClick={() => {
+									this.props.onDeleteItem(item);
+								}}
+							>
+								<DeleteForeverIcon color="secondary" />
+							</IconButton>
+						</>
+					) : (
+						<></>
+					)}
+				</TableCell>
 			</TableRow>
 		);
 	}

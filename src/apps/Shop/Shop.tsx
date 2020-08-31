@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Tabs, Tab, AppBar, CircularProgress } from '@material-ui/core';
+import { Modal, Tabs, Tab, AppBar } from '@material-ui/core';
 import {
 	DataEntry,
 	NumberEntry,
@@ -47,7 +47,6 @@ type Props = Actions & Parameters;
 enum EditType {
 	Insert,
 	Edit,
-	Pending,
 }
 
 // TODO: get as component input
@@ -104,7 +103,7 @@ class ShopComponent extends React.Component<Props, State> {
 				this.props.loadInventory(shopId, inventory);
 			}
 		} else {
-			// TODO: Report error message
+			throw new Error('Inventory fetch failed.');
 		}
 	}
 
@@ -125,20 +124,25 @@ class ShopComponent extends React.Component<Props, State> {
 	): Promise<void> {
 		const item = this.createItemFromProperties(itemProperties);
 
-		console.log(`Adding item "${item.name}" to ${this.props.shopSelection}`);
+		console.log(`Adding item "${item.name}" to ${this.props.shopSelection}...`);
 
+		const currentInventory = this.currentInventory();
+		if (!currentInventory) {
+			throw new Error('Attempted to edit item while inventory was not loaded.');
+		}
+
+		// Reload inventory with new item to update local store
+		// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
+		const newInventory: Inventory = [...currentInventory, item];
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+		this.setIsEditing(undefined);
+
+		// Submit insert request to the backend
 		const insertInventoryItemFunction = 'InsertInventoryItem';
 		const result = this.onSubmitInsertOrEdit(item, insertInventoryItemFunction);
 
-		const currentInventory = this.currentInventory();
-		if (result && currentInventory) {
-			// Reload inventory with new item to update local store
-			// TODO: add helper to props for inserting item so we don't have to blow away entire inventory
-			const newInventory: Inventory = [...currentInventory, item];
-			this.props.loadInventory(this.props.shopSelection, newInventory);
-			this.setIsEditing(undefined);
-		} else {
-			// TODO: Display error to user
+		if (!result) {
+			throw new Error('Item submit failed.');
 		}
 	}
 
@@ -153,25 +157,68 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 
 		itemProperties.set('name', this.state.itemBeingEdited.name);
-
 		const edittedItem = this.createItemFromProperties(itemProperties);
 
-		console.log(`Editing item "${edittedItem.name}" in ${this.props.shopSelection}`);
+		console.log(`Editing item "${edittedItem.name}" in ${this.props.shopSelection}...`);
 
+		const currentInventory = this.currentInventory();
+		if (!currentInventory) {
+			throw new Error('Attempted to edit item while inventory was not loaded.');
+		}
+
+		// Replace the edited item with the new value
+		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
+		const newInventory: Inventory = currentInventory.map((item) => {
+			return item.name === edittedItem.name ? edittedItem : item;
+		});
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+		this.setIsEditing(undefined);
+
+		// Submit edit request to the backend
 		const editInventoryItemFunction = 'EditInventoryItem';
 		const result = await this.onSubmitInsertOrEdit(edittedItem, editInventoryItemFunction);
+
+		if (!result) {
+			throw new Error('Item edit failed.');
+		}
+	}
+
+	private async onSubmitPurchase(purchasedItem: InventoryItem): Promise<void> {
+		if (purchasedItem.stock === 0) {
+			throw new Error('Cannot purchase item with no stock.');
+		}
+
+		console.log(`Purchasing item "${purchasedItem.name}" from ${this.props.shopSelection}...`);
+
+		// -1 represents infinite stock. No need to submit an edit when purchasing an item with
+		// infinite stock. The button at this point is really just for consistency / show (unless
+		// eventually I decide to add character money management to the system... which, I mean...
+		// maybe?)
+		if (purchasedItem.stock === -1) {
+			return;
+		}
+
+		const editInventoryItemFunction = 'EditInventoryItem';
+		const itemWithEditedStock = {
+			...purchasedItem,
+			stock: purchasedItem.stock - 1,
+		};
+		const result = await this.onSubmitInsertOrEdit(
+			itemWithEditedStock,
+			editInventoryItemFunction,
+		);
 
 		const currentInventory = this.currentInventory();
 		if (result && currentInventory) {
 			// Replace the edited item with the new value
 			// TODO: add helper to props for editing item so we don't have to blow away entire inventory
 			const newInventory: Inventory = currentInventory.map((item) => {
-				return item.name === edittedItem.name ? edittedItem : item;
+				return item.name === purchasedItem.name ? itemWithEditedStock : item;
 			});
 			this.props.loadInventory(this.props.shopSelection, newInventory);
 			this.setIsEditing(undefined);
 		} else {
-			// TODO: Display error to user
+			throw new Error('Item purchase failed.');
 		}
 	}
 
@@ -179,12 +226,6 @@ class ShopComponent extends React.Component<Props, State> {
 		item: InventoryItem,
 		netlifyFunctionName: string,
 	): Promise<QueryResult<ItemQueryResult>> {
-		// Set active state to "pending" so that component will show spinner
-		// until we have gotten a response from the server.
-		this.setIsEditing(EditType.Pending);
-
-		// Submit new item to the server
-
 		const queryParameters = [
 			{
 				name: 'shopName',
@@ -212,9 +253,14 @@ class ShopComponent extends React.Component<Props, State> {
 			throw new Error(`Attempting to delete item "${itemName}" from empty inventory.`);
 		}
 
-		// Set active state to "pending" so that component will show spinner
-		// until we have gotten a response from the server.
-		this.setIsEditing(EditType.Pending);
+		// Reload inventory with new item to update local store
+		// TODO: add helper to props for removing item so we don't have to blow away entire inventory
+		const newInventory: Inventory = currentInventory.filter((value) => {
+			return value.name !== itemName;
+		});
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+
+		this.setIsEditing(undefined);
 
 		// Submit new item to the server
 		const deleteInventoryItemFunction = 'DeleteInventoryItem';
@@ -234,18 +280,8 @@ class ShopComponent extends React.Component<Props, State> {
 			deleteInventoryItemParameters,
 		);
 
-		if (result) {
-			// Reload inventory with new item to update local store
-			// TODO: add helper to props for removing item so we don't have to blow away entire inventory
-
-			const newInventory: Inventory = currentInventory.filter((value) => {
-				return value.name !== itemName;
-			});
-			this.props.loadInventory(this.props.shopSelection, newInventory);
-
-			this.setIsEditing(undefined);
-		} else {
-			// TODO: display error to user
+		if (!result) {
+			throw new Error('Item delete failed.');
 		}
 	}
 
@@ -320,6 +356,7 @@ class ShopComponent extends React.Component<Props, State> {
 					onInsertItem={() => this.setIsEditing(EditType.Insert)}
 					onEditItem={(item) => this.setIsEditing(EditType.Edit, item)}
 					onDeleteItem={(item) => this.onDeleteItem(item.name)}
+					onPurchaseItem={(item) => this.onSubmitPurchase(item)}
 				/>
 			);
 		} else {
@@ -386,8 +423,6 @@ class ShopComponent extends React.Component<Props, State> {
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
 				);
-			case EditType.Pending:
-				return <CircularProgress color="primary" />;
 			default:
 				throw new Error(`Unrecognized EditType: ${this.state.editing}`);
 		}
