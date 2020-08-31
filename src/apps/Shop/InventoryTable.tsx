@@ -147,14 +147,14 @@ export class InventoryTable extends React.Component<Props, State> {
 						background: background2,
 					}}
 				>
-					{this.renderHeaderCell('Name', 'name')}
-					{this.renderHeaderCell('Category', 'category')}
-					{this.renderHeaderCell('Type', 'type')}
-					{this.renderHeaderCell('Sub-Type', 'subType')}
-					{this.renderHeaderCell('Rarity', 'rarity')}
-					{this.renderHeaderCell('Weight (lb)', 'weight')}
+					{this.renderHeaderCell('Name', 'name', 'left')}
+					{this.renderHeaderCell('Category', 'category', 'left')}
+					{this.renderHeaderCell('Type', 'type', 'left')}
+					{this.renderHeaderCell('Sub-Type', 'subType', 'left')}
+					{this.renderHeaderCell('Rarity', 'rarity', 'left')}
+					{this.renderHeaderCell('Weight (lb)', 'weight', 'right')}
 					{this.renderHeaderCell(
-						<>
+						<div>
 							Cost (
 							<a
 								href="https://sw5e.com/rules/phb/equipment#currency"
@@ -172,10 +172,11 @@ export class InventoryTable extends React.Component<Props, State> {
 								/>
 							</a>
 							)
-						</>,
+						</div>,
 						'cost',
+						'right',
 					)}
-					{this.renderHeaderCell('Stock', 'stock')}
+					{this.renderHeaderCell('Stock', 'stock', 'right')}
 
 					<TableCell
 						key={'editing'}
@@ -197,13 +198,17 @@ export class InventoryTable extends React.Component<Props, State> {
 		);
 	}
 
-	private renderHeaderCell(child: React.ReactElement | string, key: string): React.ReactNode {
+	private renderHeaderCell(
+		child: React.ReactElement | string,
+		key: string,
+		align: 'left' | 'center' | 'right',
+	): React.ReactNode {
 		const sortedColumn = key === this.state.sortingColumnKey;
 
 		return (
 			<TableCell
 				key={key}
-				align={'center'}
+				align={align}
 				style={{
 					background: background2,
 				}}
@@ -268,9 +273,9 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'left'}>{item.type}</TableCell>
 				<TableCell align={'left'}>{item.subType}</TableCell>
 				<TableCell align={'left'}>{item.rarity}</TableCell>
-				<TableCell align={'center'}>{item.weight}</TableCell>
-				<TableCell align={'center'}>{item.cost}</TableCell>
-				<TableCell align={'center'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
+				<TableCell align={'right'}>{item.weight}</TableCell>
+				<TableCell align={'right'}>{item.cost}</TableCell>
+				<TableCell align={'right'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
 						onClick={() => this.props.onPurchaseItem(item)}
