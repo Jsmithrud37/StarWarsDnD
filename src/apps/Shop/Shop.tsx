@@ -15,6 +15,7 @@ import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
 import { background3, background4 } from '../../Theming';
 import { InventoryTable } from './InventoryTable';
+import ItemPurchaseDialogue from './ItemPurchaseDialogue';
 
 /**
  * State parameters used by the Datapad app component.
@@ -47,6 +48,7 @@ type Props = Actions & Parameters;
 enum EditType {
 	Insert,
 	Edit,
+	Purchase,
 }
 
 // TODO: get as component input
@@ -356,7 +358,7 @@ class ShopComponent extends React.Component<Props, State> {
 					onInsertItem={() => this.setIsEditing(EditType.Insert)}
 					onEditItem={(item) => this.setIsEditing(EditType.Edit, item)}
 					onDeleteItem={(item) => this.onDeleteItem(item.name)}
-					onPurchaseItem={(item) => this.onSubmitPurchase(item)}
+					onPurchaseItem={(item) => this.setIsEditing(EditType.Purchase, item)}
 				/>
 			);
 		} else {
@@ -383,33 +385,52 @@ class ShopComponent extends React.Component<Props, State> {
 					{this.renderMenu()}
 					{view}
 				</div>
+
 				<Modal
 					open={this.state.editing !== undefined}
-					onClose={() => this.setIsEditing(undefined)}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-					}}
+					onClose={() => this.setIsEditing(undefined, undefined)}
+					style={
+						{
+							// width: '100%',
+							// display: 'flex',
+							// flexDirection: 'column',
+							// justifyContent: 'center',
+						}
+					}
 				>
-					{modalContent}
+					<div
+						style={{
+							position: 'absolute',
+							left: '50%',
+							top: '50%',
+							transform: 'translate(-50%, -50%)',
+						}}
+					>
+						{modalContent}
+					</div>
 				</Modal>
 			</>
 		);
 	}
 
 	private renderEditForm(): React.ReactElement {
-		switch (this.state.editing) {
+		const editingMode = this.state.editing;
+		if (editingMode === undefined) {
+			throw new Error('Editing is not set');
+		}
+
+		const itemBeingEdited = this.state.itemBeingEdited;
+
+		if (!itemBeingEdited) {
+			throw new Error('No item set for editing');
+		}
+
+		switch (editingMode) {
 			case EditType.Edit:
-				if (!this.state.itemBeingEdited) {
-					throw new Error('Invalid state. Item being edited not set.');
-				}
 				return (
 					<ItemEditForm
-						title={`Editing item: "${this.state.itemBeingEdited.name}"`}
-						schemas={this.createEditSchemas(
-							this.state.itemBeingEdited as InventoryItem,
-						)}
+						title={`Editing item: "${itemBeingEdited.name}"`}
+						schemas={this.createEditSchemas(itemBeingEdited as InventoryItem)}
 						onSubmit={(item) => this.onSubmitEdit(item)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
@@ -423,8 +444,16 @@ class ShopComponent extends React.Component<Props, State> {
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
 				);
+			case EditType.Purchase:
+				return (
+					<ItemPurchaseDialogue
+						item={itemBeingEdited}
+						onConfirm={() => this.onSubmitPurchase(itemBeingEdited)}
+						onCancel={() => this.setIsEditing(undefined)}
+					/>
+				);
 			default:
-				throw new Error(`Unrecognized EditType: ${this.state.editing}`);
+				throw new Error(`Unrecognized EditType: ${editingMode}`);
 		}
 	}
 
