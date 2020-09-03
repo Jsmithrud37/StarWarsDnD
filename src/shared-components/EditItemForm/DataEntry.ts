@@ -26,9 +26,9 @@ export abstract class DataEntry<T extends boolean | string | number = boolean | 
 
 	/**
 	 * Constructor
-	 * @arg initialValue - {@inheritdoc DataEntry.initialValue}
-	 * @arg label - {@inheritdoc DataEntry.label}
-	 * @arg elementId - {@inheritdoc DataEntry.elementId} If not provided, will use `label`.
+	 * @param initialValue - {@inheritdoc DataEntry.initialValue}
+	 * @param label - {@inheritdoc DataEntry.label}
+	 * @param elementId - {@inheritdoc DataEntry.elementId} If not provided, will use `label`.
 	 */
 	protected constructor(initialValue: T, label: string, elementId?: string) {
 		this.initialValue = initialValue;
@@ -124,11 +124,11 @@ export class StringEntry extends DataEntry<string> {
 
 	/**
 	 * Constructor
-	 * @arg initialValue - See base constructor.
-	 * @arg label - See base constructor.
-	 * @arg elementId - See base constructor.
-	 * @arg canBeEmpty - Indicates whether or not an empty string is valid. Default is false.
-	 * @arg multiLine - Indicates that the entry form should allow for multiple lines.
+	 * @param initialValue - See base constructor.
+	 * @param label - See base constructor.
+	 * @param elementId - See base constructor.
+	 * @param canBeEmpty - Indicates whether or not an empty string is valid. Default is false.
+	 * @param multiLine - Indicates that the entry form should allow for multiple lines.
 	 * Default is false.
 	 */
 	public constructor(

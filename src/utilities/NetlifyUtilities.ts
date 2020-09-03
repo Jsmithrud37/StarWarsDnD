@@ -20,9 +20,9 @@ export type QueryResult<T> = T | false;
 
 /**
  * Runs the specified backend query function with the specified query parameters.
- * @arg functionName - Name of the backend function to query. Must be non-empty,
+ * @param functionName - Name of the backend function to query. Must be non-empty,
  * and must correspond to a valid backend function.
- * @arg queryParameters - Query parameters to be sent to the backend
+ * @param queryParameters - Query parameters to be sent to the backend
  */
 export async function executeBackendFunction<T = never>(
 	functionName: string,
@@ -48,9 +48,9 @@ export async function executeBackendFunction<T = never>(
 
 /**
  * Generates the backend url for the specified function with the specified query parameters.
- * @arg functionName - Name of the backend function to query. Must be non-empty,
+ * @param functionName - Name of the backend function to query. Must be non-empty,
  * and must correspond to a valid backend function.
- * @arg queryParameters - Query parameters to be sent to the backend
+ * @param queryParameters - Query parameters to be sent to the backend
  */
 export function generateFunctionUrl(
 	functionName: string,

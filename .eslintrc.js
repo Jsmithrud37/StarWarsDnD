@@ -15,9 +15,9 @@ module.exports = {
 		jsdoc: {
 			mode: 'typescript',
 			tagNamePreference: {
-				param: 'arg',
-				returns: 'return',
-				extends: 'augments',
+				arg: 'param',
+				return: 'returns',
+				augments: 'extends',
 			},
 		},
 		react: {
