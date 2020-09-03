@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardContent, Button } from '@material-ui/core';
+import { Card, CardContent, Button } from '@material-ui/core';
 import React from 'react';
 import { background2 } from '../../Theming';
 import { InventoryItem } from './Inventory';
