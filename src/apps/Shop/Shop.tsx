@@ -186,6 +186,10 @@ class ShopComponent extends React.Component<Props, State> {
 	}
 
 	private async onSubmitPurchase(purchasedItem: InventoryItem): Promise<void> {
+		// TODO: wait for backend request to complete before editing local state and returning.
+		// Also query for updated inventory before doing either - this way we get updated state
+		// if others buy things while someone is looking at the inventory.
+
 		if (purchasedItem.stock === 0) {
 			throw new Error('Cannot purchase item with no stock.');
 		}
@@ -200,6 +204,9 @@ class ShopComponent extends React.Component<Props, State> {
 			return;
 		}
 
+		// TODO: replace the below logic with a specialized purchase request.
+		// as written, if multiple people submit a buy at the same time, the inventory will
+		// only be reduced once.
 		const editInventoryItemFunction = 'EditInventoryItem';
 		const itemWithEditedStock = {
 			...purchasedItem,
