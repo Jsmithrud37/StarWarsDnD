@@ -8,15 +8,19 @@ import {
 	TableContainer,
 	TablePagination,
 	TableSortLabel,
+	Checkbox,
+	TextField,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import React from 'react';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import CloseIcon from '@material-ui/icons/Close';
+import React, { ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
-import { background2 } from '../../Theming';
+import { background2, background1 } from '../../Theming';
 
 /**
  * Component props
@@ -53,6 +57,21 @@ interface State {
 	 * Whether or not the sorted column is sorted in `ascending` or `descending` order.
 	 */
 	sortInAscendingOrder: boolean;
+
+	/**
+	 * Determines whether or not the filter menu will be displayed.
+	 */
+	filterEnabled: boolean;
+
+	/**
+	 * Applied text filters.
+	 */
+	textFilters: Map<string, string>;
+
+	/**
+	 * Will only show items that are in stock and purchasable
+	 */
+	showOnlyInStock: boolean;
 }
 
 /**
@@ -72,6 +91,9 @@ export class InventoryTable extends React.Component<Props, State> {
 			selectedPageIndex: 0,
 			sortingColumnKey: 'name',
 			sortInAscendingOrder: true,
+			filterEnabled: false,
+			textFilters: new Map<string, string>(),
+			showOnlyInStock: false,
 		};
 	}
 
@@ -95,11 +117,27 @@ export class InventoryTable extends React.Component<Props, State> {
 		if (newRowsPerPage <= 0) {
 			throw new Error(`Invalid "rowsPerPage" value: ${newRowsPerPage}`);
 		}
-		const newPageIndex = 0; // TODO: find page containing first item on existing page?
+		const newPageIndex = 0;
 		this.setState({
 			...this.state,
 			rowsPerPage: newRowsPerPage,
 			selectedPageIndex: newPageIndex,
+		});
+	}
+
+	private enableFilters(): void {
+		this.setState({
+			...this.state,
+			filterEnabled: true,
+		});
+	}
+
+	private disableFilters(): void {
+		this.setState({
+			...this.state,
+			filterEnabled: false,
+			showOnlyInStock: false,
+			textFilters: new Map<string, string>(),
 		});
 	}
 
@@ -110,6 +148,7 @@ export class InventoryTable extends React.Component<Props, State> {
 					<TableContainer>
 						<Table stickyHeader={true} size="small">
 							{this.renderHeader()}
+							{this.state.filterEnabled ? this.renderFilterOptions() : React.Fragment}
 							{this.renderInventoryData()}
 						</Table>
 						<TablePagination
@@ -130,6 +169,22 @@ export class InventoryTable extends React.Component<Props, State> {
 				</div>
 			</Scrollbars>
 		);
+	}
+
+	private updateFilter(field: string, value: string): void {
+		const textFilters = this.state.textFilters;
+		textFilters.set(field, value.toLocaleLowerCase());
+		this.setState({
+			...this.state,
+			textFilters,
+		});
+	}
+
+	private toggleShowStock(): void {
+		this.setState({
+			...this.state,
+			showOnlyInStock: !this.state.showOnlyInStock,
+		});
 	}
 
 	/**
@@ -185,6 +240,14 @@ export class InventoryTable extends React.Component<Props, State> {
 							background: background2,
 						}}
 					>
+						{!this.state.filterEnabled ? (
+							<IconButton color="primary" onClick={() => this.enableFilters()}>
+								<FilterListIcon color="primary" />
+							</IconButton>
+						) : (
+							React.Fragment
+						)}
+
 						{canEdit ? (
 							<IconButton color="secondary" onClick={() => this.props.onInsertItem()}>
 								<AddIcon color="secondary" />
@@ -230,6 +293,92 @@ export class InventoryTable extends React.Component<Props, State> {
 	}
 
 	/**
+	 * Renders the inventory header.
+	 */
+	private renderFilterOptions(): React.ReactNode {
+		return (
+			<TableRow
+				style={{
+					background: background1,
+				}}
+			>
+				{this.renderTextFilterCell('Name', 'name', 'left')}
+				{this.renderTextFilterCell('Category', 'category', 'left')}
+				{this.renderTextFilterCell('Type', 'type', 'left')}
+				{this.renderTextFilterCell('Sub-Type', 'subType', 'left')}
+				{this.renderTextFilterCell('Rarity', 'rarity', 'left')}
+				<TableCell
+					size="small"
+					style={{
+						background: background2,
+					}}
+				/>
+				<TableCell
+					size="small"
+					style={{
+						background: background2,
+					}}
+				/>
+				<TableCell
+					align="right"
+					style={{
+						background: background2,
+					}}
+					size="small"
+				>
+					Show only in stock{' '}
+					<Checkbox
+						checked={this.state.showOnlyInStock}
+						onChange={() => this.toggleShowStock()}
+					/>
+				</TableCell>
+
+				<TableCell
+					key={'editing'}
+					align={'center'}
+					size="small"
+					style={{
+						background: background2,
+					}}
+				>
+					<IconButton color="primary" onClick={() => this.disableFilters()}>
+						<CloseIcon color="primary" />
+					</IconButton>
+				</TableCell>
+			</TableRow>
+		);
+	}
+
+	private renderTextFilterCell(
+		label: string,
+		field: string,
+		align: 'left' | 'center' | 'right',
+	): React.ReactNode {
+		const currentFilter = this.state.textFilters.get(field);
+		return (
+			<TableCell
+				align={align}
+				size="small"
+				style={{
+					background: background2,
+				}}
+			>
+				<TextField
+					type="search"
+					defaultValue={currentFilter}
+					label={label}
+					id={`${field}_filter`}
+					variant="outlined"
+					multiline={false}
+					onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
+						this.updateFilter(field, event.target.value)
+					}
+				/>
+			</TableCell>
+		);
+	}
+
+	/**
 	 * Renders the table body.
 	 */
 	private renderInventoryData(): React.ReactNode {
@@ -243,8 +392,10 @@ export class InventoryTable extends React.Component<Props, State> {
 			return this.state.sortInAscendingOrder ? compare : -compare;
 		});
 
+		const filteredInventory = this.applyFilters(sortedInventory);
+
 		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
-		const rowsToRender = sortedInventory.slice(
+		const rowsToRender = filteredInventory.slice(
 			firstItemOnPageIndex,
 			firstItemOnPageIndex + this.state.rowsPerPage,
 		);
@@ -302,6 +453,26 @@ export class InventoryTable extends React.Component<Props, State> {
 				</TableCell>
 			</TableRow>
 		);
+	}
+
+	private applyFilters(inventory: Inventory): Inventory {
+		let filteredInventory = inventory;
+
+		// Filter out of stock items if specified
+		if (this.state.showOnlyInStock) {
+			filteredInventory = filteredInventory.filter((item) => item.stock !== 0);
+		}
+
+		// Apply text-based filters
+		this.state.textFilters.forEach((filterText, field) => {
+			filteredInventory = filteredInventory.filter((item) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const fieldValue = (item as any)[field].toString().toLocaleLowerCase();
+				return fieldValue.includes(filterText);
+			});
+		});
+
+		return filteredInventory;
 	}
 }
 
