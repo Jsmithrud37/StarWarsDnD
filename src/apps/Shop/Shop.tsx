@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Tabs, Tab, AppBar } from '@material-ui/core';
+import { Modal, Tabs, Tab, AppBar, Card } from '@material-ui/core';
 import {
 	DataEntry,
 	NumberEntry,
@@ -13,7 +13,7 @@ import { Inventory, InventoryItem } from './Inventory';
 import { ShopId, shopIdFromString } from './ShopId';
 import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
-import { background3, background4 } from '../../Theming';
+import { background3, background4, background2 } from '../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
 
@@ -49,6 +49,7 @@ enum EditType {
 	Insert,
 	Edit,
 	Purchase,
+	Pending,
 }
 
 // TODO: get as component input
@@ -168,13 +169,8 @@ class ShopComponent extends React.Component<Props, State> {
 			throw new Error('Attempted to edit item while inventory was not loaded.');
 		}
 
-		// Replace the edited item with the new value
-		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
-		const newInventory: Inventory = currentInventory.map((item) => {
-			return item.name === edittedItem.name ? edittedItem : item;
-		});
-		this.props.loadInventory(this.props.shopSelection, newInventory);
-		this.setIsEditing(undefined);
+		// Set edit state to `Pending` to show spinner until backend request has completed.
+		this.setIsEditing(EditType.Pending, this.state.itemBeingEdited);
 
 		// Submit edit request to the backend
 		const editInventoryItemFunction = 'EditInventoryItem';
@@ -183,12 +179,25 @@ class ShopComponent extends React.Component<Props, State> {
 		if (!result) {
 			throw new Error('Item edit failed.');
 		}
+
+		// Replace the edited item with the new value
+		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
+		const newInventory: Inventory = currentInventory.map((item) => {
+			return item.name === edittedItem.name ? edittedItem : item;
+		});
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+		this.setIsEditing(undefined);
 	}
 
 	private async onSubmitPurchase(purchasedItem: InventoryItem): Promise<void> {
 		// TODO: wait for backend request to complete before editing local state and returning.
 		// Also query for updated inventory before doing either - this way we get updated state
 		// if others buy things while someone is looking at the inventory.
+
+		const currentInventory = this.currentInventory();
+		if (!currentInventory) {
+			throw new Error('Attempted to edit item while inventory was not loaded.');
+		}
 
 		if (purchasedItem.stock === 0) {
 			throw new Error('Cannot purchase item with no stock.');
@@ -204,6 +213,9 @@ class ShopComponent extends React.Component<Props, State> {
 			return;
 		}
 
+		// Set edit state to `Pending` to show spinner until backend request has completed.
+		this.setIsEditing(EditType.Pending, this.state.itemBeingEdited);
+
 		// TODO: replace the below logic with a specialized purchase request.
 		// as written, if multiple people submit a buy at the same time, the inventory will
 		// only be reduced once.
@@ -217,18 +229,17 @@ class ShopComponent extends React.Component<Props, State> {
 			editInventoryItemFunction,
 		);
 
-		const currentInventory = this.currentInventory();
-		if (result && currentInventory) {
-			// Replace the edited item with the new value
-			// TODO: add helper to props for editing item so we don't have to blow away entire inventory
-			const newInventory: Inventory = currentInventory.map((item) => {
-				return item.name === purchasedItem.name ? itemWithEditedStock : item;
-			});
-			this.props.loadInventory(this.props.shopSelection, newInventory);
-			this.setIsEditing(undefined);
-		} else {
+		if (!result) {
 			throw new Error('Item purchase failed.');
 		}
+
+		// Replace the edited item with the new value
+		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
+		const newInventory: Inventory = currentInventory.map((item) => {
+			return item.name === purchasedItem.name ? itemWithEditedStock : item;
+		});
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+		this.setIsEditing(undefined);
 	}
 
 	private async onSubmitInsertOrEdit(
@@ -249,7 +260,7 @@ class ShopComponent extends React.Component<Props, State> {
 		return executeBackendFunction<ItemQueryResult>(netlifyFunctionName, queryParameters);
 	}
 
-	private async onDeleteItem(itemName: string): Promise<void> {
+	private async onSubmitDeleteItem(itemName: string): Promise<void> {
 		interface DeleteItemQueryResult {
 			shopName: string;
 			item: InventoryItem;
@@ -262,14 +273,8 @@ class ShopComponent extends React.Component<Props, State> {
 			throw new Error(`Attempting to delete item "${itemName}" from empty inventory.`);
 		}
 
-		// Reload inventory with new item to update local store
-		// TODO: add helper to props for removing item so we don't have to blow away entire inventory
-		const newInventory: Inventory = currentInventory.filter((value) => {
-			return value.name !== itemName;
-		});
-		this.props.loadInventory(this.props.shopSelection, newInventory);
-
-		this.setIsEditing(undefined);
+		// Set edit state to `Pending` to show spinner until backend request has completed.
+		this.setIsEditing(EditType.Pending, this.state.itemBeingEdited);
 
 		// Submit new item to the server
 		const deleteInventoryItemFunction = 'DeleteInventoryItem';
@@ -292,6 +297,15 @@ class ShopComponent extends React.Component<Props, State> {
 		if (!result) {
 			throw new Error('Item delete failed.');
 		}
+
+		// Reload inventory with new item to update local store
+		// TODO: add helper to props for removing item so we don't have to blow away entire inventory
+		const newInventory: Inventory = currentInventory.filter((value) => {
+			return value.name !== itemName;
+		});
+		this.props.loadInventory(this.props.shopSelection, newInventory);
+
+		this.setIsEditing(undefined);
 	}
 
 	private setIsEditing(value?: EditType, itemBeingEdited?: InventoryItem): void {
@@ -364,7 +378,7 @@ class ShopComponent extends React.Component<Props, State> {
 					inventory={inventory}
 					onInsertItem={() => this.setIsEditing(EditType.Insert)}
 					onEditItem={(item) => this.setIsEditing(EditType.Edit, item)}
-					onDeleteItem={(item) => this.onDeleteItem(item.name)}
+					onDeleteItem={(item) => this.onSubmitDeleteItem(item.name)}
 					onPurchaseItem={(item) => this.setIsEditing(EditType.Purchase, item)}
 				/>
 			);
@@ -428,12 +442,11 @@ class ShopComponent extends React.Component<Props, State> {
 
 		const itemBeingEdited = this.state.itemBeingEdited;
 
-		if (!itemBeingEdited) {
-			throw new Error('No item set for editing');
-		}
-
 		switch (editingMode) {
 			case EditType.Edit:
+				if (!itemBeingEdited) {
+					throw new Error('No item set for editing');
+				}
 				return (
 					<ItemEditForm
 						title={`Editing item: "${itemBeingEdited.name}"`}
@@ -452,12 +465,26 @@ class ShopComponent extends React.Component<Props, State> {
 					/>
 				);
 			case EditType.Purchase:
+				if (!itemBeingEdited) {
+					throw new Error('No item set for editing');
+				}
 				return (
 					<ItemPurchaseDialogue
 						item={itemBeingEdited}
 						onConfirm={() => this.onSubmitPurchase(itemBeingEdited)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
+				);
+			case EditType.Pending:
+				return (
+					<Card
+						style={{
+							backgroundColor: background2,
+							maxWidth: '400px',
+						}}
+					>
+						<LoadingScreen />
+					</Card>
 				);
 			default:
 				throw new Error(`Unrecognized EditType: ${editingMode}`);
