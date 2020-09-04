@@ -9,6 +9,7 @@ import {
 	TablePagination,
 	TableSortLabel,
 	Checkbox,
+	Collapse,
 	TextField,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
@@ -17,7 +18,7 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import CloseIcon from '@material-ui/icons/Close';
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
 import { background2, background1 } from '../../Theming';
@@ -79,6 +80,16 @@ interface State {
  * TODO: permissions based on user roles.
  */
 const canEdit = process.env.NODE_ENV !== 'production';
+
+const filterBarItemStyle: CSSProperties = {
+	height: '100%',
+	minWidth: '150px',
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-around',
+	paddingLeft: '5px',
+	paddingRight: '5px',
+};
 
 /**
  * Inventory table component
@@ -145,10 +156,17 @@ export class InventoryTable extends React.Component<Props, State> {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false}>
 				<div style={{ height: '100%', width: '100%', padding: '5px' }}>
-					<TableContainer>
+					<TableContainer style={{ width: '100%' }}>
+						<Collapse
+							in={this.state.filterEnabled}
+							style={{
+								width: '100%',
+							}}
+						>
+							{this.renderFilterOptions()}
+						</Collapse>
 						<Table stickyHeader={true} size="small">
 							{this.renderHeader()}
-							{this.state.filterEnabled ? this.renderFilterOptions() : React.Fragment}
 							{this.renderInventoryData()}
 						</Table>
 						<TablePagination
@@ -209,24 +227,31 @@ export class InventoryTable extends React.Component<Props, State> {
 					{this.renderHeaderCell('Rarity', 'rarity', 'left')}
 					{this.renderHeaderCell('Weight (lb)', 'weight', 'right')}
 					{this.renderHeaderCell(
-						<div>
-							Cost (
-							<a
-								href="https://sw5e.com/rules/phb/equipment#currency"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<img
-									src="images/Credit.svg"
-									alt="Galactic Credit"
-									style={{
-										height: '13px',
-										margin: '2px',
-										objectFit: 'scale-down',
-									}}
-								/>
-							</a>
-							)
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+							}}
+						>
+							<div>
+								Cost (
+								<a
+									href="https://sw5e.com/rules/phb/equipment#currency"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<img
+										src="images/Credit.svg"
+										alt="Galactic Credit"
+										style={{
+											height: '13px',
+											margin: '2px',
+											objectFit: 'scale-down',
+										}}
+									/>
+								</a>
+								)
+							</div>
 						</div>,
 						'cost',
 						'right',
@@ -297,84 +322,69 @@ export class InventoryTable extends React.Component<Props, State> {
 	 */
 	private renderFilterOptions(): React.ReactNode {
 		return (
-			<TableRow
+			<div
 				style={{
-					background: background1,
+					width: '100%',
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					padding: '5px',
 				}}
 			>
-				{this.renderTextFilterCell('Name', 'name', 'left')}
-				{this.renderTextFilterCell('Category', 'category', 'left')}
-				{this.renderTextFilterCell('Type', 'type', 'left')}
-				{this.renderTextFilterCell('Sub-Type', 'subType', 'left')}
-				{this.renderTextFilterCell('Rarity', 'rarity', 'left')}
-				<TableCell
-					size="small"
+				<div
 					style={{
-						background: background2,
-					}}
-				/>
-				<TableCell
-					size="small"
-					style={{
-						background: background2,
-					}}
-				/>
-				<TableCell
-					align="right"
-					style={{
-						background: background2,
-					}}
-					size="small"
-				>
-					Show only in stock{' '}
-					<Checkbox
-						checked={this.state.showOnlyInStock}
-						onChange={() => this.toggleShowStock()}
-					/>
-				</TableCell>
-
-				<TableCell
-					key={'editing'}
-					align={'center'}
-					size="small"
-					style={{
-						background: background2,
+						display: 'flex',
+						flexDirection: 'row',
 					}}
 				>
-					<IconButton color="primary" onClick={() => this.disableFilters()}>
-						<CloseIcon color="primary" />
-					</IconButton>
-				</TableCell>
-			</TableRow>
+					{this.renderTextFilterCell('Name', 'name')}
+					{this.renderTextFilterCell('Category', 'category')}
+					{this.renderTextFilterCell('Type', 'type')}
+					{this.renderTextFilterCell('Sub-Type', 'subType')}
+					{this.renderTextFilterCell('Rarity', 'rarity')}
+					<div style={filterBarItemStyle}>
+						<div>
+							Show only in stock{' '}
+							<Checkbox
+								checked={this.state.showOnlyInStock}
+								onChange={() => this.toggleShowStock()}
+								color="primary"
+							/>
+						</div>
+					</div>
+				</div>
+				<div>
+					<div
+						style={{
+							height: '100%',
+						}}
+					>
+						<IconButton color="primary" onClick={() => this.disableFilters()}>
+							<CloseIcon color="primary" />
+						</IconButton>
+					</div>
+				</div>
+			</div>
 		);
 	}
 
-	private renderTextFilterCell(
-		label: string,
-		field: string,
-		align: 'left' | 'center' | 'right',
-	): React.ReactNode {
+	private renderTextFilterCell(label: string, field: string): React.ReactNode {
 		const currentFilter = this.state.textFilters.get(field);
 		return (
-			<TableCell
-				align={align}
-				size="small"
-				style={{
-					background: background2,
-				}}
-			>
+			<div style={filterBarItemStyle}>
 				<TextField
 					type="search"
 					defaultValue={currentFilter}
-					label={label}
+					label={`Filter ${label}`}
 					id={`${field}_filter`}
 					variant="outlined"
 					multiline={false}
+					size="small"
 					onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
 						this.updateFilter(field, event.target.value)
 					}
 				/>
-			</TableCell>
+			</div>
 		);
 	}
 
