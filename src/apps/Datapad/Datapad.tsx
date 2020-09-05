@@ -9,7 +9,6 @@ import Timeline from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
-import './Styling/Datapad.css';
 import {
 	List,
 	ListItem,
@@ -141,7 +140,16 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				}}
 			>
 				{this.renderHeader()}
-				<div className="Datapad" id={appId}>
+				<div
+					id={appId}
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						textAlign: 'center',
+						flex: 1,
+						overflow: 'clip',
+					}}
+				>
 					{menu}
 					{appView}
 				</div>
@@ -184,9 +192,14 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					<MenuIcon />
 				</IconButton>
 				<img
-					className="App-header-logo"
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
 					alt="Campaign logo"
+					style={{
+						height: '75px',
+						margin: '15px',
+						pointerEvents: 'none',
+						objectFit: 'scale-down',
+					}}
 				/>
 			</header>
 		);
