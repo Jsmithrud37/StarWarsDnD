@@ -12,7 +12,7 @@ export abstract class DataEntry<T extends boolean | string | number = boolean | 
 	/**
 	 * Initial value for the form.
 	 */
-	public readonly initialValue: T;
+	public readonly initialValue: T | undefined;
 
 	/**
 	 * Form label
@@ -25,15 +25,27 @@ export abstract class DataEntry<T extends boolean | string | number = boolean | 
 	public readonly elementId: string;
 
 	/**
+	 * Indicates whether or not a value is required to be submitted for this entry.
+	 */
+	public readonly required: boolean;
+
+	/**
 	 * Constructor
 	 * @param initialValue - {@inheritdoc DataEntry.initialValue}
 	 * @param label - {@inheritdoc DataEntry.label}
 	 * @param elementId - {@inheritdoc DataEntry.elementId} If not provided, will use `label`.
+	 * @param required - {@inheritdoc DataEntry.required}.
 	 */
-	protected constructor(initialValue: T, label: string, elementId?: string) {
+	protected constructor(
+		initialValue: T | undefined,
+		label: string,
+		elementId?: string,
+		required = true,
+	) {
 		this.initialValue = initialValue;
 		this.label = label;
 		this.elementId = elementId ?? label;
+		this.required = required;
 	}
 
 	/**
@@ -46,15 +58,21 @@ export abstract class DataEntry<T extends boolean | string | number = boolean | 
 	/**
 	 * Determines whether or not the provided value is a valid submission for this field.
 	 */
-	public abstract isValueValid(value: T): boolean;
+	public abstract isValueValid(value: T | undefined): boolean;
 }
 
 /**
  * DataEntry for booleans.
  */
 export class BooleanEntry extends DataEntry<boolean> {
+	/**
+	 * Constructor
+	 * @param initialValue - {@inheritdoc DataEntry.initialValue}
+	 * @param label - {@inheritdoc DataEntry.label}
+	 * @param elementId - {@inheritdoc DataEntry.elementId}
+	 */
 	public constructor(initialValue: boolean, label: string, elementId?: string) {
-		super(initialValue, label, elementId);
+		super(initialValue, label, elementId, true);
 	}
 
 	public dataType(): DataType {
@@ -74,20 +92,41 @@ export class BooleanEntry extends DataEntry<boolean> {
  * DataEntry for numbers.
  */
 export class NumberEntry extends DataEntry<number> {
+	/**
+	 * Minimal allowed value
+	 */
 	public readonly min: number;
+
+	/**
+	 * Maximal allowed value
+	 */
 	public readonly max: number;
+
+	/**
+	 * Whether or not non-integer types are allowed
+	 */
 	public readonly decimals: boolean;
 
-	// TODO: only ints?
+	/**
+	 * Constructor
+	 * @param initialValue - {@inheritdoc DataEntry.initialValue}
+	 * @param label - {@inheritdoc DataEntry.label}
+	 * @param elementId - {@inheritdoc DataEntry.elementId}
+	 * @param required - {@inheritdoc DataEntry.required}
+	 * @param min - {@inheritdoc NumberEntry.min}
+	 * @param max - {@inheritdoc NumberEntry.max}
+	 * @param decimals - {@inheritdoc NumberEntry.decimals}
+	 */
 	public constructor(
-		initialValue: number,
+		initialValue: number | undefined,
 		label: string,
 		elementId?: string,
+		required = true,
 		min?: number,
 		max?: number,
 		decimals = true,
 	) {
-		super(initialValue, label, elementId);
+		super(initialValue, label, elementId, required ?? true);
 		this.min = min ?? Number.NEGATIVE_INFINITY;
 		this.max = max ?? Number.POSITIVE_INFINITY;
 		this.decimals = decimals;
@@ -101,7 +140,10 @@ export class NumberEntry extends DataEntry<number> {
 		return `Value must be ${this.decimals ? '' : 'an integer '}on [${this.min}, ${this.max}]`;
 	}
 
-	public isValueValid(value: number): boolean {
+	public isValueValid(value: number | undefined): boolean {
+		if (value === undefined) {
+			return !this.required;
+		}
 		if (value < this.min) {
 			return false;
 		}
@@ -119,27 +161,24 @@ export class NumberEntry extends DataEntry<number> {
  * DataEntry for strings.
  */
 export class StringEntry extends DataEntry<string> {
-	public readonly canBeEmpty: boolean;
 	public readonly multiLine: boolean;
 
 	/**
 	 * Constructor
-	 * @param initialValue - See base constructor.
-	 * @param label - See base constructor.
-	 * @param elementId - See base constructor.
-	 * @param canBeEmpty - Indicates whether or not an empty string is valid. Default is false.
+	 * @param initialValue - {@inheritdoc DataEntry.initialValue}
+	 * @param label - {@inheritdoc DataEntry.label}
+	 * @param elementId - {@inheritdoc DataEntry.elementId}
+	 * @param required - {@inheritdoc DataEntry.required}
 	 * @param multiLine - Indicates that the entry form should allow for multiple lines.
-	 * Default is false.
 	 */
 	public constructor(
 		initialValue: string,
 		label: string,
 		elementId?: string,
-		canBeEmpty = false,
+		required = true,
 		multiLine = false,
 	) {
-		super(initialValue, label, elementId);
-		this.canBeEmpty = canBeEmpty;
+		super(initialValue, label, elementId, required);
 		this.multiLine = multiLine;
 	}
 
@@ -149,16 +188,13 @@ export class StringEntry extends DataEntry<string> {
 
 	public errorMessage(): string | undefined {
 		// Only invalid state is empty when empty is not permitted.
-		if (this.canBeEmpty) {
+		if (!this.required) {
 			return undefined;
 		}
 		return `Must not be empty`;
 	}
 
-	public isValueValid(value: string): boolean {
-		if (!this.canBeEmpty && value.length === 0) {
-			return false;
-		}
-		return true;
+	public isValueValid(value: string | undefined): boolean {
+		return !this.required || (value?.length ?? 0) !== 0;
 	}
 }

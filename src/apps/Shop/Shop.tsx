@@ -6,7 +6,7 @@ import {
 	NumberEntry,
 	StringEntry,
 } from '../../shared-components/EditItemForm/DataEntry';
-import ItemEditForm from '../../shared-components/EditItemForm/EditItemForm';
+import ItemEditForm, { EntryTypes } from '../../shared-components/EditItemForm/EditItemForm';
 import { executeBackendFunction, QueryResult } from '../../utilities/NetlifyUtilities';
 import { Actions, changeShop, loadInventory } from './Actions';
 import { Inventory, InventoryItem } from './Inventory';
@@ -54,15 +54,21 @@ enum EditType {
 
 // TODO: get as component input
 const newItemFormSchemas = new Map<string, DataEntry>([
-	['name', new StringEntry('', 'Name', undefined, false, false)],
-	['category', new StringEntry('', 'Category', undefined, false, false)],
-	['type', new StringEntry('', 'Type', undefined, false, false)],
-	['subType', new StringEntry('', 'Sub-Type', undefined, true, false)],
-	['rarity', new StringEntry('', 'Rarity', undefined, false, false)],
-	['weight', new NumberEntry(0, 'Weight(lb)', undefined, 0, Number.POSITIVE_INFINITY, true)],
-	['cost', new NumberEntry(0, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false)],
-	['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
-	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, true, false)],
+	['name', new StringEntry('', 'Name', undefined, true, false)],
+	['category', new StringEntry('', 'Category', undefined, true, false)],
+	['type', new StringEntry('', 'Type', undefined, true, false)],
+	['subType', new StringEntry('', 'Sub-Type', undefined, false, false)],
+	['rarity', new StringEntry('', 'Rarity', undefined, true, false)],
+	[
+		'weight',
+		new NumberEntry(0, 'Weight(lb)', undefined, true, 0, Number.POSITIVE_INFINITY, true),
+	],
+	['cost', new NumberEntry(0, 'Cost (cr)', undefined, true, 0, Number.POSITIVE_INFINITY, false)],
+	[
+		'stock',
+		new NumberEntry(0, 'Stock', undefined, false, undefined, Number.POSITIVE_INFINITY, false),
+	],
+	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, false, false)],
 ]);
 
 /**
@@ -110,9 +116,7 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private createItemFromProperties(
-		itemProperties: Map<string, boolean | string | number>,
-	): InventoryItem {
+	private createItemFromProperties(itemProperties: Map<string, EntryTypes>): InventoryItem {
 		// Create new item from provided properties mapping
 		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
 		itemProperties.forEach((value, key) => {
@@ -122,9 +126,7 @@ class ShopComponent extends React.Component<Props, State> {
 		return item as InventoryItem;
 	}
 
-	private async onSubmitInsert(
-		itemProperties: Map<string, boolean | string | number>,
-	): Promise<void> {
+	private async onSubmitInsert(itemProperties: Map<string, EntryTypes>): Promise<void> {
 		const item = this.createItemFromProperties(itemProperties);
 
 		console.log(`Adding item "${item.name}" to ${this.props.shopSelection}...`);
@@ -149,9 +151,7 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private async onSubmitEdit(
-		itemProperties: Map<string, boolean | string | number>,
-	): Promise<void> {
+	private async onSubmitEdit(itemProperties: Map<string, EntryTypes>): Promise<void> {
 		if (itemProperties.has('name')) {
 			throw new Error('Cannot edit the `name` field of an item.');
 		}
@@ -199,19 +199,19 @@ class ShopComponent extends React.Component<Props, State> {
 			throw new Error('Attempted to edit item while inventory was not loaded.');
 		}
 
+		// `undefined` represents infinite stock. No need to submit an edit when purchasing an item with
+		// infinite stock. The button at this point is really just for consistency / show (unless
+		// eventually I decide to add character money management to the system... which, I mean...
+		// maybe?)
+		if (purchasedItem.stock === undefined) {
+			return;
+		}
+
 		if (purchasedItem.stock === 0) {
 			throw new Error('Cannot purchase item with no stock.');
 		}
 
 		console.log(`Purchasing item "${purchasedItem.name}" from ${this.props.shopSelection}...`);
-
-		// -1 represents infinite stock. No need to submit an edit when purchasing an item with
-		// infinite stock. The button at this point is really just for consistency / show (unless
-		// eventually I decide to add character money management to the system... which, I mean...
-		// maybe?)
-		if (purchasedItem.stock === -1) {
-			return;
-		}
 
 		// Set edit state to `Pending` to show spinner until backend request has completed.
 		this.setIsEditing(EditType.Pending, this.state.itemBeingEdited);
@@ -316,16 +316,17 @@ class ShopComponent extends React.Component<Props, State> {
 		return new Map<string, DataEntry>([
 			// Do not include name - we do not allow editing of name to guarantee we have
 			// a baseline to compare with when modifying the inventory contents
-			['category', new StringEntry(item.category, 'Category', undefined, false, false)],
-			['type', new StringEntry(item.type, 'Type', undefined, false, false)],
-			['subType', new StringEntry(item.subType ?? '', 'Sub-Type', undefined, true, false)],
-			['rarity', new StringEntry(item.rarity, 'Rarity', undefined, false, false)],
+			['category', new StringEntry(item.category, 'Category', undefined, true, false)],
+			['type', new StringEntry(item.type, 'Type', undefined, true, false)],
+			['subType', new StringEntry(item.subType ?? '', 'Sub-Type', undefined, false, false)],
+			['rarity', new StringEntry(item.rarity, 'Rarity', undefined, true, false)],
 			[
 				'weight',
 				new NumberEntry(
 					item.weight,
 					'Weight(lb)',
 					undefined,
+					true,
 					0,
 					Number.POSITIVE_INFINITY,
 					true,
@@ -337,6 +338,7 @@ class ShopComponent extends React.Component<Props, State> {
 					item.cost,
 					'Cost (cr)',
 					undefined,
+					true,
 					0,
 					Number.POSITIVE_INFINITY,
 					false,
@@ -348,7 +350,8 @@ class ShopComponent extends React.Component<Props, State> {
 					item.stock,
 					'Stock',
 					undefined,
-					-1,
+					false,
+					0,
 					Number.POSITIVE_INFINITY,
 					false,
 				),
@@ -359,7 +362,7 @@ class ShopComponent extends React.Component<Props, State> {
 					item.resourceUrl ?? '',
 					'Custom Resource URL',
 					undefined,
-					true,
+					false,
 					false,
 				),
 			],

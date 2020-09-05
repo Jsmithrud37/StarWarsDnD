@@ -12,15 +12,20 @@ import React, { ChangeEvent } from 'react';
 import { BooleanEntry, DataEntry, DataType, NumberEntry, StringEntry } from './DataEntry';
 import { background2 } from '../../Theming';
 
+/**
+ * Types representable in the form
+ */
+export type EntryTypes = boolean | string | number | undefined;
+
 interface Props {
 	title: string;
 	schemas: Map<string, DataEntry>;
-	onSubmit: (data: Map<string, boolean | string | number>) => void;
+	onSubmit: (data: Map<string, EntryTypes>) => void;
 	onCancel: () => void;
 }
 
 interface State {
-	entries: Map<string, boolean | string | number>;
+	entries: Map<string, EntryTypes>;
 	inErrorState: boolean;
 }
 
@@ -31,7 +36,7 @@ class ItemEditForm extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
-		const initialStateMap = new Map<string, boolean | string | number>();
+		const initialStateMap = new Map<string, EntryTypes>();
 		props.schemas.forEach((value, key) => {
 			initialStateMap.set(key, value.initialValue);
 		});
@@ -42,14 +47,14 @@ class ItemEditForm extends React.Component<Props, State> {
 		};
 	}
 
-	private updateState(key: string, data: boolean | string | number): void {
+	private updateState(key: string, data: EntryTypes): void {
 		const schema = this.props.schemas.get(key);
 
 		if (!schema) {
 			throw new Error(`Invalid state. No schema found for key: ${key}`);
 		}
 
-		const stateMap = new Map<string, boolean | string | number>(this.state.entries);
+		const stateMap = new Map<string, EntryTypes>(this.state.entries);
 		stateMap.set(key, data);
 		this.setState({
 			...this.state,
@@ -184,7 +189,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		key: string,
 		currentValue: number,
 		schema: NumberEntry,
-		onUpdate: (key: string, newValue: number) => void,
+		onUpdate: (key: string, newValue: number | undefined) => void,
 	): React.ReactNode {
 		const error = this.state.inErrorState ? !schema.isValueValid(currentValue) : false;
 		const errorMessage = error ? schema.errorMessage() : undefined;
@@ -198,9 +203,13 @@ class ItemEditForm extends React.Component<Props, State> {
 				type="number"
 				error={error}
 				helperText={errorMessage}
-				onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-					onUpdate(key, Number.parseFloat(event.target.value))
-				}
+				onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+					let value: number | undefined = Number.parseFloat(event.target.value);
+					if (Number.isNaN(value)) {
+						value = undefined;
+					}
+					onUpdate(key, value);
+				}}
 			/>
 		);
 	}
@@ -212,7 +221,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		key: string,
 		currentValue: string,
 		schema: StringEntry,
-		onUpdate: (key: string, newValue: string) => void,
+		onUpdate: (key: string, newValue: string | undefined) => void,
 	): React.ReactNode {
 		const error = this.state.inErrorState ? !schema.isValueValid(currentValue) : false;
 		const errorMessage = error ? schema.errorMessage() : undefined;
@@ -226,7 +235,7 @@ class ItemEditForm extends React.Component<Props, State> {
 				error={error}
 				helperText={errorMessage}
 				onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-					onUpdate(key, event.target.value)
+					onUpdate(key, event.target.value.length === 0 ? undefined : event.target.value)
 				}
 			/>
 		);

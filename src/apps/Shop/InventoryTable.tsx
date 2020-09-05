@@ -393,15 +393,7 @@ export class InventoryTable extends React.Component<Props, State> {
 	 */
 	private renderInventoryData(): React.ReactNode {
 		// TODO: this is needlessly expensive...
-		const sortedInventory = this.props.inventory.sort((a, b) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const aKey: string = (a as any)[this.state.sortingColumnKey].toString();
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const bKey: string = (b as any)[this.state.sortingColumnKey].toString();
-			const compare = aKey.localeCompare(bKey);
-			return this.state.sortInAscendingOrder ? compare : -compare;
-		});
-
+		const sortedInventory = this.sortInventory(this.props.inventory);
 		const filteredInventory = this.applyFilters(sortedInventory);
 
 		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
@@ -436,7 +428,7 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'left'}>{item.rarity}</TableCell>
 				<TableCell align={'right'}>{item.weight}</TableCell>
 				<TableCell align={'right'}>{item.cost}</TableCell>
-				<TableCell align={'right'}>{item.stock < 0 ? '∞' : item.stock}</TableCell>
+				<TableCell align={'right'}>{item.stock === undefined ? '∞' : item.stock}</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
 						onClick={() => this.props.onPurchaseItem(item)}
@@ -463,6 +455,30 @@ export class InventoryTable extends React.Component<Props, State> {
 				</TableCell>
 			</TableRow>
 		);
+	}
+
+	private sortInventory(inventory: Inventory): Inventory {
+		return inventory.sort((a, b) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const aKey: string | undefined = (a as any)[this.state.sortingColumnKey]?.toString();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const bKey: string | undefined = (b as any)[this.state.sortingColumnKey]?.toString();
+
+			// Note: the above handling of undefined assumes that all values in the table will
+			// be (optional) strings or (optional) numbers. Undefined for numerical values we are
+			// using to represent ∞. Whereas we are using undefined strings to simple represent
+			// empty strings.
+			let compare;
+			if (aKey === undefined) {
+				compare = 1;
+			} else if (bKey === undefined) {
+				compare = -1;
+			} else {
+				compare = aKey.localeCompare(bKey);
+			}
+
+			return this.state.sortInAscendingOrder ? compare : -compare;
+		});
 	}
 
 	private applyFilters(inventory: Inventory): Inventory {
