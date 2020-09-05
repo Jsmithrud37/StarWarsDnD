@@ -4,7 +4,6 @@ The `Shops` Datapad app allows players to view available inventory for the shops
 
 ## TODO
 
--   Pagination values need to respect filters
--   Sorting numeric values needs to sort infinity above other values not below (currently represented by `-1`)
+-   Investigate why sorting is unstable (repro: toggle filters while sorting based on cost descending)
 -   Add schemas for shop entries, parameterize shop sub-view over schemas
 -   ...
