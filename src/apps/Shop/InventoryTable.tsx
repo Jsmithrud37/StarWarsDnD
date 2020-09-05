@@ -111,7 +111,7 @@ export class InventoryTable extends React.Component<Props, State> {
 	private getModifiedInventory(): Inventory {
 		// TODO: this is needlessly expensive...
 		const sortedInventory = this.sortInventory(this.props.inventory);
-		return this.applyFilters(sortedInventory);
+		return this.state.filterEnabled ? this.applyFilters(sortedInventory) : sortedInventory;
 	}
 
 	private onChangePage(newPageSelection: number): void {
@@ -146,6 +146,7 @@ export class InventoryTable extends React.Component<Props, State> {
 		this.setState({
 			...this.state,
 			filterEnabled: true,
+			selectedPageIndex: 0, // Reset page to 0 for filter change
 		});
 	}
 
@@ -154,7 +155,7 @@ export class InventoryTable extends React.Component<Props, State> {
 			...this.state,
 			filterEnabled: false,
 			showOnlyInStock: false,
-			textFilters: new Map<string, string>(),
+			selectedPageIndex: 0, // Reset page to 0 for filter change
 		});
 	}
 
