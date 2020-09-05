@@ -27,3 +27,6 @@ backend-build
 
 # Local db connection url. Contains private auth information and should not be checked in.
 db_url.txt
+
+# Local debug environment variables. Contains private auth information and should not be checked in.
+src/debug-environment.json
