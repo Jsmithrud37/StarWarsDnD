@@ -108,6 +108,12 @@ export class InventoryTable extends React.Component<Props, State> {
 		};
 	}
 
+	private getModifiedInventory(): Inventory {
+		// TODO: this is needlessly expensive...
+		const sortedInventory = this.sortInventory(this.props.inventory);
+		return this.applyFilters(sortedInventory);
+	}
+
 	private onChangePage(newPageSelection: number): void {
 		this.setState({
 			...this.state,
@@ -152,7 +158,27 @@ export class InventoryTable extends React.Component<Props, State> {
 		});
 	}
 
+	private updateFilter(field: string, value: string): void {
+		const textFilters = this.state.textFilters;
+		textFilters.set(field, value.toLocaleLowerCase());
+		this.setState({
+			...this.state,
+			textFilters,
+			selectedPageIndex: 0, // Reset page to 0 for filter change
+		});
+	}
+
+	private toggleShowStock(): void {
+		this.setState({
+			...this.state,
+			showOnlyInStock: !this.state.showOnlyInStock,
+			selectedPageIndex: 0, // Reset page to 0 for filter change
+		});
+	}
+
 	public render(): React.ReactNode {
+		const modifiedInventory = this.getModifiedInventory();
+
 		return (
 			<Scrollbars autoHide={true} autoHeight={false}>
 				<div style={{ height: '100%', width: '100%', padding: '5px' }}>
@@ -167,12 +193,12 @@ export class InventoryTable extends React.Component<Props, State> {
 						</Collapse>
 						<Table stickyHeader={true} size="small">
 							{this.renderHeader()}
-							{this.renderInventoryData()}
+							{this.renderInventoryData(modifiedInventory)}
 						</Table>
 						<TablePagination
-							rowsPerPageOptions={[5, 10, 25]}
+							rowsPerPageOptions={[5, 10, 25, 100]}
 							component="div"
-							count={this.props.inventory.length}
+							count={modifiedInventory.length}
 							rowsPerPage={this.state.rowsPerPage}
 							page={this.state.selectedPageIndex}
 							onChangePage={(event, newPage) => this.onChangePage(newPage)}
@@ -187,22 +213,6 @@ export class InventoryTable extends React.Component<Props, State> {
 				</div>
 			</Scrollbars>
 		);
-	}
-
-	private updateFilter(field: string, value: string): void {
-		const textFilters = this.state.textFilters;
-		textFilters.set(field, value.toLocaleLowerCase());
-		this.setState({
-			...this.state,
-			textFilters,
-		});
-	}
-
-	private toggleShowStock(): void {
-		this.setState({
-			...this.state,
-			showOnlyInStock: !this.state.showOnlyInStock,
-		});
 	}
 
 	/**
@@ -391,13 +401,9 @@ export class InventoryTable extends React.Component<Props, State> {
 	/**
 	 * Renders the table body.
 	 */
-	private renderInventoryData(): React.ReactNode {
-		// TODO: this is needlessly expensive...
-		const sortedInventory = this.sortInventory(this.props.inventory);
-		const filteredInventory = this.applyFilters(sortedInventory);
-
+	private renderInventoryData(inventory: Inventory): React.ReactNode {
 		const firstItemOnPageIndex = this.state.selectedPageIndex * this.state.rowsPerPage;
-		const rowsToRender = filteredInventory.slice(
+		const rowsToRender = inventory.slice(
 			firstItemOnPageIndex,
 			firstItemOnPageIndex + this.state.rowsPerPage,
 		);
