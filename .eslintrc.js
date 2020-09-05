@@ -34,7 +34,12 @@ module.exports = {
 		'jsdoc/check-indentation': 'error',
 		'jsdoc/check-param-names': 'error',
 		'jsdoc/check-syntax': 'error',
-		'jsdoc/check-tag-names': 'error',
+		'jsdoc/check-tag-names': [
+			'error',
+			{
+				definedTags: ['remarks'],
+			},
+		],
 		'jsdoc/check-types': 'error',
 		'jsdoc/implements-on-classes': 'error',
 		'jsdoc/no-types': 'error',
