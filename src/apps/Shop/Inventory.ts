@@ -52,6 +52,12 @@ export interface InventoryItem {
 	 * Otherwise will be linked using the default mechanism.
 	 */
 	resourceUrl?: string;
+
+	/**
+	 * Indicates whether or not the item is considered an "enhanced" item.
+	 * undefined === false.
+	 */
+	enhanced?: boolean;
 }
 
 /**

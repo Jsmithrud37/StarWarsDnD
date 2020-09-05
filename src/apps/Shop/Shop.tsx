@@ -5,6 +5,7 @@ import {
 	DataEntry,
 	NumberEntry,
 	StringEntry,
+	BooleanEntry,
 } from '../../shared-components/EditItemForm/DataEntry';
 import ItemEditForm, { EntryTypes } from '../../shared-components/EditItemForm/EditItemForm';
 import { executeBackendFunction, QueryResult } from '../../utilities/NetlifyUtilities';
@@ -63,6 +64,7 @@ const newItemFormSchemas = new Map<string, DataEntry>([
 	['cost', new NumberEntry(0, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false)],
 	['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
 	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, false, false)],
+	['enhanced', new BooleanEntry(false, 'Enhanced Item')],
 ]);
 
 /**
@@ -357,6 +359,7 @@ class ShopComponent extends React.Component<Props, State> {
 					false,
 				),
 			],
+			['enhanced', new BooleanEntry(item.enhanced ?? false, 'Enhanced Item')],
 		]);
 	}
 

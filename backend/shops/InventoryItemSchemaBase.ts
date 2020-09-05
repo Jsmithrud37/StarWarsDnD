@@ -13,6 +13,7 @@ export interface InventoryItemBase {
 	cost: number;
 	stock: number;
 	resourceUrl?: string;
+	enhanced?: boolean; // undefined === false
 }
 
 export const inventoryItemBaseSchema: SchemaDefinition = {
@@ -25,4 +26,5 @@ export const inventoryItemBaseSchema: SchemaDefinition = {
 	cost: { type: Number, required: true },
 	stock: { type: Number, required: true },
 	resourceUrl: { type: String, required: false },
+	enhanced: { type: Boolean, required: false },
 };

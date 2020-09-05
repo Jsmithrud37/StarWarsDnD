@@ -433,9 +433,11 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'left'}>{item.type}</TableCell>
 				<TableCell align={'left'}>{item.subType}</TableCell>
 				<TableCell align={'left'}>{item.rarity}</TableCell>
-				<TableCell align={'right'}>{item.weight}</TableCell>
-				<TableCell align={'right'}>{item.cost}</TableCell>
-				<TableCell align={'right'}>{item.stock === -1 ? '∞' : item.stock}</TableCell>
+				<TableCell align={'right'}>{item.weight.toLocaleString()}</TableCell>
+				<TableCell align={'right'}>{item.cost.toLocaleString()}</TableCell>
+				<TableCell align={'right'}>
+					{item.stock === -1 ? '∞' : item.stock.toLocaleString()}
+				</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
 						onClick={() => this.props.onPurchaseItem(item)}
@@ -516,6 +518,22 @@ function getResourceUrl(item: InventoryItem): string {
 	if (item.resourceUrl) {
 		return item.resourceUrl;
 	}
-	// TODO: use a better link mechanism here
-	return `https://sw5e.com/searchResults?searchText=${encodeURIComponent(item.name)}`;
+
+	// Special-case enhanced items
+	if (item.enhanced) {
+		return `https://sw5e.com/loot/enhancedItems/?search=${encodeURIComponent(item.name)}`;
+	}
+
+	// Special case non-enhanced armor
+	if (item.category.toLocaleLowerCase() === 'armor') {
+		return `https://sw5e.com/loot/armor/?search=${encodeURIComponent(item.name)}`;
+	}
+
+	// Special case non-enhanced weapons
+	if (item.category.toLocaleLowerCase() === 'weapon') {
+		return `https://sw5e.com/loot/weapons/?search=${encodeURIComponent(item.name)}`;
+	}
+
+	// If not enhanced, and not armor or weapon, must be adventuring gear
+	return `https://sw5e.com/loot/adventuringGear/?search=${encodeURIComponent(item.name)}`;
 }
