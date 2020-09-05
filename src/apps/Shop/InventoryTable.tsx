@@ -21,7 +21,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
-import { background2, background1 } from '../../Theming';
+import { background2 } from '../../Theming';
 
 /**
  * Component props
