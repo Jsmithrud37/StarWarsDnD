@@ -15,7 +15,7 @@ import { background2 } from '../../Theming';
 /**
  * Types representable in the form
  */
-export type EntryTypes = boolean | string | number | undefined;
+export type EntryTypes = boolean | string | number;
 
 interface Props {
 	title: string;
@@ -189,7 +189,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		key: string,
 		currentValue: number,
 		schema: NumberEntry,
-		onUpdate: (key: string, newValue: number | undefined) => void,
+		onUpdate: (key: string, newValue: number) => void,
 	): React.ReactNode {
 		const error = this.state.inErrorState ? !schema.isValueValid(currentValue) : false;
 		const errorMessage = error ? schema.errorMessage() : undefined;
@@ -204,11 +204,7 @@ class ItemEditForm extends React.Component<Props, State> {
 				error={error}
 				helperText={errorMessage}
 				onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-					let value: number | undefined = Number.parseFloat(event.target.value);
-					if (Number.isNaN(value)) {
-						value = undefined;
-					}
-					onUpdate(key, value);
+					onUpdate(key, Number.parseFloat(event.target.value));
 				}}
 			/>
 		);
@@ -221,7 +217,7 @@ class ItemEditForm extends React.Component<Props, State> {
 		key: string,
 		currentValue: string,
 		schema: StringEntry,
-		onUpdate: (key: string, newValue: string | undefined) => void,
+		onUpdate: (key: string, newValue: string) => void,
 	): React.ReactNode {
 		const error = this.state.inErrorState ? !schema.isValueValid(currentValue) : false;
 		const errorMessage = error ? schema.errorMessage() : undefined;
@@ -235,7 +231,7 @@ class ItemEditForm extends React.Component<Props, State> {
 				error={error}
 				helperText={errorMessage}
 				onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-					onUpdate(key, event.target.value.length === 0 ? undefined : event.target.value)
+					onUpdate(key, event.target.value)
 				}
 			/>
 		);

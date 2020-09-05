@@ -434,7 +434,7 @@ export class InventoryTable extends React.Component<Props, State> {
 				<TableCell align={'left'}>{item.rarity}</TableCell>
 				<TableCell align={'right'}>{item.weight}</TableCell>
 				<TableCell align={'right'}>{item.cost}</TableCell>
-				<TableCell align={'right'}>{item.stock === undefined ? '∞' : item.stock}</TableCell>
+				<TableCell align={'right'}>{item.stock === -1 ? '∞' : item.stock}</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
 						onClick={() => this.props.onPurchaseItem(item)}
@@ -466,18 +466,17 @@ export class InventoryTable extends React.Component<Props, State> {
 	private sortInventory(inventory: Inventory): Inventory {
 		return inventory.sort((a, b) => {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const aKey: string | undefined = (a as any)[this.state.sortingColumnKey]?.toString();
+			const aKey: string = (a as any)[this.state.sortingColumnKey].toString();
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const bKey: string | undefined = (b as any)[this.state.sortingColumnKey]?.toString();
+			const bKey: string = (b as any)[this.state.sortingColumnKey].toString();
 
-			// Note: the above handling of undefined assumes that all values in the table will
-			// be (optional) strings or (optional) numbers. Undefined for numerical values we are
-			// using to represent ∞. Whereas we are using undefined strings to simple represent
-			// empty strings.
+			// Note: for numeric values, we are treating `-1` as ∞. We will treat -1 as comparing
+			// positive over anything else. If a string value legitimately has `-1`, this
+			// may cause problems.
 			let compare;
-			if (aKey === undefined) {
+			if (aKey === '-1') {
 				compare = 1;
-			} else if (bKey === undefined) {
+			} else if (bKey === '-1') {
 				compare = -1;
 			} else {
 				compare = aKey.localeCompare(bKey);

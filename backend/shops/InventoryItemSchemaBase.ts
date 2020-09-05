@@ -11,7 +11,7 @@ export interface InventoryItemBase {
 	rarity: string;
 	weight: number;
 	cost: number;
-	stock?: number; // undefined => ∞
+	stock: number;
 	resourceUrl?: string;
 }
 
@@ -23,6 +23,6 @@ export const inventoryItemBaseSchema: SchemaDefinition = {
 	rarity: { type: String, required: true },
 	weight: { type: Number, required: true },
 	cost: { type: Number, required: true },
-	stock: { type: Number, required: false },
+	stock: { type: Number, required: true },
 	resourceUrl: { type: String, required: false },
 };

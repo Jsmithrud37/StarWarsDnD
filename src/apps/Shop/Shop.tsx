@@ -59,15 +59,9 @@ const newItemFormSchemas = new Map<string, DataEntry>([
 	['type', new StringEntry('', 'Type', undefined, true, false)],
 	['subType', new StringEntry('', 'Sub-Type', undefined, false, false)],
 	['rarity', new StringEntry('', 'Rarity', undefined, true, false)],
-	[
-		'weight',
-		new NumberEntry(0, 'Weight(lb)', undefined, true, 0, Number.POSITIVE_INFINITY, true),
-	],
-	['cost', new NumberEntry(0, 'Cost (cr)', undefined, true, 0, Number.POSITIVE_INFINITY, false)],
-	[
-		'stock',
-		new NumberEntry(0, 'Stock', undefined, false, undefined, Number.POSITIVE_INFINITY, false),
-	],
+	['weight', new NumberEntry(0, 'Weight(lb)', undefined, 0, Number.POSITIVE_INFINITY, true)],
+	['cost', new NumberEntry(0, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false)],
+	['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
 	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, false, false)],
 ]);
 
@@ -203,7 +197,7 @@ class ShopComponent extends React.Component<Props, State> {
 		// infinite stock. The button at this point is really just for consistency / show (unless
 		// eventually I decide to add character money management to the system... which, I mean...
 		// maybe?)
-		if (purchasedItem.stock === undefined) {
+		if (Number.isNaN(purchasedItem.stock)) {
 			return;
 		}
 
@@ -326,7 +320,6 @@ class ShopComponent extends React.Component<Props, State> {
 					item.weight,
 					'Weight(lb)',
 					undefined,
-					true,
 					0,
 					Number.POSITIVE_INFINITY,
 					true,
@@ -338,7 +331,6 @@ class ShopComponent extends React.Component<Props, State> {
 					item.cost,
 					'Cost (cr)',
 					undefined,
-					true,
 					0,
 					Number.POSITIVE_INFINITY,
 					false,
@@ -350,8 +342,7 @@ class ShopComponent extends React.Component<Props, State> {
 					item.stock,
 					'Stock',
 					undefined,
-					false,
-					0,
+					-1,
 					Number.POSITIVE_INFINITY,
 					false,
 				),

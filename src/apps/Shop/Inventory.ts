@@ -41,10 +41,10 @@ export interface InventoryItem {
 
 	/**
 	 * Quantity of the item in stock.
-	 * Must be on [0, ∞).
-	 * undefined => ∞.
+	 * Must be on [-1, ∞).
+	 * -1 is treated as ∞.
 	 */
-	stock?: number;
+	stock: number;
 
 	/**
 	 * Url pointing to a description of the item.
