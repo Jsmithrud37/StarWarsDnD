@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
-import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
 import { Contact } from './Contact';
 import { AppState } from './State';
@@ -44,12 +44,23 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		const getContactsFunction = 'GetAllContacts';
-		const response = await fetchFromBackendFunction(getContactsFunction);
-		const contacts: Contact[] = response.contacts;
+		interface FetchContactsQueryResult {
+			contacts: Contact[];
+		}
 
-		if (contacts.length > 0) {
-			this.props.loadContacts(contacts);
+		const getContactsFunction = 'GetAllContacts';
+		const response = await executeBackendFunction<FetchContactsQueryResult>(
+			getContactsFunction,
+		);
+
+		if (response) {
+			const contacts: Contact[] = response.contacts;
+
+			if (contacts.length > 0) {
+				this.props.loadContacts(contacts);
+			}
+		} else {
+			// TODO: display error to user
 		}
 	}
 

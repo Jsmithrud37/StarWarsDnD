@@ -4,3 +4,4 @@
 
 export * from './Actions';
 export * from './ChangeShop';
+export * from './LoadInventory';

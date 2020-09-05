@@ -12,7 +12,7 @@ import { appTheme } from './Theming';
 const dataStore = createStore(reducers);
 
 const galaxyMapEnabled = true;
-const shopsEnabled = process.env.NODE_ENV !== 'production';
+const shopsEnabled = true;
 const contactsEnabled = true;
 const messengerEnabled = true;
 const timelineEnabled = process.env.NODE_ENV !== 'production';
