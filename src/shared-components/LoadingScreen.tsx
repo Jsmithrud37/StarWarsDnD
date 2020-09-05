@@ -1,11 +1,11 @@
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
+import { CircularProgress } from '@material-ui/core';
 
 interface Props {
 	/**
 	 * Text to display with the spinner.
 	 */
-	text: string;
+	text?: string;
 }
 
 /**
@@ -18,6 +18,35 @@ class LoadingScreen extends React.Component<Props> {
 	}
 
 	public render(): React.ReactNode {
+		const textDiv = this.props.text ? (
+			<div
+				style={{
+					padding: '15px',
+				}}
+			>
+				{this.props.text}
+			</div>
+		) : (
+			React.Fragment
+		);
+
+		const spinnerDiv = (
+			<div
+				style={{
+					padding: '15px',
+					textAlign: 'center',
+				}}
+			>
+				<div
+					style={{
+						display: 'inline-block',
+					}}
+				>
+					<CircularProgress color="primary" />
+				</div>
+			</div>
+		);
+
 		return (
 			<div
 				style={{
@@ -27,27 +56,8 @@ class LoadingScreen extends React.Component<Props> {
 					flexDirection: 'column',
 				}}
 			>
-				<div
-					style={{
-						padding: '15px',
-					}}
-				>
-					{this.props.text}
-				</div>
-				<div
-					style={{
-						padding: '15px',
-						textAlign: 'center',
-					}}
-				>
-					<div
-						style={{
-							display: 'inline-block',
-						}}
-					>
-						<Spinner animation="border" variant="light" />
-					</div>
-				</div>
+				{textDiv}
+				{spinnerDiv}
 			</div>
 		);
 	}

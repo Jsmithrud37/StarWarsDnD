@@ -1,5 +1,6 @@
 import { Reducer } from 'redux';
-import { CHANGE_SHOP, ShopActionTypes } from './Actions';
+import { CHANGE_SHOP, LOAD_INVENTORY, ShopActionTypes } from './Actions';
+import { Inventory } from './Inventory';
 import { ShopId } from './ShopId';
 
 /**
@@ -7,6 +8,7 @@ import { ShopId } from './ShopId';
  */
 export interface AppState {
 	shopSelection: ShopId;
+	inventory: Map<ShopId, Inventory>;
 }
 
 /**
@@ -14,6 +16,7 @@ export interface AppState {
  */
 export const initialState: AppState = {
 	shopSelection: ShopId.Equipment,
+	inventory: new Map<ShopId, Inventory>(),
 };
 
 /**
@@ -24,13 +27,20 @@ export const reducer: Reducer<AppState, ShopActionTypes> = (
 	action: ShopActionTypes,
 ): AppState => {
 	if (!currentState) {
-		return initialState;
+		currentState = initialState;
 	}
 	switch (action.type) {
 		case CHANGE_SHOP:
 			return {
 				...currentState,
 				shopSelection: action.newShopSelection,
+			};
+		case LOAD_INVENTORY:
+			const updatedInventoryMap = new Map<ShopId, Inventory>(currentState.inventory);
+			updatedInventoryMap.set(action.shopId, action.inventory);
+			return {
+				...currentState,
+				inventory: updatedInventoryMap,
 			};
 		default:
 			return currentState;

@@ -1,20 +1,16 @@
 import React, { ReactNode } from 'react';
-import { HamburgerSqueeze } from 'react-animated-burgers';
-import Card from 'react-bootstrap/Card';
-import CardColumns from 'react-bootstrap/CardColumns';
-import Collapse from 'react-bootstrap/Collapse';
-import Fade from 'react-bootstrap/Fade';
-import Media from 'react-bootstrap/Media';
-import Spinner from 'react-bootstrap/Spinner';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
-import { fetchFromBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
 import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 import { ContactDetails } from './ContactDetails';
+import { Card, Collapse, CardHeader, CardContent, Grid, CircularProgress } from '@material-ui/core';
+import { HamburgerSqueeze } from 'react-animated-burgers';
+import { background2, background3 } from '../../Theming';
 
 /**
  * State parameters used by the Datapad app component.
@@ -25,6 +21,9 @@ type Parameters = AppState;
  * Contacts {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
 type Props = Actions & Parameters;
+
+const contactCardHeaderHeightInPixels = 100;
+const contactCardBodyHeightInPixels = 450;
 
 class ContactsComponent extends React.Component<Props> {
 	public constructor(props: Props) {
@@ -45,27 +44,48 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		const getContactsFunction = 'GetAllContacts';
-		const response = await fetchFromBackendFunction(getContactsFunction);
-		const contacts: Contact[] = response.contacts;
+		interface FetchContactsQueryResult {
+			contacts: Contact[];
+		}
 
-		if (contacts.length > 0) {
-			this.props.loadContacts(contacts);
+		const getContactsFunction = 'GetAllContacts';
+		const response = await executeBackendFunction<FetchContactsQueryResult>(
+			getContactsFunction,
+		);
+
+		if (response) {
+			const contacts: Contact[] = response.contacts;
+
+			if (contacts.length > 0) {
+				this.props.loadContacts(contacts);
+			}
+		} else {
+			// TODO: display error to user
 		}
 	}
 
 	public render(): ReactNode {
-		if (this.props.contacts) {
-			return <div className="Contacts">{this.renderContacts()}</div>;
-		}
-		return this.renderLoadingScreen();
+		const content = this.props.contacts ? this.renderContacts() : this.renderLoadingScreen();
+		return (
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					height: '100%',
+					width: '100%',
+					backgroundColor: background2,
+				}}
+			>
+				{content}
+			</div>
+		);
 	}
 
 	private renderLoadingScreen(): ReactNode {
 		return (
 			<>
 				<div>Loading contacts...</div>
-				<Spinner animation="border" variant="light"></Spinner>
+				<CircularProgress color="primary" />
 			</>
 		);
 	}
@@ -88,13 +108,23 @@ class ContactsComponent extends React.Component<Props> {
 					this.props.deselectContact();
 				}}
 			>
-				<CardColumns
+				<Grid
+					container
+					spacing={2}
+					direction="row"
+					justify="space-evenly"
 					style={{
 						padding: 10,
 					}}
 				>
-					{this.props.contacts.map((contact) => this.renderContact(contact))}
-				</CardColumns>
+					{this.props.contacts.map((contact) => {
+						return (
+							<Grid item key={contact.name}>
+								{this.renderContact(contact)}
+							</Grid>
+						);
+					})}
+				</Grid>
 			</Scrollbars>
 		);
 	}
@@ -104,10 +134,7 @@ class ContactsComponent extends React.Component<Props> {
 		const cardHeader = this.renderContactCardHeader(contact);
 		return (
 			<Card
-				bg="dark"
-				border={isSelected ? 'primary' : undefined}
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				onClick={(event: any) => {
+				onClick={(event) => {
 					if (!isSelected) {
 						this.props.selectContact(contact._id);
 					}
@@ -115,16 +142,22 @@ class ContactsComponent extends React.Component<Props> {
 					// does not immediately deselect the contact.
 					event.stopPropagation();
 				}}
+				raised={isSelected}
 				style={{
+					minWidth: 360,
 					maxWidth: 500,
 					overflow: 'hidden',
+					backgroundColor: background3,
 				}}
 			>
 				{cardHeader}
 				<Collapse in={isSelected}>
-					<div>
-						<ContactDetails contact={contact} />
-					</div>
+					<CardContent>
+						<ContactDetails
+							contact={contact}
+							heightInPixels={contactCardBodyHeightInPixels}
+						/>
+					</CardContent>
 				</Collapse>
 			</Card>
 		);
@@ -141,50 +174,50 @@ class ContactsComponent extends React.Component<Props> {
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
+		const burgerButton = (
+			<HamburgerSqueeze
+				barColor="white"
+				buttonWidth={30}
+				isActive={isSelected}
+				toggleButton={
+					isSelected
+						? () => this.props.deselectContact()
+						: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+						  (event: any) => {
+								// Ensures that deselect event capture on container
+								// does not immediately deselect the contact.
+								event.stopPropagation();
+								this.props.selectContact(contact._id);
+						  }
+				}
+			/>
+		);
+
 		return (
-			<Card.Header
+			<CardHeader
+				avatar={
+					<Collapse in={!isSelected} timeout={150}>
+						{contactImage}
+					</Collapse>
+				}
+				title={name}
+				action={burgerButton}
 				style={{
-					height: 100,
+					height: `${contactCardHeaderHeightInPixels}px`,
 				}}
-			>
-				<Media
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Fade in={!isSelected}>{contactImage}</Fade>
-					<Media.Body>{name}</Media.Body>
-					<HamburgerSqueeze
-						barColor="white"
-						buttonWidth={30}
-						isActive={isSelected}
-						toggleButton={
-							isSelected
-								? () => this.props.deselectContact()
-								: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-								  (event: any) => {
-										// Ensures that deselect event capture on container
-										// does not immediately deselect the contact.
-										event.stopPropagation();
-										this.props.selectContact(contact._id);
-								  }
-						}
-					/>
-				</Media>
-			</Card.Header>
+			></CardHeader>
 		);
 	}
 
 	private renderName(contact: Contact): React.ReactNode {
 		return (
-			<div
+			<h5
 				style={{
 					minWidth: 100,
 				}}
 			>
 				{contact.name}
-			</div>
+			</h5>
 		);
 	}
 }

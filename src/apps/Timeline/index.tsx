@@ -1,6 +1,7 @@
 import React from 'react';
 import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
+import { background1 } from '../../Theming';
 
 /**
  * Represents the data required to render a timeline element icon.
@@ -40,7 +41,15 @@ const republicIcon: Icon = {
  */
 const Timeline: React.FC = () => {
 	return (
-		<div className="Timeline-app">
+		<div
+			style={{
+				position: `relative`,
+				width: `100%`,
+				height: `100%`,
+				overflow: `hidden`,
+				backgroundColor: background1,
+			}}
+		>
 			<VerticalTimeline>
 				{timelineElement(
 					'Centran Alliance Test',

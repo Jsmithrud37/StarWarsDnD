@@ -12,7 +12,7 @@ const databaseName = 'datapad';
  * Gets all contacts from the database.
  * Netlify function.
  */
-async function getContactsHandler(): Promise<APIGatewayProxyResult> {
+async function handler(): Promise<APIGatewayProxyResult> {
 	try {
 		const contacts = await withDbConnection(databaseName, async (db: Connection) => {
 			const model = db.model('Contact', contactSchema, collectionName);
@@ -35,4 +35,4 @@ async function getContactsHandler(): Promise<APIGatewayProxyResult> {
 	}
 }
 
-exports.handler = getContactsHandler;
+exports.handler = handler;

@@ -15,9 +15,9 @@ module.exports = {
 		jsdoc: {
 			mode: 'typescript',
 			tagNamePreference: {
-				param: 'arg',
-				returns: 'return',
-				extends: 'augments',
+				arg: 'param',
+				return: 'returns',
+				augments: 'extends',
 			},
 		},
 		react: {
@@ -28,6 +28,7 @@ module.exports = {
 		'@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
 		'@typescript-eslint/no-use-before-define': 'off', // We're above es6, so there is no need for single-pass constraints
 		'@typescript-eslint/no-explicit-any': 'error',
+		'@typescript-eslint/no-unused-vars': 'error',
 		'jsdoc/check-alignment': 'error',
 		'jsdoc/check-examples': 'error',
 		'jsdoc/check-indentation': 'error',

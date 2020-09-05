@@ -1,18 +1,20 @@
 import { withAuth0, WithAuth0Props } from '@auth0/auth0-react';
 import { Button, Modal } from '@material-ui/core';
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import Datapad, { reducers } from './apps/Datapad';
+import { MuiThemeProvider } from '@material-ui/core';
+import { appTheme } from './Theming';
+import LoadingScreen from './shared-components/LoadingScreen';
 
 const dataStore = createStore(reducers);
 
 const galaxyMapEnabled = true;
-const shopsEnabled = false;
+const shopsEnabled = true;
 const contactsEnabled = true;
 const messengerEnabled = true;
-const timelineEnabled = false;
+const timelineEnabled = process.env.NODE_ENV !== 'production';
 
 class AppComponent extends React.Component<WithAuth0Props> {
 	public constructor(props: WithAuth0Props) {
@@ -32,15 +34,17 @@ class AppComponent extends React.Component<WithAuth0Props> {
 
 			return (
 				<Provider store={dataStore}>
-					<Datapad
-						userName={userName}
-						logoutFunction={() => this.props.auth0.logout()}
-						galaxyMapEnabled={galaxyMapEnabled}
-						shopsEnabled={shopsEnabled}
-						contactsEnabled={contactsEnabled}
-						messengerEnabled={messengerEnabled}
-						timelineEnabled={timelineEnabled}
-					/>
+					<MuiThemeProvider theme={appTheme}>
+						<Datapad
+							userName={userName}
+							logoutFunction={() => this.props.auth0.logout()}
+							galaxyMapEnabled={galaxyMapEnabled}
+							shopsEnabled={shopsEnabled}
+							contactsEnabled={contactsEnabled}
+							messengerEnabled={messengerEnabled}
+							timelineEnabled={timelineEnabled}
+						/>
+					</MuiThemeProvider>
 				</Provider>
 			);
 		}
@@ -65,7 +69,7 @@ class AppComponent extends React.Component<WithAuth0Props> {
 					}}
 				>
 					<div>
-						<p>Loading...</p> <Spinner animation="border"></Spinner>
+						<LoadingScreen text="Loading..." />
 					</div>
 				</div>
 			</Modal>
@@ -112,7 +116,7 @@ class AppComponent extends React.Component<WithAuth0Props> {
 
 /**
  * Renders a dialogue prompting the user to login.
- * @arg loginFunction - Function to be invoked to attempt a new login.
+ * @param loginFunction - Function to be invoked to attempt a new login.
  */
 function renderLoginPrompt(loginFunction: () => void): React.ReactNode {
 	return (
@@ -129,9 +133,9 @@ function renderLoginPrompt(loginFunction: () => void): React.ReactNode {
 /**
  * Renders an error message dialogue for failed login auth.
  * Offers the user the ability to retry, or to log out.
- * @arg error - The error that was reported from the auth service.
- * @arg loginFunction - Function to be invoked to attempt a new login.
- * @arg logoutFunction - Function to be invoked to log out.
+ * @param error - The error that was reported from the auth service.
+ * @param loginFunction - Function to be invoked to attempt a new login.
+ * @param logoutFunction - Function to be invoked to log out.
  */
 function renderLoginError(
 	error: Error,
