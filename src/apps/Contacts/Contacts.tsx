@@ -1,16 +1,28 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
-import { Actions, deselectContact, loadContacts, selectContact } from './Actions';
+import { Actions, deselectContact, loadContacts, selectContact, unloadContacts } from './Actions';
 import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
 import { ContactDetails } from './ContactDetails';
-import { Card, Collapse, CardHeader, CardContent, Grid, CircularProgress } from '@material-ui/core';
+import {
+	Card,
+	Collapse,
+	CardHeader,
+	CardContent,
+	Grid,
+	IconButton,
+	TextField,
+	AppBar,
+} from '@material-ui/core';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import LoadingScreen from '../../shared-components/LoadingScreen';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
 
 /**
  * State parameters used by the Datapad app component.
@@ -22,25 +34,52 @@ type Parameters = AppState;
  */
 type Props = Actions & Parameters;
 
+/**
+ * State used by the Contacts component. Not stored using Redux.
+ */
+interface State {
+	/**
+	 * Filter for contact names
+	 */
+	nameFilter: string;
+}
+
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
 
-class ContactsComponent extends React.Component<Props> {
+const filterBarItemStyle: CSSProperties = {
+	height: '100%',
+	minWidth: '150px',
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-around',
+	paddingLeft: '15px',
+	paddingRight: '15px',
+};
+
+class ContactsComponent extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
+		this.state = {
+			nameFilter: '',
+		};
 	}
 
 	private isSelected(contact: Contact): boolean {
 		return contact._id === this.props.contactSelection;
 	}
 
-	/**
-	 * {@inheritdoc React.Component.componentDidMount}
-	 */
-	public componentDidMount(): void {
-		if (!this.props.contacts) {
-			this.fetchContacts();
+	private getFilteredContacts(): Contact[] {
+		if (this.props.contacts === undefined) {
+			throw new Error('Contacts not loaded yet.');
 		}
+
+		// TODO: apply other filters as needed
+		const filteredContacts = this.props.contacts.filter((contact) =>
+			contact.name.toLocaleLowerCase().includes(this.state.nameFilter.toLocaleLowerCase()),
+		);
+
+		return filteredContacts;
 	}
 
 	private async fetchContacts(): Promise<void> {
@@ -55,39 +94,115 @@ class ContactsComponent extends React.Component<Props> {
 
 		if (response) {
 			const contacts: Contact[] = response.contacts;
-
-			if (contacts.length > 0) {
-				this.props.loadContacts(contacts);
-			}
+			this.props.loadContacts(contacts);
 		} else {
-			// TODO: display error to user
+			throw new Error('Failed to load contacts from the server.');
 		}
 	}
 
+	private refreshContacts(): void {
+		// Unload all contacts, will result in this component attempting to reload them from
+		// the server.
+		this.props.unloadContacts();
+	}
+
+	private updateNameFilter(newValue: string): void {
+		this.setState({
+			...this.state,
+			nameFilter: newValue,
+		});
+	}
+
 	public render(): ReactNode {
+		if (this.props.contacts === undefined) {
+			this.fetchContacts();
+		}
+
+		const toolbar = this.renderToolbar();
 		const content = this.props.contacts ? this.renderContacts() : this.renderLoadingScreen();
 		return (
 			<div
 				style={{
 					display: 'flex',
-					flexDirection: 'row',
+					flexDirection: 'column',
 					height: '100%',
 					width: '100%',
 					backgroundColor: background2,
 				}}
 			>
-				{content}
+				{toolbar}
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						height: '100%',
+						width: '100%',
+						flex: '1',
+					}}
+				>
+					{content}
+				</div>
 			</div>
 		);
 	}
 
-	private renderLoadingScreen(): ReactNode {
+	private renderToolbar(): React.ReactNode {
 		return (
-			<>
-				<div>Loading contacts...</div>
-				<CircularProgress color="primary" />
-			</>
+			<AppBar
+				id="contacts-toolbar"
+				position="static"
+				style={{
+					// height: '25px',
+					backgroundColor: background3,
+					padding: '3px',
+				}}
+			>
+				<div
+					id="contacts-toolbar-div"
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+					}}
+				>
+					<div
+						id="contacts-toolbar-filters"
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'space-around',
+						}}
+					>
+						<div style={filterBarItemStyle}>
+							<TextField
+								type="search"
+								defaultValue={this.state.nameFilter}
+								label={`Filter Name`}
+								id={`name_filter`}
+								variant="outlined"
+								multiline={false}
+								size="small"
+								onChange={(
+									event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+								) => this.updateNameFilter(event.target.value.toLocaleLowerCase())}
+							/>
+						</div>
+					</div>
+					<IconButton
+						id="refresh-contacts"
+						onClick={() => this.refreshContacts()}
+						disabled={this.props.contacts === undefined}
+					>
+						<RefreshIcon />
+					</IconButton>
+				</div>
+			</AppBar>
 		);
+	}
+
+	private renderLoadingScreen(): ReactNode {
+		return <LoadingScreen text="Loading contacts..." />;
 	}
 
 	/**
@@ -95,9 +210,8 @@ class ContactsComponent extends React.Component<Props> {
 	 * Displays information about the selected contact.
 	 */
 	public renderContacts(): ReactNode {
-		if (!this.props.contacts) {
-			throw new Error('Cannot render contacts; none have been loaded.');
-		}
+		const filteredContacts = this.getFilteredContacts();
+
 		return (
 			<Scrollbars
 				className="Contacts-view"
@@ -117,7 +231,7 @@ class ContactsComponent extends React.Component<Props> {
 						padding: 10,
 					}}
 				>
-					{this.props.contacts.map((contact) => {
+					{filteredContacts.map((contact) => {
 						return (
 							<Grid item key={contact.name}>
 								{this.renderContact(contact)}
@@ -237,6 +351,7 @@ const Contacts = connect(mapStateToProps, {
 	selectContact,
 	deselectContact,
 	loadContacts,
+	unloadContacts,
 })(ContactsComponent);
 
 export default Contacts;
