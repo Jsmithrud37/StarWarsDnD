@@ -68,16 +68,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	public render(): React.ReactNode {
 		const contact = this.props.contact;
 
-		const hasAffiliations: boolean =
-			contact.affiliations !== undefined && contact.affiliations.length > 0;
 		const hasBio: boolean = contact.bio !== undefined;
 
 		const basicsTab = this.renderBasicsTab(contact);
-		const affiliationsTab = hasAffiliations ? (
-			this.renderAffiliationsTab(contact.affiliations as string[])
-		) : (
-			<></>
-		);
+		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations as string[]);
 		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
@@ -95,15 +89,19 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			>
 				{basicsTab}
 			</TabPanel>,
-			hasAffiliations ? (
-				<TabPanel value={stringFromTabType(DetailsTab.Affiliations)} style={tabPanelStyle}>
-					{affiliationsTab}
-				</TabPanel>
-			) : (
-				<div style={tabPanelStyle} />
-			),
+			<TabPanel
+				key={DetailsTab.Affiliations}
+				value={stringFromTabType(DetailsTab.Affiliations)}
+				style={tabPanelStyle}
+			>
+				{affiliationsTab}
+			</TabPanel>,
 			hasBio ? (
-				<TabPanel value={stringFromTabType(DetailsTab.Bio)} style={tabPanelStyle}>
+				<TabPanel
+					key={DetailsTab.Bio}
+					value={stringFromTabType(DetailsTab.Bio)}
+					style={tabPanelStyle}
+				>
 					{bioTab}
 				</TabPanel>
 			) : (
@@ -136,14 +134,13 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 								value={DetailsTab.GeneralInfo}
 							/>
 							<Tab
-								label={
-									<PeopleIcon color={hasAffiliations ? 'inherit' : 'disabled'} />
-								}
+								label={<PeopleIcon color={'inherit'} />}
+								color="inherit"
 								value={DetailsTab.Affiliations}
-								disabled={!hasAffiliations}
 							/>
 							<Tab
 								label={<DescriptionIcon color={hasBio ? 'inherit' : 'disabled'} />}
+								color="inherit"
 								value={DetailsTab.Bio}
 								disabled={!hasBio}
 							/>
@@ -193,6 +190,14 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			padding: '10px',
 		};
 
+		if (affiliations.length === 0) {
+			return (
+				<div style={divStyle}>
+					<p>No known affiliations</p>
+				</div>
+			);
+		}
+
 		const affiliationEntries = affiliations.map((affiliation) => {
 			const affilliationImage = this.renderFactionImage(affiliation, 30);
 			return (
@@ -207,7 +212,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
 				<div style={divStyle}>
 					<div style={divStyle}>
-						<b>Known Affiliation</b>
+						<b>Known Affiliations</b>
 					</div>
 					<Table>
 						<TableBody>{affiliationEntries}</TableBody>
