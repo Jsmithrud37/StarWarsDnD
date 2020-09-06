@@ -11,6 +11,7 @@ import { ContactDetails } from './ContactDetails';
 import { Card, Collapse, CardHeader, CardContent, Grid, CircularProgress } from '@material-ui/core';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
+import LoadingScreen from '../../shared-components/LoadingScreen';
 
 /**
  * State parameters used by the Datapad app component.
