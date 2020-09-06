@@ -82,12 +82,7 @@ class ContactsComponent extends React.Component<Props> {
 	}
 
 	private renderLoadingScreen(): ReactNode {
-		return (
-			<>
-				<div>Loading contacts...</div>
-				<CircularProgress color="primary" />
-			</>
-		);
+		return <LoadingScreen text="Loading contacts..." />;
 	}
 
 	/**
