@@ -277,7 +277,11 @@ export class InventoryTable extends React.Component<Props, State> {
 						}}
 					>
 						{!this.state.filterEnabled ? (
-							<IconButton color="primary" onClick={() => this.enableFilters()}>
+							<IconButton
+								color="primary"
+								size="small"
+								onClick={() => this.enableFilters()}
+							>
 								<FilterListIcon color="primary" />
 							</IconButton>
 						) : (
@@ -285,7 +289,11 @@ export class InventoryTable extends React.Component<Props, State> {
 						)}
 
 						{canEdit ? (
-							<IconButton color="secondary" onClick={() => this.props.onInsertItem()}>
+							<IconButton
+								color="secondary"
+								size="small"
+								onClick={() => this.props.onInsertItem()}
+							>
 								<AddIcon color="secondary" />
 							</IconButton>
 						) : (
@@ -370,7 +378,11 @@ export class InventoryTable extends React.Component<Props, State> {
 							height: '100%',
 						}}
 					>
-						<IconButton color="primary" onClick={() => this.disableFilters()}>
+						<IconButton
+							color="primary"
+							size="small"
+							onClick={() => this.disableFilters()}
+						>
 							<CloseIcon color="primary" />
 						</IconButton>
 					</div>
@@ -440,6 +452,7 @@ export class InventoryTable extends React.Component<Props, State> {
 				</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
+						size="small"
 						onClick={() => this.props.onPurchaseItem(item)}
 						disabled={item.stock === 0}
 					>
@@ -447,10 +460,11 @@ export class InventoryTable extends React.Component<Props, State> {
 					</IconButton>
 					{canEdit ? (
 						<>
-							<IconButton onClick={() => this.props.onEditItem(item)}>
+							<IconButton size="small" onClick={() => this.props.onEditItem(item)}>
 								<CreateIcon color="secondary" />
 							</IconButton>
 							<IconButton
+								size="small"
 								onClick={() => {
 									this.props.onDeleteItem(item);
 								}}
