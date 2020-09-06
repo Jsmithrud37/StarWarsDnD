@@ -15,13 +15,13 @@ export type LOAD_CONTACTS = typeof LOAD_CONTACTS;
  */
 export interface LoadContacts {
 	type: LOAD_CONTACTS;
-	contacts: Contact[];
+	contacts?: Contact[];
 }
 
 /**
  * LoadContacts {@link https://redux.js.org/basics/actions#action-creators | Action Creator}
  */
-export function loadContacts(contacts: Contact[]): LoadContacts {
+export function loadContacts(contacts?: Contact[]): LoadContacts {
 	return {
 		type: LOAD_CONTACTS,
 		contacts,
@@ -31,4 +31,4 @@ export function loadContacts(contacts: Contact[]): LoadContacts {
 /**
  * Loads all contacts for the app.
  */
-export type LoadContactsFunction = (contacts: Contact[]) => void;
+export type LoadContactsFunction = (contacts?: Contact[]) => void;

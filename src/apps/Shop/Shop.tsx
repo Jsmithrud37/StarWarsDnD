@@ -17,6 +17,7 @@ import LoadingScreen from '../../shared-components/LoadingScreen';
 import { background3, background4, background2 } from '../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 /**
  * State parameters used by the Datapad app component.
