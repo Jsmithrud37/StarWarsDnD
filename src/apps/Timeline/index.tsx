@@ -1,7 +1,18 @@
 import React from 'react';
-import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
-import 'react-vertical-timeline-component/style.min.css';
-import { background1 } from '../../Theming';
+import { background2, background4, background5 } from '../../Theming';
+import { Scrollbars } from 'react-custom-scrollbars';
+import {
+	Timeline,
+	TimelineItem,
+	TimelineSeparator,
+	TimelineDot,
+	TimelineConnector,
+	TimelineContent,
+	TimelineOppositeContent,
+} from '@material-ui/lab';
+import { renderFactionEmblem, ImageContainerShape } from '../../utilities/ImageUtilities';
+import Paper from '@material-ui/core/Paper/Paper';
+import Typography from '@material-ui/core/Typography/Typography';
 
 /**
  * Represents the data required to render a timeline element icon.
@@ -12,120 +23,108 @@ interface Icon {
 	backgroundColor: string;
 }
 
-const centranAllianceIcon: Icon = {
-	imagePath: 'images/Centran-Alliance.png',
-	altText: 'Centran Alliance',
-	backgroundColor: 'grey',
-};
+interface TimelineEvent {
+	title: string;
+	date: string;
+	description?: string;
+	involvedFactions?: string[];
+}
 
-const staveSquadIcon: Icon = {
-	imagePath: 'images/Stave-Squad.png',
-	altText: 'Stave Squad',
-	backgroundColor: 'grey',
-};
-
-const empireIcon: Icon = {
-	imagePath: 'images/True-Sith-Empire.png',
-	altText: 'True Sith Empire',
-	backgroundColor: 'red',
-};
-
-const republicIcon: Icon = {
-	imagePath: 'images/Galactic-Republic.png',
-	altText: 'Galactic Republic',
-	backgroundColor: 'blue',
-};
+const testElements: TimelineEvent[] = [
+	{
+		title: 'Test',
+		date: '1234-123',
+		description: 'Test description',
+		involvedFactions: ['Centran Alliance'],
+	},
+	{
+		title: 'Test2',
+		date: '1234-123',
+		description:
+			'Another test which itself has a description describing the content being described therin',
+		involvedFactions: ['True Sith Empire'],
+	},
+];
 
 /**
  * Timeline app.
  */
-const Timeline: React.FC = () => {
+const TimelineApp: React.FC = () => {
+	const elements = testElements.map((event) => renderTimelineElement(event));
+
 	return (
-		<div
+		<Scrollbars
 			style={{
-				position: `relative`,
-				width: `100%`,
-				height: `100%`,
-				overflow: `hidden`,
-				backgroundColor: background1,
+				height: '100%',
+				backgroundColor: background2,
 			}}
+			autoHide={true}
+			autoHeight={false}
 		>
-			<VerticalTimeline>
-				{timelineElement(
-					'Centran Alliance Test',
-					'Centran Base, Hutt Space',
-					'Mock timeline event involving the Centran Alliance.',
-					'Mock date 1',
-					centranAllianceIcon,
-				)}
-				,
-				{timelineElement(
-					'Stave Squad Test',
-					'Centran Base, Hutt Space',
-					'Mock timeline event involving Stave Squad of the Centran Alliance.',
-					'Mock date',
-					staveSquadIcon,
-				)}
-				,
-				{timelineElement(
-					'Republic Test',
-					'Coruscant, Core',
-					'Mock timeline event involving the Galactic Republic.',
-					'Mock date',
-					republicIcon,
-				)}
-				,
-				{timelineElement(
-					'Empire Test',
-					'Dromund Kaas, Outer Rim',
-					'Mock timeline event involving the True Sith Empire.',
-					'Mock date',
-					empireIcon,
-				)}
-			</VerticalTimeline>
-		</div>
+			<Timeline align="alternate">{elements}</Timeline>
+		</Scrollbars>
 	);
 };
 
 /**
  * Renders a timeline element with the specified content and icon.
  */
-function timelineElement(
-	heading: string,
-	subHeading: string,
-	content: string,
-	date: string,
-	icon: Icon,
-): React.ReactNode {
-	const iconSizeInPixels = 60;
+function renderTimelineElement(event: TimelineEvent): React.ReactNode {
+	const iconSizeInPixels = 40;
+
+	const hasInvolvedFactions = (event.involvedFactions?.length ?? 0) !== 0;
+	const factionImage = hasInvolvedFactions
+		? renderFactionEmblem((event.involvedFactions as string[])[0], {
+				displayHeightInPixels: iconSizeInPixels,
+				containerShape: ImageContainerShape.RoundedRectangle,
+		  })
+		: React.Fragment;
+
 	return (
-		<VerticalTimelineElement
-			className="vertical-timeline-element--work"
-			contentStyle={{ background: 'light-grey', color: 'black' }}
-			date={date}
-			iconStyle={{
-				background: icon.backgroundColor,
-				height: `${iconSizeInPixels}px`,
-				width: `${iconSizeInPixels}px`,
-			}}
-			icon={timelineElementIcon(icon, iconSizeInPixels)}
-		>
-			<h3 className="vertical-timeline-element-title">{heading}</h3>
-			<h4 className="vertical-timeline-element-subtitle">{subHeading}</h4>
-			<p>{content}</p>
-		</VerticalTimelineElement>
+		<TimelineItem key={`timeline-event-${event.title}`}>
+			<TimelineOppositeContent>
+				<Typography variant="body2" color="textSecondary">
+					{event.date}
+				</Typography>
+			</TimelineOppositeContent>
+			<TimelineSeparator>
+				<TimelineDot
+					color="inherit"
+					style={{
+						backgroundColor: background5,
+					}}
+				>
+					<div
+						style={{
+							height: `${iconSizeInPixels}px`,
+							width: `${iconSizeInPixels}px`,
+						}}
+					>
+						{factionImage}
+					</div>
+				</TimelineDot>
+				<TimelineConnector />
+			</TimelineSeparator>
+			<TimelineContent>
+				<Paper
+					elevation={3}
+					style={{
+						backgroundColor: background4,
+						padding: '10px',
+					}}
+				>
+					<Typography variant="h6" component="h1" align="center">
+						{event.title}
+					</Typography>
+					{event.description ? (
+						<Typography align="center">{event.description}</Typography>
+					) : (
+						React.Fragment
+					)}
+				</Paper>
+			</TimelineContent>
+		</TimelineItem>
 	);
 }
 
-/**
- * Returns an image node with the Centran Alliance emblem image.
- */
-function timelineElementIcon(icon: Icon, sizeInPixels: number): React.ReactNode {
-	return (
-		<div style={{ height: `${sizeInPixels}px`, width: `${sizeInPixels}px` }}>
-			<img src={icon.imagePath} alt={icon.altText} height="100%" style={{ padding: '7px' }} />
-		</div>
-	);
-}
-
-export default Timeline;
+export default TimelineApp;
