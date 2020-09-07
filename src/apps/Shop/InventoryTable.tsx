@@ -21,7 +21,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
-import { background2 } from '../../Theming';
+import { background2, background4 } from '../../Theming';
 
 /**
  * Component props
@@ -434,8 +434,14 @@ export class InventoryTable extends React.Component<Props, State> {
 	 * Renders a data row
 	 */
 	private renderRow(item: InventoryItem): React.ReactNode {
+		const inStock = item.stock !== 0;
 		return (
-			<TableRow hover>
+			<TableRow
+				hover
+				style={{
+					background: inStock ? undefined : background4,
+				}}
+			>
 				<TableCell align={'left'}>
 					<a href={getResourceUrl(item)} target="_blank" rel="noopener noreferrer">
 						{item.name}
@@ -454,7 +460,7 @@ export class InventoryTable extends React.Component<Props, State> {
 					<IconButton
 						size="small"
 						onClick={() => this.props.onPurchaseItem(item)}
-						disabled={item.stock === 0}
+						disabled={!inStock}
 					>
 						<ShoppingCartIcon color={item.stock === 0 ? 'disabled' : 'primary'} />
 					</IconButton>
