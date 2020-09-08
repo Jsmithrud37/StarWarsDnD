@@ -5,7 +5,7 @@ import Contacts, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import Shop, { reducers as shopReducers } from '../Shop';
-import Timeline from '../Timeline';
+import Timeline, { reducers as timelineReducers } from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
@@ -96,6 +96,11 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 */
 	private readonly contactsStore: never;
 
+	/**
+	 * Redux data store for the Timeline app.
+	 */
+	private readonly timelineStore: never;
+
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
@@ -103,6 +108,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 		};
 		this.shopStore = createStore(shopReducers);
 		this.contactsStore = createStore(contactsReducers);
+		this.timelineStore = createStore(timelineReducers);
 	}
 
 	private updateViewPortWidth(): void {
@@ -130,7 +136,6 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			<Paper
 				color="paper"
 				style={{
-					// backgroundColor: '#3b414d',
 					display: 'flex',
 					flexDirection: 'column',
 					position: 'absolute',
@@ -228,7 +233,11 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Messenger:
 				return <Messenger />;
 			case AppId.Timeline:
-				return <Timeline />;
+				return (
+					<Provider store={this.timelineStore}>
+						<Timeline />
+					</Provider>
+				);
 			default:
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}

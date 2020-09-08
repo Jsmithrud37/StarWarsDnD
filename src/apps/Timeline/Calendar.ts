@@ -60,4 +60,20 @@ export class Date {
 		this.year = year;
 		this.day = day;
 	}
+
+	// TODO: Fancier representation
+	// TODO: handle holiday weeks
+	public toString(): string {
+		return `${this.year}/${this.day}`;
+	}
+
+	public compareWith(other: Date): number {
+		// Since years are expressed in BBY, invert comparison
+		const yearCompare = other.year - this.year;
+		if (yearCompare !== 0) {
+			return yearCompare;
+		}
+
+		return this.day - other.day;
+	}
 }
