@@ -8,7 +8,6 @@ import {
 	TimelineDot,
 	TimelineConnector,
 	TimelineContent,
-	TimelineOppositeContent,
 } from '@material-ui/lab';
 import { renderFactionEmblem, ImageContainerShape } from '../../utilities/ImageUtilities';
 import Typography from '@material-ui/core/Typography/Typography';
