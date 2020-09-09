@@ -146,55 +146,63 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					containerShape: ImageContainerShape.RoundedRectangle,
 			  })
 			: React.Fragment;
-		
+
 		const isSelected = timelineEvent._id === this.state.selectedEvent;
 		const date = getDate(timelineEvent);
 
-		return <div style={{
-			display: 'flex',
-			flexDirection: 'column',
-		}}>
-			<div style={{
-				width: '100%',
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'center',
-			}}>
-			<TimelineDot
-				color={isSelected ? 'inherit' : 'primary'}
+		return (
+			<div
 				style={{
-					backgroundColor: background5,
+					display: 'flex',
+					flexDirection: 'column',
 				}}
 			>
 				<div
 					style={{
-						height: `${iconSizeInPixels}px`,
-						width: `${iconSizeInPixels}px`,
-					}}
-					onClick={(event) => {
-						if (!isSelected) {
-							this.selectEvent(timelineEvent);
-						}
-						// Ensures that deselect event capture on container
-						// does not immediately deselect the contact.
-						event.stopPropagation();
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center',
 					}}
 				>
-					{factionImage}
+					<TimelineDot
+						color={isSelected ? 'inherit' : 'primary'}
+						style={{
+							backgroundColor: background5,
+						}}
+					>
+						<div
+							style={{
+								height: `${iconSizeInPixels}px`,
+								width: `${iconSizeInPixels}px`,
+							}}
+							onClick={(event) => {
+								if (!isSelected) {
+									this.selectEvent(timelineEvent);
+								}
+								// Ensures that deselect event capture on container
+								// does not immediately deselect the contact.
+								event.stopPropagation();
+							}}
+						>
+							{factionImage}
+						</div>
+					</TimelineDot>
 				</div>
-			</TimelineDot>
+				<div
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center',
+					}}
+				>
+					<Typography variant="body2" color="textSecondary">
+						{date.toString()}
+					</Typography>
+				</div>
 			</div>
-			<div style={{
-				width: '100%',
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'center',
-			}}>
-				<Typography variant="body2" color="textSecondary">
-					{date.toString()}
-				</Typography>
-			</div>
-		</div>
+		);
 	}
 
 	private renderEventCard(timelineEvent: TimelineEvent): React.ReactNode {
@@ -226,17 +234,20 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 						padding: '5px',
 					}}
 				>
-					<div style={{ height: '100%' }}/>
+					<div style={{ height: '100%' }} />
 
-					<div style={{
-						height: '100%',
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'space-around'
-					}}>
+					<div
+						style={{
+							height: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'space-around',
+						}}
+					>
 						<Typography variant="subtitle1" align="center">
 							{timelineEvent.title}
-						</Typography></div>
+						</Typography>
+					</div>
 					<div
 						style={{
 							height: '100%',
@@ -265,17 +276,23 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					</div>
 				</div>
 				<Collapse in={isSelected}>
-					<CardContent style={{
-						backgroundColor: background3,
-					}}>
+					<CardContent
+						style={{
+							backgroundColor: background3,
+						}}
+					>
 						<Typography align="left" paragraph variant="subtitle2">
 							{timelineEvent.description}
 						</Typography>
-						<Typography align="left" variant="subtitle2">Location:</Typography>
+						<Typography align="left" variant="subtitle2">
+							Location:
+						</Typography>
 						<Typography align="left" variant="subtitle2" paragraph>
 							{timelineEvent.location}
 						</Typography>
-						<Typography align="left" variant="subtitle2">Date:</Typography>
+						<Typography align="left" variant="subtitle2">
+							Date:
+						</Typography>
 						<Typography align="left" variant="subtitle2" paragraph>
 							{date.toString()}
 						</Typography>
