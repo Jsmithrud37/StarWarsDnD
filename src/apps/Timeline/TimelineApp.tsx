@@ -210,6 +210,12 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					overflow: 'hidden',
 					backgroundColor: background4,
 				}}
+				onClick={(event) => {
+					// Clicks on the card should not collapse the card.
+					// Ensures that deselect event capture on container
+					// does not immediately deselect the contact.
+					event.stopPropagation();
+				}}
 			>
 				<div
 					style={{
