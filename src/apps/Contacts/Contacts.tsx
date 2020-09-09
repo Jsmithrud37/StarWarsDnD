@@ -22,7 +22,6 @@ import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import LoadingScreen from '../../shared-components/LoadingScreen';
-import { CSSProperties } from '@material-ui/core/styles/withStyles';
 
 /**
  * State parameters used by the Datapad app component.
@@ -47,7 +46,7 @@ interface State {
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
 
-const filterBarItemStyle: CSSProperties = {
+const filterBarItemStyle: React.CSSProperties = {
 	height: '100%',
 	minWidth: '150px',
 	display: 'flex',
