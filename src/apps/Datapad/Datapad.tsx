@@ -186,7 +186,9 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				<IconButton
 					onClick={() => this.props.expandMenu()}
 					style={{
-						float: 'left',
+						position: 'absolute',
+						left: '2px',
+						bottom: '2px',
 					}}
 				>
 					<MenuIcon />
@@ -195,8 +197,11 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
 					alt="Campaign logo"
 					style={{
-						height: '75px',
-						margin: '15px',
+						height: '60px',
+						marginTop: '15px',
+						marginBottom: '15px',
+						marginLeft: '5px',
+						marginRight: '5px',
 						pointerEvents: 'none',
 						objectFit: 'scale-down',
 					}}
