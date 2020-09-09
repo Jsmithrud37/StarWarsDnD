@@ -303,6 +303,9 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 	}
 }
 
+/**
+ * Creates a Date from a {@link TimelineEvent}
+ */
 function getDate(event: TimelineEvent): Date {
 	return new Date(event.year, event.day);
 }
