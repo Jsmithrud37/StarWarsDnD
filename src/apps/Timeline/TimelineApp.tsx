@@ -1,5 +1,5 @@
 import React from 'react';
-import { background2, background4, background5 } from '../../Theming';
+import { background2, background4, background5, background3 } from '../../Theming';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {
 	Timeline,
@@ -66,8 +66,8 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 			throw new Error('Events not loaded yet.');
 		}
 		return this.props.events.sort((a, b) => {
-			const dateA = new Date(a.year, a.day);
-			const dateB = new Date(b.year, b.day);
+			const dateA = getDate(a);
+			const dateB = getDate(b);
 			const compare = dateA.compareWith(dateB);
 			return this.state.sortAscending ? compare : -compare;
 		});
@@ -104,7 +104,7 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 						this.deselectEvent();
 					}}
 				>
-					<Timeline align="left">{renderedEvents}</Timeline>
+					<Timeline align="alternate">{renderedEvents}</Timeline>
 				</Scrollbars>
 			);
 		}
@@ -125,6 +125,18 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 	 * Renders a timeline element with the specified content and icon.
 	 */
 	private renderTimelineElement(timelineEvent: TimelineEvent): React.ReactNode {
+		return (
+			<TimelineItem key={`timeline-event-${timelineEvent.title}`}>
+				<TimelineSeparator>
+					{this.renderEventNode(timelineEvent)}
+					<TimelineConnector />
+				</TimelineSeparator>
+				<TimelineContent>{this.renderEventCard(timelineEvent)}</TimelineContent>
+			</TimelineItem>
+		);
+	}
+
+	private renderEventNode(timelineEvent: TimelineEvent): React.ReactNode {
 		const iconSizeInPixels = 40;
 
 		const hasInvolvedFactions = (timelineEvent.involvedFactions?.length ?? 0) !== 0;
@@ -134,55 +146,67 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					containerShape: ImageContainerShape.RoundedRectangle,
 			  })
 			: React.Fragment;
-
+		
 		const isSelected = timelineEvent._id === this.state.selectedEvent;
-		const date = new Date(timelineEvent.year, timelineEvent.day);
+		const date = getDate(timelineEvent);
 
-		return (
-			<TimelineItem key={`timeline-event-${timelineEvent.title}`}>
-				<TimelineSeparator>
-					<TimelineDot
-						color={isSelected ? 'inherit' : 'primary'}
-						style={{
-							backgroundColor: background5,
-						}}
-					>
-						<div
-							style={{
-								height: `${iconSizeInPixels}px`,
-								width: `${iconSizeInPixels}px`,
-							}}
-							onClick={(event) => {
-								if (!isSelected) {
-									this.selectEvent(timelineEvent);
-								}
-								// Ensures that deselect event capture on container
-								// does not immediately deselect the contact.
-								event.stopPropagation();
-							}}
-						>
-							{factionImage}
-						</div>
-					</TimelineDot>
-					<Typography variant="body2" color="textSecondary">
-						{date.toString()}
-					</Typography>
-					<TimelineConnector />
-				</TimelineSeparator>
-				<TimelineContent>{this.renderEventCard(timelineEvent)}</TimelineContent>
-			</TimelineItem>
-		);
+		return <div style={{
+			display: 'flex',
+			flexDirection: 'column',
+		}}>
+			<div style={{
+				width: '100%',
+				display: 'flex',
+				flexDirection: 'row',
+				justifyContent: 'center',
+			}}>
+			<TimelineDot
+				color={isSelected ? 'inherit' : 'primary'}
+				style={{
+					backgroundColor: background5,
+				}}
+			>
+				<div
+					style={{
+						height: `${iconSizeInPixels}px`,
+						width: `${iconSizeInPixels}px`,
+					}}
+					onClick={(event) => {
+						if (!isSelected) {
+							this.selectEvent(timelineEvent);
+						}
+						// Ensures that deselect event capture on container
+						// does not immediately deselect the contact.
+						event.stopPropagation();
+					}}
+				>
+					{factionImage}
+				</div>
+			</TimelineDot>
+			</div>
+			<div style={{
+				width: '100%',
+				display: 'flex',
+				flexDirection: 'row',
+				justifyContent: 'center',
+			}}>
+				<Typography variant="body2" color="textSecondary">
+					{date.toString()}
+				</Typography>
+			</div>
+		</div>
 	}
 
 	private renderEventCard(timelineEvent: TimelineEvent): React.ReactNode {
 		const isSelected = timelineEvent._id === this.state.selectedEvent;
+		const date = getDate(timelineEvent);
 
 		return (
 			<Card
 				raised={isSelected}
 				style={{
 					minWidth: 250,
-					maxWidth: 600,
+					// maxWidth: 600,
 					overflow: 'hidden',
 					backgroundColor: background4,
 				}}
@@ -196,11 +220,17 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 						padding: '5px',
 					}}
 				>
-					<div />
+					<div style={{ height: '100%' }}/>
 
-					<Typography variant="h6" align="center">
-						{timelineEvent.title}
-					</Typography>
+					<div style={{
+						height: '100%',
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'space-around'
+					}}>
+						<Typography variant="subtitle1" align="center">
+							{timelineEvent.title}
+						</Typography></div>
 					<div
 						style={{
 							height: '100%',
@@ -229,17 +259,29 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					</div>
 				</div>
 				<Collapse in={isSelected}>
-					<CardContent>
-						<Typography align="left" paragraph>
+					<CardContent style={{
+						backgroundColor: background3,
+					}}>
+						<Typography align="left" paragraph variant="subtitle2">
 							{timelineEvent.description}
 						</Typography>
-						<b>Location:</b>
-						<Typography align="left">{timelineEvent.location}</Typography>
+						<Typography align="left" variant="subtitle2">Location:</Typography>
+						<Typography align="left" variant="subtitle2" paragraph>
+							{timelineEvent.location}
+						</Typography>
+						<Typography align="left" variant="subtitle2">Date:</Typography>
+						<Typography align="left" variant="subtitle2" paragraph>
+							{date.toString()}
+						</Typography>
 					</CardContent>
 				</Collapse>
 			</Card>
 		);
 	}
+}
+
+function getDate(event: TimelineEvent): Date {
+	return new Date(event.year, event.day);
 }
 
 /**
