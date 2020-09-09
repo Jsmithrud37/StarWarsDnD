@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Tabs, Tab, AppBar, Card } from '@material-ui/core';
+import { Modal, Tabs, Tab, AppBar, Card, IconButton } from '@material-ui/core';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import {
 	DataEntry,
 	NumberEntry,
@@ -308,6 +309,10 @@ class ShopComponent extends React.Component<Props, State> {
 		this.setState({ ...this.state, editing: value, itemBeingEdited });
 	}
 
+	private reloadInventory(): void {
+		this.props.loadInventory(this.props.shopSelection, undefined);
+	}
+
 	private createEditSchemas(item: InventoryItem): Map<string, DataEntry> {
 		return new Map<string, DataEntry>([
 			// Do not include name - we do not allow editing of name to guarantee we have
@@ -497,6 +502,9 @@ class ShopComponent extends React.Component<Props, State> {
 				position="static"
 				style={{
 					backgroundColor: background4,
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
 				}}
 			>
 				<Tabs
@@ -511,6 +519,11 @@ class ShopComponent extends React.Component<Props, State> {
 						<Tab value={shop} label={shop} key={shop} />
 					))}
 				</Tabs>
+				<div style={{ paddingRight: '15px' }}>
+					<IconButton color="primary" onClick={() => this.reloadInventory()}>
+						<RefreshIcon color="primary" />
+					</IconButton>
+				</div>
 			</AppBar>
 		);
 	}

@@ -1,5 +1,11 @@
 import { Reducer } from 'redux';
-import { ContactsActionTypes, DESELECT_CONTACT, LOAD_CONTACTS, SELECT_CONTACT } from './Actions';
+import {
+	ContactsActionTypes,
+	DESELECT_CONTACT,
+	LOAD_CONTACTS,
+	SELECT_CONTACT,
+	UNLOAD_CONTACTS,
+} from './Actions';
 import { Contact } from './Contact';
 
 /**
@@ -42,6 +48,8 @@ export const reducer: Reducer<AppState, ContactsActionTypes> = (
 				...currentState,
 				contacts: action.contacts,
 			};
+		case UNLOAD_CONTACTS:
+			return initialState;
 		case SELECT_CONTACT:
 			return {
 				...currentState,

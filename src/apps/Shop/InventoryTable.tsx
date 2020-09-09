@@ -21,7 +21,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
-import { background2 } from '../../Theming';
+import { background2, background4 } from '../../Theming';
 
 /**
  * Component props
@@ -277,7 +277,11 @@ export class InventoryTable extends React.Component<Props, State> {
 						}}
 					>
 						{!this.state.filterEnabled ? (
-							<IconButton color="primary" onClick={() => this.enableFilters()}>
+							<IconButton
+								color="primary"
+								size="small"
+								onClick={() => this.enableFilters()}
+							>
 								<FilterListIcon color="primary" />
 							</IconButton>
 						) : (
@@ -285,7 +289,11 @@ export class InventoryTable extends React.Component<Props, State> {
 						)}
 
 						{canEdit ? (
-							<IconButton color="secondary" onClick={() => this.props.onInsertItem()}>
+							<IconButton
+								color="secondary"
+								size="small"
+								onClick={() => this.props.onInsertItem()}
+							>
 								<AddIcon color="secondary" />
 							</IconButton>
 						) : (
@@ -370,7 +378,11 @@ export class InventoryTable extends React.Component<Props, State> {
 							height: '100%',
 						}}
 					>
-						<IconButton color="primary" onClick={() => this.disableFilters()}>
+						<IconButton
+							color="primary"
+							size="small"
+							onClick={() => this.disableFilters()}
+						>
 							<CloseIcon color="primary" />
 						</IconButton>
 					</div>
@@ -422,8 +434,14 @@ export class InventoryTable extends React.Component<Props, State> {
 	 * Renders a data row
 	 */
 	private renderRow(item: InventoryItem): React.ReactNode {
+		const inStock = item.stock !== 0;
 		return (
-			<TableRow hover>
+			<TableRow
+				hover
+				style={{
+					background: inStock ? undefined : background4,
+				}}
+			>
 				<TableCell align={'left'}>
 					<a href={getResourceUrl(item)} target="_blank" rel="noopener noreferrer">
 						{item.name}
@@ -440,17 +458,19 @@ export class InventoryTable extends React.Component<Props, State> {
 				</TableCell>
 				<TableCell align={'center'}>
 					<IconButton
+						size="small"
 						onClick={() => this.props.onPurchaseItem(item)}
-						disabled={item.stock === 0}
+						disabled={!inStock}
 					>
 						<ShoppingCartIcon color={item.stock === 0 ? 'disabled' : 'primary'} />
 					</IconButton>
 					{canEdit ? (
 						<>
-							<IconButton onClick={() => this.props.onEditItem(item)}>
+							<IconButton size="small" onClick={() => this.props.onEditItem(item)}>
 								<CreateIcon color="secondary" />
 							</IconButton>
 							<IconButton
+								size="small"
 								onClick={() => {
 									this.props.onDeleteItem(item);
 								}}

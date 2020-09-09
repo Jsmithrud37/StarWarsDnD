@@ -79,6 +79,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 		const tabPanelStyle = {
 			height: `${bodyHeightInPixels}px`,
+			padding: '5px',
 		};
 
 		const tabPanels: React.ReactNodeArray = [

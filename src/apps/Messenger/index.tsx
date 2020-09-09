@@ -1,13 +1,8 @@
-import WidgetBot, { API as BotApi } from '@widgetbot/react-embed';
 import React from 'react';
-import './Styling/Messenger.css';
+import WidgetBot from '@widgetbot/react-embed';
 
 const serverId = '497633093394366464';
 const generalChannelId = '497633093394366466';
-
-interface State {
-	api: BotApi | undefined;
-}
 
 /**
  * Messenger app for the datapad.
@@ -22,7 +17,10 @@ class MessengerApp extends React.Component {
 		return (
 			<>
 				<WidgetBot
-					className="Messenger-app"
+					style={{
+						width: '100%',
+						height: '100%',
+					}}
 					defer={false}
 					server={serverId}
 					channel={generalChannelId}
