@@ -25,7 +25,6 @@ module.exports = {
 		},
 	},
 	rules: {
-		'@typescript-eslint/ban-types': 'off',
 		'@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
 		'@typescript-eslint/no-use-before-define': 'off', // We're above es6, so there is no need for single-pass constraints
 		'@typescript-eslint/no-explicit-any': 'error',
