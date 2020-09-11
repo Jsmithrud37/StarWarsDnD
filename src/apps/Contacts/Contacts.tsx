@@ -26,7 +26,6 @@ import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import LoadingScreen from '../../shared-components/LoadingScreen';
-import ClearIcon from '@material-ui/icons/Clear';
 
 /**
  * State parameters used by the Datapad app component.
@@ -201,16 +200,8 @@ class ContactsComponent extends React.Component<Props, State> {
 		const representedFactions = this.getRepresentedFactions();
 		// TODO: base options off of name filter?
 		const factionFilterOptions: React.ReactNodeArray = [
-			<MenuItem key={`faction-filter-option-none`} value={''}>
-				<div
-					style={{
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'row-reverse',
-					}}
-				>
-					<ClearIcon />
-				</div>
+			<MenuItem key={`faction-filter-option-none`} value={undefined}>
+				<em>None</em>
 			</MenuItem>,
 		];
 		representedFactions.forEach((faction) => {
