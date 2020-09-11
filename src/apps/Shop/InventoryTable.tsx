@@ -9,9 +9,9 @@ import {
 	TablePagination,
 	TableSortLabel,
 	Checkbox,
-	Collapse,
 	TextField,
 	FormControl,
+	FormControlLabel,
 	InputLabel,
 	Select,
 	MenuItem,
@@ -20,9 +20,6 @@ import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import CloseIcon from '@material-ui/icons/Close';
-import ClearIcon from '@material-ui/icons/Clear';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
@@ -63,11 +60,6 @@ interface State {
 	 * Whether or not the sorted column is sorted in `ascending` or `descending` order.
 	 */
 	sortInAscendingOrder: boolean;
-
-	/**
-	 * Determines whether or not the filter menu will be displayed.
-	 */
-	filterEnabled: boolean;
 
 	/**
 	 * Applied text-box-backed filters. These will be consumed in substring checks (if property
@@ -115,7 +107,6 @@ export class InventoryTable extends React.Component<Props, State> {
 			selectedPageIndex: 0,
 			sortingColumnKey: 'name',
 			sortInAscendingOrder: true,
-			filterEnabled: false,
 			textBoxFilters: new Map<string, string>(),
 			dropDownFilters: new Map<string, string>(),
 			showOnlyInStock: false,
@@ -123,9 +114,8 @@ export class InventoryTable extends React.Component<Props, State> {
 	}
 
 	private getModifiedInventory(): Inventory {
-		// TODO: this is needlessly expensive...
 		const sortedInventory = this.sortInventory(this.props.inventory);
-		return this.state.filterEnabled ? this.applyFilters(sortedInventory) : sortedInventory;
+		return this.applyFilters(sortedInventory);
 	}
 
 	private onChangePage(newPageSelection: number): void {
@@ -153,23 +143,6 @@ export class InventoryTable extends React.Component<Props, State> {
 			...this.state,
 			rowsPerPage: newRowsPerPage,
 			selectedPageIndex: newPageIndex,
-		});
-	}
-
-	private enableFilters(): void {
-		this.setState({
-			...this.state,
-			filterEnabled: true,
-			selectedPageIndex: 0, // Reset page to 0 for filter change
-		});
-	}
-
-	private disableFilters(): void {
-		this.setState({
-			...this.state,
-			filterEnabled: false,
-			showOnlyInStock: false,
-			selectedPageIndex: 0, // Reset page to 0 for filter change
 		});
 	}
 
@@ -208,14 +181,7 @@ export class InventoryTable extends React.Component<Props, State> {
 			<Scrollbars autoHide={true} autoHeight={false}>
 				<div style={{ height: '100%', width: '100%', padding: '5px' }}>
 					<TableContainer style={{ width: '100%' }}>
-						<Collapse
-							in={this.state.filterEnabled}
-							style={{
-								width: '100%',
-							}}
-						>
-							{this.renderFilterOptions()}
-						</Collapse>
+						{this.renderFilterOptions()}
 						<Table stickyHeader={true} size="small">
 							{this.renderHeader()}
 							{this.renderInventoryData(modifiedInventory)}
@@ -300,18 +266,6 @@ export class InventoryTable extends React.Component<Props, State> {
 							background: background2,
 						}}
 					>
-						{!this.state.filterEnabled ? (
-							<IconButton
-								color="primary"
-								size="small"
-								onClick={() => this.enableFilters()}
-							>
-								<FilterListIcon color="primary" />
-							</IconButton>
-						) : (
-							React.Fragment
-						)}
-
 						{canEdit ? (
 							<IconButton
 								color="secondary"
@@ -376,6 +330,7 @@ export class InventoryTable extends React.Component<Props, State> {
 			>
 				<div
 					style={{
+						width: '100%',
 						display: 'flex',
 						flexDirection: 'row',
 					}}
@@ -386,29 +341,16 @@ export class InventoryTable extends React.Component<Props, State> {
 					{this.renderDropDownFilterCell('Sub-Type', 'subType')}
 					{this.renderDropDownFilterCell('Rarity', 'rarity')}
 					<div style={filterBarItemStyle}>
-						<div>
-							Show only in stock{' '}
-							<Checkbox
-								checked={this.state.showOnlyInStock}
-								onChange={() => this.toggleShowStock()}
-								color="primary"
-							/>
-						</div>
-					</div>
-				</div>
-				<div>
-					<div
-						style={{
-							height: '100%',
-						}}
-					>
-						<IconButton
-							color="primary"
-							size="small"
-							onClick={() => this.disableFilters()}
-						>
-							<CloseIcon color="primary" />
-						</IconButton>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={this.state.showOnlyInStock}
+									onChange={() => this.toggleShowStock()}
+									color="primary"
+								/>
+							}
+							label="Show only in stock"
+						/>
 					</div>
 				</div>
 			</div>
@@ -437,21 +379,14 @@ export class InventoryTable extends React.Component<Props, State> {
 
 	private renderDropDownFilterCell(label: string, field: string): React.ReactNode {
 		const formLabelId = 'faction-filter-label';
+		const formLabel = `Filter ${label}`;
 
 		const currentFilter = this.state.textBoxFilters.get(field);
 
 		const filterOptions = getFilterOptions(this.props.inventory, field);
 		const menuOptions: React.ReactNodeArray = [
 			<MenuItem key={`${field}-filter-option-none`} value={undefined}>
-				<div
-					style={{
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'row-reverse',
-					}}
-				>
-					<ClearIcon />
-				</div>
+				<em>None</em>
 			</MenuItem>,
 		];
 		filterOptions.forEach((faction) => {
@@ -465,19 +400,16 @@ export class InventoryTable extends React.Component<Props, State> {
 		return (
 			<div style={filterBarItemStyle}>
 				<FormControl variant="outlined" size="small">
-					<InputLabel id={formLabelId}>{label}</InputLabel>
+					<InputLabel id={formLabelId}>{formLabel}</InputLabel>
 					<Select
 						id={`${field}-filter-select`}
 						labelId={formLabelId}
-						label={label}
+						label={formLabel}
 						value={currentFilter}
 						onChange={(event) =>
 							this.updateDropDownFilter(field, event.target.value as string)
 						}
 						variant="outlined"
-						style={{
-							minWidth: '150px',
-						}}
 					>
 						{menuOptions}
 					</Select>
