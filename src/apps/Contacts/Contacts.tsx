@@ -110,7 +110,7 @@ class ContactsComponent extends React.Component<Props, State> {
 		return filteredContacts;
 	}
 
-	private getRepresentedFactions(): Set<string> {
+	private getRepresentedFactions(): string[] {
 		const representedFactions = new Set<string>();
 		if (this.props.contacts) {
 			this.props.contacts.forEach((contact) => {
@@ -121,7 +121,8 @@ class ContactsComponent extends React.Component<Props, State> {
 				}
 			});
 		}
-		return representedFactions;
+		const representedFactionsArray = Array.from(representedFactions.values());
+		return representedFactionsArray.sort((a, b) => a.localeCompare(b));
 	}
 
 	private async fetchContacts(): Promise<void> {
@@ -198,7 +199,6 @@ class ContactsComponent extends React.Component<Props, State> {
 
 	private renderToolbar(): React.ReactNode {
 		const representedFactions = this.getRepresentedFactions();
-		// TODO: sort alphabetically?
 		// TODO: base options off of name filter?
 		const factionFilterOptions: React.ReactNodeArray = [
 			<MenuItem key={`faction-filter-option-none`} value={''}>
@@ -271,6 +271,7 @@ class ContactsComponent extends React.Component<Props, State> {
 								<Select
 									id="faction-filter-select"
 									labelId="faction-filter-label"
+									label="Filter Affiliation"
 									value={this.state.factionFilter}
 									onChange={(event) =>
 										this.setFactionFilter(event.target.value as string)
