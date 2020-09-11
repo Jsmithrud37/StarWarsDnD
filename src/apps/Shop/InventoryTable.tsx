@@ -11,6 +11,10 @@ import {
 	Checkbox,
 	Collapse,
 	TextField,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
@@ -18,6 +22,7 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import CloseIcon from '@material-ui/icons/Close';
+import ClearIcon from '@material-ui/icons/Clear';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Inventory, InventoryItem } from './Inventory';
@@ -65,9 +70,16 @@ interface State {
 	filterEnabled: boolean;
 
 	/**
-	 * Applied text filters.
+	 * Applied text-box-backed filters. These will be consumed in substring checks (if property
+	 * contains filter).
+	 *
 	 */
-	textFilters: Map<string, string>;
+	textBoxFilters: Map<string, string>;
+
+	/**
+	 * Applied drop-down-based filters. These will be consumed in exact equality checks.
+	 */
+	dropDownFilters: Map<string, string>;
 
 	/**
 	 * Will only show items that are in stock and purchasable
@@ -89,6 +101,7 @@ const filterBarItemStyle: CSSProperties = {
 	justifyContent: 'space-around',
 	paddingLeft: '5px',
 	paddingRight: '5px',
+	textAlign: 'left',
 };
 
 /**
@@ -103,7 +116,8 @@ export class InventoryTable extends React.Component<Props, State> {
 			sortingColumnKey: 'name',
 			sortInAscendingOrder: true,
 			filterEnabled: false,
-			textFilters: new Map<string, string>(),
+			textBoxFilters: new Map<string, string>(),
+			dropDownFilters: new Map<string, string>(),
 			showOnlyInStock: false,
 		};
 	}
@@ -159,12 +173,22 @@ export class InventoryTable extends React.Component<Props, State> {
 		});
 	}
 
-	private updateFilter(field: string, value: string): void {
-		const textFilters = this.state.textFilters;
-		textFilters.set(field, value.toLocaleLowerCase());
+	private updateTextBoxFilter(field: string, value: string): void {
+		const filters = this.state.textBoxFilters;
+		filters.set(field, value);
 		this.setState({
 			...this.state,
-			textFilters,
+			textBoxFilters: filters,
+			selectedPageIndex: 0, // Reset page to 0 for filter change
+		});
+	}
+
+	private updateDropDownFilter(field: string, value: string): void {
+		const filters = this.state.dropDownFilters;
+		filters.set(field, value);
+		this.setState({
+			...this.state,
+			dropDownFilters: filters,
 			selectedPageIndex: 0, // Reset page to 0 for filter change
 		});
 	}
@@ -357,10 +381,10 @@ export class InventoryTable extends React.Component<Props, State> {
 					}}
 				>
 					{this.renderTextFilterCell('Name', 'name')}
-					{this.renderTextFilterCell('Category', 'category')}
-					{this.renderTextFilterCell('Type', 'type')}
-					{this.renderTextFilterCell('Sub-Type', 'subType')}
-					{this.renderTextFilterCell('Rarity', 'rarity')}
+					{this.renderDropDownFilterCell('Category', 'category')}
+					{this.renderDropDownFilterCell('Type', 'type')}
+					{this.renderDropDownFilterCell('Sub-Type', 'subType')}
+					{this.renderDropDownFilterCell('Rarity', 'rarity')}
 					<div style={filterBarItemStyle}>
 						<div>
 							Show only in stock{' '}
@@ -392,7 +416,7 @@ export class InventoryTable extends React.Component<Props, State> {
 	}
 
 	private renderTextFilterCell(label: string, field: string): React.ReactNode {
-		const currentFilter = this.state.textFilters.get(field);
+		const currentFilter = this.state.textBoxFilters.get(field);
 		return (
 			<div style={filterBarItemStyle}>
 				<TextField
@@ -404,9 +428,60 @@ export class InventoryTable extends React.Component<Props, State> {
 					multiline={false}
 					size="small"
 					onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-						this.updateFilter(field, event.target.value)
+						this.updateTextBoxFilter(field, event.target.value)
 					}
 				/>
+			</div>
+		);
+	}
+
+	private renderDropDownFilterCell(label: string, field: string): React.ReactNode {
+		const formLabelId = 'faction-filter-label';
+
+		const currentFilter = this.state.textBoxFilters.get(field);
+
+		const filterOptions = getFilterOptions(this.props.inventory, field);
+		const menuOptions: React.ReactNodeArray = [
+			<MenuItem key={`${field}-filter-option-none`} value={undefined}>
+				<div
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row-reverse',
+					}}
+				>
+					<ClearIcon />
+				</div>
+			</MenuItem>,
+		];
+		filterOptions.forEach((faction) => {
+			menuOptions.push(
+				<MenuItem key={`${field}-filter-option-${faction}`} value={faction}>
+					{faction}
+				</MenuItem>,
+			);
+		});
+
+		return (
+			<div style={filterBarItemStyle}>
+				<FormControl variant="outlined" size="small">
+					<InputLabel id={formLabelId}>{label}</InputLabel>
+					<Select
+						id={`${field}-filter-select`}
+						labelId={formLabelId}
+						label={label}
+						value={currentFilter}
+						onChange={(event) =>
+							this.updateDropDownFilter(field, event.target.value as string)
+						}
+						variant="outlined"
+						style={{
+							minWidth: '150px',
+						}}
+					>
+						{menuOptions}
+					</Select>
+				</FormControl>
 			</div>
 		);
 	}
@@ -518,16 +593,46 @@ export class InventoryTable extends React.Component<Props, State> {
 		}
 
 		// Apply text-based filters
-		this.state.textFilters.forEach((filterText, field) => {
-			filteredInventory = filteredInventory.filter((item) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const fieldValue = (item as any)[field].toString().toLocaleLowerCase();
-				return fieldValue.includes(filterText);
-			});
+		this.state.textBoxFilters.forEach((filterText, field) => {
+			if (filterText) {
+				filteredInventory = filteredInventory.filter((item) => {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const fieldValue = (item as any)[field].toString().toLocaleLowerCase();
+					return fieldValue.includes(filterText);
+				});
+			}
+		});
+
+		// Apply drop-down-based filters
+		this.state.dropDownFilters.forEach((filterOption, field) => {
+			if (filterOption) {
+				filteredInventory = filteredInventory.filter((item) => {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const fieldValue = (item as any)[field].toString();
+					return fieldValue === filterOption;
+				});
+			}
 		});
 
 		return filteredInventory;
 	}
+}
+
+/**
+ * Generates options for field filters based on the values in the provided inventory
+ * for the specified field.
+ */
+function getFilterOptions(inventory: Inventory, propertyName: string): string[] {
+	const filterOptions: Set<string> = new Set<string>();
+
+	for (const inventoryItem of inventory) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const value = (inventoryItem as any)[propertyName] as string;
+		filterOptions.add(value);
+	}
+
+	const filterOptionsArray = Array.from(filterOptions.values());
+	return filterOptionsArray.sort((a, b) => a.localeCompare(b));
 }
 
 /**
