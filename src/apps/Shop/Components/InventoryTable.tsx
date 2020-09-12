@@ -325,45 +325,36 @@ export class InventoryTable extends React.Component<Props, State> {
 					width: '100%',
 					display: 'flex',
 					flexDirection: 'row',
-					justifyContent: 'space-between',
 					padding: '5px',
 				}}
 			>
+				{this.renderTextFilterCell('Name', 'name')}
+				{this.renderDropDownFilterCell('Category', 'category')}
+				{this.renderDropDownFilterCell('Type', 'type')}
+				{this.renderDropDownFilterCell('Sub-Type', 'subType')}
+				{this.renderDropDownFilterCell('Rarity', 'rarity')}
 				<div
 					style={{
-						width: '100%',
+						height: '100%',
+						minWidth: '200px',
 						display: 'flex',
-						flexDirection: 'row',
+						flexDirection: 'column',
+						justifyContent: 'space-around',
+						paddingLeft: '5px',
+						paddingRight: '5px',
+						textAlign: 'left',
 					}}
 				>
-					{this.renderTextFilterCell('Name', 'name')}
-					{this.renderDropDownFilterCell('Category', 'category')}
-					{this.renderDropDownFilterCell('Type', 'type')}
-					{this.renderDropDownFilterCell('Sub-Type', 'subType')}
-					{this.renderDropDownFilterCell('Rarity', 'rarity')}
-					<div
-						style={{
-							height: '100%',
-							minWidth: '200px',
-							display: 'flex',
-							flexDirection: 'column',
-							justifyContent: 'space-around',
-							paddingLeft: '5px',
-							paddingRight: '5px',
-							textAlign: 'left',
-						}}
-					>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={this.state.showOnlyInStock}
-									onChange={() => this.toggleShowStock()}
-									color="primary"
-								/>
-							}
-							label="Show only in stock"
-						/>
-					</div>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={this.state.showOnlyInStock}
+								onChange={() => this.toggleShowStock()}
+								color="primary"
+							/>
+						}
+						label="Show only in stock"
+					/>
 				</div>
 			</div>
 		);
