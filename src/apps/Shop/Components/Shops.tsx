@@ -1,24 +1,18 @@
 import React from 'react';
-import { Modal, Tabs, Tab, AppBar, Card, IconButton } from '@material-ui/core';
+import { Modal, Tabs, Tab, AppBar, IconButton } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import {
-	EditForm,
-	DataEntry,
-	NumberEntry,
-	StringEntry,
-	BooleanEntry,
-	EntryTypes,
-} from '../../../shared-components/EditForm';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
-import { createInventoryItemFromProperties, Inventory, InventoryItem } from '../Inventory';
+import { Inventory, InventoryItem } from '../Inventory';
 import { ShopId, shopIdFromString } from '../ShopId';
 import { AppState } from '../State';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
-import { background3, background4, background2 } from '../../../Theming';
+import { background3, background4 } from '../../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
 import { InsertItemDialogue } from './InsertItemDialogue';
+import { EditItemDialogue } from './EditItemDialogue';
+import { PendingDialogue } from './PendingDialogue';
 
 /**
  * Modal state local to the Shops app.
@@ -121,18 +115,12 @@ export class Shops extends React.Component<Props, State> {
 		}
 	}
 
-	private async onSubmitEdit(itemProperties: Map<string, EntryTypes>): Promise<void> {
-		if (itemProperties.has('name')) {
-			throw new Error('Cannot edit the `name` field of an item.');
-		}
+	private async onSubmitEdit(editedItem: InventoryItem): Promise<void> {
 		if (!this.state.itemBeingEdited) {
 			throw new Error('Invalid state: item being edited not set.');
 		}
 
-		itemProperties.set('name', this.state.itemBeingEdited.name);
-		const edittedItem = createInventoryItemFromProperties(itemProperties);
-
-		console.log(`Editing item "${edittedItem.name}" in ${this.props.shopSelection}...`);
+		console.log(`Editing item "${editedItem.name}" in ${this.props.shopSelection}...`);
 
 		const currentInventory = this.currentInventory();
 		if (!currentInventory) {
@@ -144,7 +132,7 @@ export class Shops extends React.Component<Props, State> {
 
 		// Submit edit request to the backend
 		const editInventoryItemFunction = 'EditInventoryItem';
-		const result = await this.onSubmitInsertOrEdit(edittedItem, editInventoryItemFunction);
+		const result = await this.onSubmitInsertOrEdit(editedItem, editInventoryItemFunction);
 
 		if (!result) {
 			throw new Error('Item edit failed.');
@@ -153,7 +141,7 @@ export class Shops extends React.Component<Props, State> {
 		// Replace the edited item with the new value
 		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
 		const newInventory: Inventory = currentInventory.map((item) => {
-			return item.name === edittedItem.name ? edittedItem : item;
+			return editedItem.name === item.name ? editedItem : item;
 		});
 		this.props.loadInventory(this.props.shopSelection, newInventory);
 		this.setIsEditing(undefined);
@@ -286,61 +274,6 @@ export class Shops extends React.Component<Props, State> {
 		this.props.loadInventory(this.props.shopSelection, undefined);
 	}
 
-	private createEditSchemas(item: InventoryItem): Map<string, DataEntry> {
-		return new Map<string, DataEntry>([
-			// Do not include name - we do not allow editing of name to guarantee we have
-			// a baseline to compare with when modifying the inventory contents
-			['category', new StringEntry(item.category, 'Category', undefined, true, false)],
-			['type', new StringEntry(item.type, 'Type', undefined, true, false)],
-			['subType', new StringEntry(item.subType ?? '', 'Sub-Type', undefined, false, false)],
-			['rarity', new StringEntry(item.rarity, 'Rarity', undefined, true, false)],
-			[
-				'weight',
-				new NumberEntry(
-					item.weight,
-					'Weight(lb)',
-					undefined,
-					0,
-					Number.POSITIVE_INFINITY,
-					true,
-				),
-			],
-			[
-				'cost',
-				new NumberEntry(
-					item.cost,
-					'Cost (cr)',
-					undefined,
-					0,
-					Number.POSITIVE_INFINITY,
-					false,
-				),
-			],
-			[
-				'stock',
-				new NumberEntry(
-					item.stock,
-					'Stock',
-					undefined,
-					-1,
-					Number.POSITIVE_INFINITY,
-					false,
-				),
-			],
-			[
-				'resourceUrl',
-				new StringEntry(
-					item.resourceUrl ?? '',
-					'Custom Resource URL',
-					undefined,
-					false,
-					false,
-				),
-			],
-			['enhanced', new BooleanEntry(item.enhanced ?? false, 'Enhanced Item')],
-		]);
-	}
-
 	public render(): React.ReactNode {
 		const inventory = this.currentInventory();
 
@@ -415,9 +348,8 @@ export class Shops extends React.Component<Props, State> {
 					throw new Error('No item set for editing');
 				}
 				return (
-					<EditForm
-						title={`Editing item: "${itemBeingEdited.name}"`}
-						schemas={this.createEditSchemas(itemBeingEdited as InventoryItem)}
+					<EditItemDialogue
+						itemBeingEdited={itemBeingEdited}
 						onSubmit={(item) => this.onSubmitEdit(item)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
