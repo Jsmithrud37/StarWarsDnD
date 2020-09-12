@@ -84,25 +84,25 @@ export function createInventoryItem(
 	enhanced: boolean,
 ): InventoryItem {
 	if (name.length === 0) {
-		throw new Error('Name must not be empty');
+		throw new Error('"name" must not be empty');
 	}
 	if (category.length === 0) {
-		throw new Error('Category must not be empty');
+		throw new Error('"category" must not be empty');
 	}
 	if (type.length === 0) {
-		throw new Error('Type must not be empty');
+		throw new Error('"type" must not be empty');
 	}
 	if (rarity.length === 0) {
-		throw new Error('Type must not be empty');
+		throw new Error('"rarity" must not be empty');
 	}
 	if (weight < 0 || !Number.isFinite(weight)) {
-		throw new Error('Weight must be on [0, ∞)');
+		throw new Error('"weight" must be on [0, ∞)');
 	}
 	if (cost < 0 || !Number.isFinite(cost)) {
-		throw new Error('Cost must be on [0, ∞)');
+		throw new Error('"cost"" must be on [0, ∞)');
 	}
-	if (stock < -1 || !Number.isFinite(cost)) {
-		throw new Error('Cost must be on [-1, ∞)');
+	if (stock < -1 || !Number.isFinite(stock)) {
+		throw new Error('"stock" must be on [-1, ∞)');
 	}
 
 	return {
@@ -187,12 +187,4 @@ export function createInventoryItemFromProperties(
 		resourceUrl,
 		enhanced,
 	);
-
-	// Create new item from provided properties mapping
-	const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-	itemProperties.forEach((value, key) => {
-		item[key] = value;
-	});
-
-	return item as InventoryItem;
 }
