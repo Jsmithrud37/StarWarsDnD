@@ -4,7 +4,7 @@ import { createStore } from 'redux';
 import Contacts, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
-import Shop, { reducers as shopReducers } from '../Shop';
+import ShopsApp, { reducers as shopReducers } from '../Shop';
 import Timeline from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
@@ -227,7 +227,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Shops:
 				return (
 					<Provider store={this.shopStore}>
-						<Shop />
+						<ShopsApp />
 					</Provider>
 				);
 			case AppId.Messenger:
