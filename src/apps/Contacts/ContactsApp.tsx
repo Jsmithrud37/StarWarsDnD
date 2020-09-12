@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { deselectContact, loadContacts, selectContact, unloadContacts } from './Actions';
 import { AppState } from './State';
-import './Styling/Contacts.css';
 import { Contacts } from './Components/Contacts';
 
 /**
