@@ -1,4 +1,4 @@
-import React, { ReactNode, ChangeEvent, CSSProperties } from 'react';
+import React, { ReactNode, ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
