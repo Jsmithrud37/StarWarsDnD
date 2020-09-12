@@ -373,16 +373,7 @@ export class Shops extends React.Component<Props, State> {
 					/>
 				);
 			case EditType.Pending:
-				return (
-					<Card
-						style={{
-							backgroundColor: background2,
-							maxWidth: '400px',
-						}}
-					>
-						<LoadingScreen />
-					</Card>
-				);
+				return <PendingDialogue />;
 			default:
 				throw new Error(`Unrecognized EditType: ${editingMode}`);
 		}
