@@ -5,7 +5,6 @@ import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { Contact } from '../Contact';
 import { AppState } from '../State';
-import '../Styling/Contacts.css';
 import {
 	Grid,
 	IconButton,
@@ -304,7 +303,10 @@ export class Contacts extends React.Component<Props, State> {
 
 		return (
 			<Scrollbars
-				className="Contacts-view"
+				style={{
+					float: 'right',
+					flex: 1,
+				}}
 				autoHide={true}
 				autoHeight={false}
 				onClick={() => {
