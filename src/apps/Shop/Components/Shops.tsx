@@ -1,28 +1,18 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Modal, Tabs, Tab, AppBar, Card, IconButton } from '@material-ui/core';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import {
-	DataEntry,
-	NumberEntry,
-	StringEntry,
-	BooleanEntry,
-} from '../../shared-components/EditItemForm/DataEntry';
-import ItemEditForm, { EntryTypes } from '../../shared-components/EditItemForm/EditItemForm';
-import { executeBackendFunction, QueryResult } from '../../utilities/NetlifyUtilities';
-import { Actions, changeShop, loadInventory } from './Actions';
-import { Inventory, InventoryItem } from './Inventory';
-import { ShopId, shopIdFromString } from './ShopId';
-import { AppState } from './State';
-import LoadingScreen from '../../shared-components/LoadingScreen';
-import { background3, background4, background2 } from '../../Theming';
+import { Modal } from '@material-ui/core';
+import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
+import { Actions } from '../Actions';
+import { Inventory, InventoryItem } from '../Inventory';
+import { shopIdFromString } from '../ShopId';
+import { AppState } from '../State';
+import LoadingScreen from '../../../shared-components/LoadingScreen';
+import { background3 } from '../../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
-
-/**
- * State parameters used by the Datapad app component.
- */
-type Parameters = AppState;
+import { InsertItemDialogue } from './InsertItemDialogue';
+import { EditItemDialogue } from './EditItemDialogue';
+import { PendingDialogue } from './PendingDialogue';
+import { AppMenu } from './AppMenu';
 
 /**
  * Modal state local to the Shops app.
@@ -40,12 +30,15 @@ interface ModalState {
 	itemBeingEdited?: InventoryItem;
 }
 
+/**
+ * Shops {@link https://reactjs.org/docs/faq-state.html | Component State}
+ */
 type State = ModalState;
 
 /**
- * Shop {@link https://reactjs.org/docs/render-props.html | Render Props}
+ * Shops {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
-type Props = Actions & Parameters;
+type Props = Actions & AppState;
 
 enum EditType {
 	Insert,
@@ -54,24 +47,10 @@ enum EditType {
 	Pending,
 }
 
-// TODO: get as component input
-const newItemFormSchemas = new Map<string, DataEntry>([
-	['name', new StringEntry('', 'Name', undefined, true, false)],
-	['category', new StringEntry('', 'Category', undefined, true, false)],
-	['type', new StringEntry('', 'Type', undefined, true, false)],
-	['subType', new StringEntry('', 'Sub-Type', undefined, false, false)],
-	['rarity', new StringEntry('', 'Rarity', undefined, true, false)],
-	['weight', new NumberEntry(0, 'Weight(lb)', undefined, 0, Number.POSITIVE_INFINITY, true)],
-	['cost', new NumberEntry(0, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false)],
-	['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
-	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, false, false)],
-	['enhanced', new BooleanEntry(false, 'Enhanced Item')],
-]);
-
 /**
- *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
+ * Shops app component.
  */
-class ShopComponent extends React.Component<Props, State> {
+export class Shops extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
@@ -113,19 +92,7 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private createItemFromProperties(itemProperties: Map<string, EntryTypes>): InventoryItem {
-		// Create new item from provided properties mapping
-		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-		itemProperties.forEach((value, key) => {
-			item[key] = value;
-		});
-
-		return item as InventoryItem;
-	}
-
-	private async onSubmitInsert(itemProperties: Map<string, EntryTypes>): Promise<void> {
-		const item = this.createItemFromProperties(itemProperties);
-
+	private async onSubmitInsert(item: InventoryItem): Promise<void> {
 		console.log(`Adding item "${item.name}" to ${this.props.shopSelection}...`);
 
 		const currentInventory = this.currentInventory();
@@ -148,18 +115,12 @@ class ShopComponent extends React.Component<Props, State> {
 		}
 	}
 
-	private async onSubmitEdit(itemProperties: Map<string, EntryTypes>): Promise<void> {
-		if (itemProperties.has('name')) {
-			throw new Error('Cannot edit the `name` field of an item.');
-		}
+	private async onSubmitEdit(editedItem: InventoryItem): Promise<void> {
 		if (!this.state.itemBeingEdited) {
 			throw new Error('Invalid state: item being edited not set.');
 		}
 
-		itemProperties.set('name', this.state.itemBeingEdited.name);
-		const edittedItem = this.createItemFromProperties(itemProperties);
-
-		console.log(`Editing item "${edittedItem.name}" in ${this.props.shopSelection}...`);
+		console.log(`Editing item "${editedItem.name}" in ${this.props.shopSelection}...`);
 
 		const currentInventory = this.currentInventory();
 		if (!currentInventory) {
@@ -171,7 +132,7 @@ class ShopComponent extends React.Component<Props, State> {
 
 		// Submit edit request to the backend
 		const editInventoryItemFunction = 'EditInventoryItem';
-		const result = await this.onSubmitInsertOrEdit(edittedItem, editInventoryItemFunction);
+		const result = await this.onSubmitInsertOrEdit(editedItem, editInventoryItemFunction);
 
 		if (!result) {
 			throw new Error('Item edit failed.');
@@ -180,7 +141,7 @@ class ShopComponent extends React.Component<Props, State> {
 		// Replace the edited item with the new value
 		// TODO: add helper to props for editing item so we don't have to blow away entire inventory
 		const newInventory: Inventory = currentInventory.map((item) => {
-			return item.name === edittedItem.name ? edittedItem : item;
+			return editedItem.name === item.name ? editedItem : item;
 		});
 		this.props.loadInventory(this.props.shopSelection, newInventory);
 		this.setIsEditing(undefined);
@@ -196,11 +157,10 @@ class ShopComponent extends React.Component<Props, State> {
 			throw new Error('Attempted to edit item while inventory was not loaded.');
 		}
 
-		// `undefined` represents infinite stock. No need to submit an edit when purchasing an item with
-		// infinite stock. The button at this point is really just for consistency / show (unless
-		// eventually I decide to add character money management to the system... which, I mean...
-		// maybe?)
-		if (Number.isNaN(purchasedItem.stock)) {
+		// We use -1 to represent infinite quantity. If infinite, no need to submit edit to
+		// the backend.
+		if (purchasedItem.stock === -1) {
+			this.setIsEditing(undefined);
 			return;
 		}
 
@@ -313,61 +273,6 @@ class ShopComponent extends React.Component<Props, State> {
 		this.props.loadInventory(this.props.shopSelection, undefined);
 	}
 
-	private createEditSchemas(item: InventoryItem): Map<string, DataEntry> {
-		return new Map<string, DataEntry>([
-			// Do not include name - we do not allow editing of name to guarantee we have
-			// a baseline to compare with when modifying the inventory contents
-			['category', new StringEntry(item.category, 'Category', undefined, true, false)],
-			['type', new StringEntry(item.type, 'Type', undefined, true, false)],
-			['subType', new StringEntry(item.subType ?? '', 'Sub-Type', undefined, false, false)],
-			['rarity', new StringEntry(item.rarity, 'Rarity', undefined, true, false)],
-			[
-				'weight',
-				new NumberEntry(
-					item.weight,
-					'Weight(lb)',
-					undefined,
-					0,
-					Number.POSITIVE_INFINITY,
-					true,
-				),
-			],
-			[
-				'cost',
-				new NumberEntry(
-					item.cost,
-					'Cost (cr)',
-					undefined,
-					0,
-					Number.POSITIVE_INFINITY,
-					false,
-				),
-			],
-			[
-				'stock',
-				new NumberEntry(
-					item.stock,
-					'Stock',
-					undefined,
-					-1,
-					Number.POSITIVE_INFINITY,
-					false,
-				),
-			],
-			[
-				'resourceUrl',
-				new StringEntry(
-					item.resourceUrl ?? '',
-					'Custom Resource URL',
-					undefined,
-					false,
-					false,
-				),
-			],
-			['enhanced', new BooleanEntry(item.enhanced ?? false, 'Enhanced Item')],
-		]);
-	}
-
 	public render(): React.ReactNode {
 		const inventory = this.currentInventory();
 
@@ -405,21 +310,17 @@ class ShopComponent extends React.Component<Props, State> {
 						backgroundColor: background3,
 					}}
 				>
-					{this.renderMenu()}
+					<AppMenu
+						currentShop={this.props.shopSelection}
+						changeShop={(newSelection) => this.props.changeShop(newSelection)}
+						reloadInventory={() => this.reloadInventory()}
+					/>
 					{view}
 				</div>
 
 				<Modal
 					open={this.state.editing !== undefined}
 					onClose={() => this.setIsEditing(undefined, undefined)}
-					style={
-						{
-							// width: '100%',
-							// display: 'flex',
-							// flexDirection: 'column',
-							// justifyContent: 'center',
-						}
-					}
 				>
 					<div
 						style={{
@@ -450,18 +351,15 @@ class ShopComponent extends React.Component<Props, State> {
 					throw new Error('No item set for editing');
 				}
 				return (
-					<ItemEditForm
-						title={`Editing item: "${itemBeingEdited.name}"`}
-						schemas={this.createEditSchemas(itemBeingEdited as InventoryItem)}
+					<EditItemDialogue
+						itemBeingEdited={itemBeingEdited}
 						onSubmit={(item) => this.onSubmitEdit(item)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
 				);
 			case EditType.Insert:
 				return (
-					<ItemEditForm
-						title="Insert new item"
-						schemas={newItemFormSchemas}
+					<InsertItemDialogue
 						onSubmit={(item) => this.onSubmitInsert(item)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
@@ -478,54 +376,10 @@ class ShopComponent extends React.Component<Props, State> {
 					/>
 				);
 			case EditType.Pending:
-				return (
-					<Card
-						style={{
-							backgroundColor: background2,
-							maxWidth: '400px',
-						}}
-					>
-						<LoadingScreen />
-					</Card>
-				);
+				return <PendingDialogue />;
 			default:
 				throw new Error(`Unrecognized EditType: ${editingMode}`);
 		}
-	}
-
-	/**
-	 * Render the shop-selection menu
-	 */
-	public renderMenu(): React.ReactNode {
-		return (
-			<AppBar
-				position="static"
-				style={{
-					backgroundColor: background4,
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-				}}
-			>
-				<Tabs
-					orientation="horizontal"
-					value={this.props.shopSelection}
-					id="shops-menu"
-					onChange={(event, newSelection) =>
-						this.props.changeShop(newSelection as ShopId)
-					}
-				>
-					{Object.values(ShopId).map((shop) => (
-						<Tab value={shop} label={shop} key={shop} />
-					))}
-				</Tabs>
-				<div style={{ paddingRight: '15px' }}>
-					<IconButton color="primary" onClick={() => this.reloadInventory()}>
-						<RefreshIcon color="primary" />
-					</IconButton>
-				</div>
-			</AppBar>
-		);
 	}
 }
 
@@ -536,21 +390,3 @@ interface ItemQueryResult {
 	shopName: string;
 	item: InventoryItem;
 }
-
-/**
- * {@inheritdoc react-redux/MapStateToPropsParam}
- */
-function mapStateToProps(state: AppState): Parameters {
-	return state;
-}
-
-/**
- * Shop app.
- * Displays shop inventories.
- */
-const Shop = connect(mapStateToProps, {
-	changeShop,
-	loadInventory,
-})(ShopComponent);
-
-export default Shop;
