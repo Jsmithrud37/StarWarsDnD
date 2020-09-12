@@ -32,7 +32,7 @@ interface State {
 /**
  * Form for editing data based on an input schema
  */
-class EditForm extends React.Component<Props, State> {
+export class EditForm extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
@@ -249,5 +249,3 @@ function ensureType(value: unknown | undefined, expectedType: string): void {
 		throw new Error(`Value was of type ${typeof value}. Expected ${expectedType}`);
 	}
 }
-
-export default EditForm;

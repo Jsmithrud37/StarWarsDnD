@@ -2,12 +2,13 @@ import React from 'react';
 import { Modal, Tabs, Tab, AppBar, Card, IconButton } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import {
+	EditForm,
 	DataEntry,
 	NumberEntry,
 	StringEntry,
 	BooleanEntry,
-} from '../../../shared-components/EditItemForm/DataEntry';
-import EditForm, { EntryTypes } from '../../../shared-components/EditItemForm/EditForm';
+	EntryTypes,
+} from '../../../shared-components/EditForm';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { Inventory, InventoryItem } from '../Inventory';
