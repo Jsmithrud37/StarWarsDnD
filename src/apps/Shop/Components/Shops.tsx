@@ -11,13 +11,14 @@ import {
 } from '../../../shared-components/EditForm';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
-import { Inventory, InventoryItem } from '../Inventory';
+import { createInventoryItemFromProperties, Inventory, InventoryItem } from '../Inventory';
 import { ShopId, shopIdFromString } from '../ShopId';
 import { AppState } from '../State';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { background3, background4, background2 } from '../../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
+import { InsertItemDialogue } from './InsertItemDialogue';
 
 /**
  * Modal state local to the Shops app.
@@ -51,20 +52,6 @@ enum EditType {
 	Purchase,
 	Pending,
 }
-
-// TODO: get as component input
-const newItemFormSchemas = new Map<string, DataEntry>([
-	['name', new StringEntry('', 'Name', undefined, true, false)],
-	['category', new StringEntry('', 'Category', undefined, true, false)],
-	['type', new StringEntry('', 'Type', undefined, true, false)],
-	['subType', new StringEntry('', 'Sub-Type', undefined, false, false)],
-	['rarity', new StringEntry('', 'Rarity', undefined, true, false)],
-	['weight', new NumberEntry(0, 'Weight(lb)', undefined, 0, Number.POSITIVE_INFINITY, true)],
-	['cost', new NumberEntry(0, 'Cost (cr)', undefined, 0, Number.POSITIVE_INFINITY, false)],
-	['stock', new NumberEntry(0, 'Stock', undefined, -1, Number.POSITIVE_INFINITY, false)],
-	['resourceUrl', new StringEntry('', 'Custom Resource URL', undefined, false, false)],
-	['enhanced', new BooleanEntry(false, 'Enhanced Item')],
-]);
 
 /**
  * Shops app component.
@@ -111,19 +98,7 @@ export class Shops extends React.Component<Props, State> {
 		}
 	}
 
-	private createItemFromProperties(itemProperties: Map<string, EntryTypes>): InventoryItem {
-		// Create new item from provided properties mapping
-		const item: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-		itemProperties.forEach((value, key) => {
-			item[key] = value;
-		});
-
-		return item as InventoryItem;
-	}
-
-	private async onSubmitInsert(itemProperties: Map<string, EntryTypes>): Promise<void> {
-		const item = this.createItemFromProperties(itemProperties);
-
+	private async onSubmitInsert(item: InventoryItem): Promise<void> {
 		console.log(`Adding item "${item.name}" to ${this.props.shopSelection}...`);
 
 		const currentInventory = this.currentInventory();
@@ -155,7 +130,7 @@ export class Shops extends React.Component<Props, State> {
 		}
 
 		itemProperties.set('name', this.state.itemBeingEdited.name);
-		const edittedItem = this.createItemFromProperties(itemProperties);
+		const edittedItem = createInventoryItemFromProperties(itemProperties);
 
 		console.log(`Editing item "${edittedItem.name}" in ${this.props.shopSelection}...`);
 
@@ -449,9 +424,7 @@ export class Shops extends React.Component<Props, State> {
 				);
 			case EditType.Insert:
 				return (
-					<EditForm
-						title="Insert new item"
-						schemas={newItemFormSchemas}
+					<InsertItemDialogue
 						onSubmit={(item) => this.onSubmitInsert(item)}
 						onCancel={() => this.setIsEditing(undefined)}
 					/>
