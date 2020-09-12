@@ -157,11 +157,10 @@ export class Shops extends React.Component<Props, State> {
 			throw new Error('Attempted to edit item while inventory was not loaded.');
 		}
 
-		// `undefined` represents infinite stock. No need to submit an edit when purchasing an item with
-		// infinite stock. The button at this point is really just for consistency / show (unless
-		// eventually I decide to add character money management to the system... which, I mean...
-		// maybe?)
-		if (Number.isNaN(purchasedItem.stock)) {
+		// We use -1 to represent infinite quantity. If infinite, no need to submit edit to
+		// the backend.
+		if (purchasedItem.stock === -1) {
+			this.setIsEditing(undefined);
 			return;
 		}
 
