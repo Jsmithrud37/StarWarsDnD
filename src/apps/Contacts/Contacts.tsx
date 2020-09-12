@@ -7,7 +7,7 @@ import { Actions, deselectContact, loadContacts, selectContact, unloadContacts }
 import { Contact } from './Contact';
 import { AppState } from './State';
 import './Styling/Contacts.css';
-import { ContactDetails } from './ContactDetails';
+import { ContactDetails } from './Components/ContactDetails';
 import {
 	Card,
 	Collapse,
