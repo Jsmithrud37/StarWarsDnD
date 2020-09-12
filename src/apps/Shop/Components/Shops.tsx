@@ -7,7 +7,7 @@ import {
 	StringEntry,
 	BooleanEntry,
 } from '../../../shared-components/EditItemForm/DataEntry';
-import ItemEditForm, { EntryTypes } from '../../../shared-components/EditItemForm/EditItemForm';
+import EditForm, { EntryTypes } from '../../../shared-components/EditItemForm/EditForm';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { Inventory, InventoryItem } from '../Inventory';
@@ -66,7 +66,7 @@ const newItemFormSchemas = new Map<string, DataEntry>([
 ]);
 
 /**
- *Shop main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
+ * Shops app component.
  */
 export class Shops extends React.Component<Props, State> {
 	public constructor(props: Props) {
@@ -439,7 +439,7 @@ export class Shops extends React.Component<Props, State> {
 					throw new Error('No item set for editing');
 				}
 				return (
-					<ItemEditForm
+					<EditForm
 						title={`Editing item: "${itemBeingEdited.name}"`}
 						schemas={this.createEditSchemas(itemBeingEdited as InventoryItem)}
 						onSubmit={(item) => this.onSubmitEdit(item)}
@@ -448,7 +448,7 @@ export class Shops extends React.Component<Props, State> {
 				);
 			case EditType.Insert:
 				return (
-					<ItemEditForm
+					<EditForm
 						title="Insert new item"
 						schemas={newItemFormSchemas}
 						onSubmit={(item) => this.onSubmitInsert(item)}

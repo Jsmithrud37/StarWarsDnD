@@ -30,9 +30,9 @@ interface State {
 }
 
 /**
- * Form for adding a new item to an inventory.
+ * Form for editing data based on an input schema
  */
-class ItemEditForm extends React.Component<Props, State> {
+class EditForm extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
@@ -250,4 +250,4 @@ function ensureType(value: unknown | undefined, expectedType: string): void {
 	}
 }
 
-export default ItemEditForm;
+export default EditForm;
