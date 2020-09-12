@@ -87,6 +87,7 @@ const canEdit = process.env.NODE_ENV !== 'production';
 
 const filterBarItemStyle: CSSProperties = {
 	height: '100%',
+	width: '200px',
 	minWidth: '150px',
 	display: 'flex',
 	flexDirection: 'column',
@@ -340,7 +341,18 @@ export class InventoryTable extends React.Component<Props, State> {
 					{this.renderDropDownFilterCell('Type', 'type')}
 					{this.renderDropDownFilterCell('Sub-Type', 'subType')}
 					{this.renderDropDownFilterCell('Rarity', 'rarity')}
-					<div style={filterBarItemStyle}>
+					<div
+						style={{
+							height: '100%',
+							minWidth: '200px',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'space-around',
+							paddingLeft: '5px',
+							paddingRight: '5px',
+							textAlign: 'left',
+						}}
+					>
 						<FormControlLabel
 							control={
 								<Checkbox
