@@ -357,11 +357,11 @@ function mapStateToProps(state: AppState): Parameters {
  * Contacts app.
  * Displays known contacts.
  */
-const Contacts = connect(mapStateToProps, {
+const ContactsApp = connect(mapStateToProps, {
 	selectContact,
 	deselectContact,
 	loadContacts,
 	unloadContacts,
 })(ContactsComponent);
 
-export default Contacts;
+export default ContactsApp;

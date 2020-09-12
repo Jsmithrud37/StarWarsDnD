@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
-import Contacts, { reducers as contactsReducers } from '../Contacts';
+import ContactsApp, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import ShopsApp, { reducers as shopReducers } from '../Shop';
@@ -221,7 +221,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Contacts:
 				return (
 					<Provider store={this.contactsStore}>
-						<Contacts />
+						<ContactsApp />
 					</Provider>
 				);
 			case AppId.Shops:
