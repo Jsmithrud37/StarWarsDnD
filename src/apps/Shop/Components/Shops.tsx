@@ -409,14 +409,6 @@ export class Shops extends React.Component<Props, State> {
 				<Modal
 					open={this.state.editing !== undefined}
 					onClose={() => this.setIsEditing(undefined, undefined)}
-					style={
-						{
-							// width: '100%',
-							// display: 'flex',
-							// flexDirection: 'column',
-							// justifyContent: 'center',
-						}
-					}
 				>
 					<div
 						style={{
