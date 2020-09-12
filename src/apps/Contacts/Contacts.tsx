@@ -17,6 +17,10 @@ import {
 	IconButton,
 	TextField,
 	AppBar,
+	Select,
+	MenuItem,
+	InputLabel,
+	FormControl,
 } from '@material-ui/core';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { background2, background3 } from '../../Theming';
@@ -38,9 +42,19 @@ type Props = Actions & Parameters;
  */
 interface State {
 	/**
-	 * Filter for contact names
+	 * Filter for contact names.
+	 * This filter is based on sub-string matching, as it is backed by a text entry field.
+	 * Any contact name including this string will be matched.
 	 */
 	nameFilter: string;
+
+	/**
+	 * Filter to faction.
+	 * This filter is based on an exact match, as it is backed by a drop-down menu.
+	 * Any contact including a faction which exactly matches this will be matched.
+	 * empty string indicates that no filtering should be performed on factions.
+	 */
+	factionFilter: string;
 }
 
 const contactCardHeaderHeightInPixels = 100;
@@ -59,8 +73,10 @@ const filterBarItemStyle: React.CSSProperties = {
 class ContactsComponent extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
+
 		this.state = {
 			nameFilter: '',
+			factionFilter: '',
 		};
 	}
 
@@ -73,12 +89,39 @@ class ContactsComponent extends React.Component<Props, State> {
 			throw new Error('Contacts not loaded yet.');
 		}
 
-		// TODO: apply other filters as needed
-		const filteredContacts = this.props.contacts.filter((contact) =>
+		// Filter based on name
+		let filteredContacts = this.props.contacts.filter((contact) =>
 			contact.name.toLocaleLowerCase().includes(this.state.nameFilter.toLocaleLowerCase()),
 		);
 
+		// Filter based on faction
+		if (this.state.factionFilter) {
+			filteredContacts = filteredContacts.filter((contact) => {
+				return (
+					contact.affiliations &&
+					contact.affiliations.includes(this.state.factionFilter as string)
+				);
+			});
+		}
+
+		// TODO: apply other filters as needed
+
 		return filteredContacts;
+	}
+
+	private getRepresentedFactions(): string[] {
+		const representedFactions = new Set<string>();
+		if (this.props.contacts) {
+			this.props.contacts.forEach((contact) => {
+				if (contact.affiliations) {
+					contact.affiliations.forEach((faction) => {
+						representedFactions.add(faction);
+					});
+				}
+			});
+		}
+		const representedFactionsArray = Array.from(representedFactions.values());
+		return representedFactionsArray.sort((a, b) => a.localeCompare(b));
 	}
 
 	private async fetchContacts(): Promise<void> {
@@ -109,6 +152,14 @@ class ContactsComponent extends React.Component<Props, State> {
 		this.setState({
 			...this.state,
 			nameFilter: newValue,
+		});
+	}
+
+	private setFactionFilter(newValue: string): void {
+		console.log(`Faction filter updated to: ${newValue}`);
+		this.setState({
+			...this.state,
+			factionFilter: newValue,
 		});
 	}
 
@@ -146,6 +197,21 @@ class ContactsComponent extends React.Component<Props, State> {
 	}
 
 	private renderToolbar(): React.ReactNode {
+		const representedFactions = this.getRepresentedFactions();
+		// TODO: base options off of name filter?
+		const factionFilterOptions: React.ReactNodeArray = [
+			<MenuItem key={`faction-filter-option-none`} value={undefined}>
+				<em>None</em>
+			</MenuItem>,
+		];
+		representedFactions.forEach((faction) => {
+			factionFilterOptions.push(
+				<MenuItem key={`faction-filter-option-${faction}`} value={faction}>
+					{faction}
+				</MenuItem>,
+			);
+		});
+
 		return (
 			<AppBar
 				id="contacts-toolbar"
@@ -186,6 +252,29 @@ class ContactsComponent extends React.Component<Props, State> {
 									event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
 								) => this.updateNameFilter(event.target.value.toLocaleLowerCase())}
 							/>
+						</div>
+
+						<div style={filterBarItemStyle}>
+							<FormControl variant="outlined" size="small">
+								<InputLabel id="faction-filter-label">
+									Filter Affiliation
+								</InputLabel>
+								<Select
+									id="faction-filter-select"
+									labelId="faction-filter-label"
+									label="Filter Affiliation"
+									value={this.state.factionFilter}
+									onChange={(event) =>
+										this.setFactionFilter(event.target.value as string)
+									}
+									variant="outlined"
+									style={{
+										minWidth: '150px',
+									}}
+								>
+									{factionFilterOptions}
+								</Select>
+							</FormControl>
 						</div>
 					</div>
 					<IconButton
