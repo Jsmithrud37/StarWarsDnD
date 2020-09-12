@@ -1,18 +1,18 @@
 import React from 'react';
-import { Modal, Tabs, Tab, AppBar, IconButton } from '@material-ui/core';
-import RefreshIcon from '@material-ui/icons/Refresh';
+import { Modal } from '@material-ui/core';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { Inventory, InventoryItem } from '../Inventory';
-import { ShopId, shopIdFromString } from '../ShopId';
+import { shopIdFromString } from '../ShopId';
 import { AppState } from '../State';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
-import { background3, background4 } from '../../../Theming';
+import { background3 } from '../../../Theming';
 import { InventoryTable } from './InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
 import { InsertItemDialogue } from './InsertItemDialogue';
 import { EditItemDialogue } from './EditItemDialogue';
 import { PendingDialogue } from './PendingDialogue';
+import { AppMenu } from './AppMenu';
 
 /**
  * Modal state local to the Shops app.
@@ -310,7 +310,11 @@ export class Shops extends React.Component<Props, State> {
 						backgroundColor: background3,
 					}}
 				>
-					{this.renderMenu()}
+					<AppMenu
+						currentShop={this.props.shopSelection}
+						changeShop={(newSelection) => this.props.changeShop(newSelection)}
+						reloadInventory={() => this.reloadInventory()}
+					/>
 					{view}
 				</div>
 
@@ -376,41 +380,6 @@ export class Shops extends React.Component<Props, State> {
 			default:
 				throw new Error(`Unrecognized EditType: ${editingMode}`);
 		}
-	}
-
-	/**
-	 * Render the shop-selection menu
-	 */
-	public renderMenu(): React.ReactNode {
-		return (
-			<AppBar
-				position="static"
-				style={{
-					backgroundColor: background4,
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-				}}
-			>
-				<Tabs
-					orientation="horizontal"
-					value={this.props.shopSelection}
-					id="shops-menu"
-					onChange={(event, newSelection) =>
-						this.props.changeShop(newSelection as ShopId)
-					}
-				>
-					{Object.values(ShopId).map((shop) => (
-						<Tab value={shop} label={shop} key={shop} />
-					))}
-				</Tabs>
-				<div style={{ paddingRight: '15px' }}>
-					<IconButton color="primary" onClick={() => this.reloadInventory()}>
-						<RefreshIcon color="primary" />
-					</IconButton>
-				</div>
-			</AppBar>
-		);
 	}
 }
 
