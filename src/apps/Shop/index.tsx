@@ -1,4 +1,4 @@
-import ShopsApp from './Shop';
+import ShopsApp from './ShopsApp';
 import { reducer } from './State';
 
 export default ShopsApp;
