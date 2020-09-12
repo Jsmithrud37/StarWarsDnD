@@ -22,8 +22,8 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import React, { ChangeEvent, CSSProperties } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { Inventory, InventoryItem } from './Inventory';
-import { background2, background4 } from '../../Theming';
+import { Inventory, InventoryItem } from '../Inventory';
+import { background2, background4 } from '../../../Theming';
 
 /**
  * Component props

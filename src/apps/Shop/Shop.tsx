@@ -16,7 +16,7 @@ import { ShopId, shopIdFromString } from './ShopId';
 import { AppState } from './State';
 import LoadingScreen from '../../shared-components/LoadingScreen';
 import { background3, background4, background2 } from '../../Theming';
-import { InventoryTable } from './InventoryTable';
+import { InventoryTable } from './Components/InventoryTable';
 import ItemPurchaseDialogue from './ItemPurchaseDialogue';
 
 /**
