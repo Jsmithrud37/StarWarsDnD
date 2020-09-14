@@ -1,27 +1,23 @@
 import React, { ReactNode, ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { connect } from 'react-redux';
-import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
-import { ImageContainerShape, renderContactImage } from '../../utilities/ImageUtilities';
-import { Actions, deselectContact, loadContacts, selectContact, unloadContacts } from './Actions';
-import { Contact } from './Contact';
-import { AppState } from './State';
-import './Styling/Contacts.css';
-import { ContactDetails } from './ContactDetails';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
+import { Actions } from '../Actions';
+import { Contact } from '../Contact';
+import { AppState } from '../State';
 import {
-	Card,
-	Collapse,
-	CardHeader,
-	CardContent,
 	Grid,
 	IconButton,
 	TextField,
 	AppBar,
+	Select,
+	MenuItem,
+	InputLabel,
+	FormControl,
 } from '@material-ui/core';
-import { HamburgerSqueeze } from 'react-animated-burgers';
-import { background2, background3 } from '../../Theming';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import LoadingScreen from '../../shared-components/LoadingScreen';
+import { background2, background3 } from '../../../Theming';
+import LoadingScreen from '../../../shared-components/LoadingScreen';
+import { ContactCard } from './ContactCard';
 
 /**
  * State parameters used by the Datapad app component.
@@ -38,30 +34,31 @@ type Props = Actions & Parameters;
  */
 interface State {
 	/**
-	 * Filter for contact names
+	 * Filter for contact names.
+	 * This filter is based on sub-string matching, as it is backed by a text entry field.
+	 * Any contact name including this string will be matched.
 	 */
 	nameFilter: string;
+
+	/**
+	 * Filter to faction.
+	 * This filter is based on an exact match, as it is backed by a drop-down menu.
+	 * Any contact including a faction which exactly matches this will be matched.
+	 * empty string indicates that no filtering should be performed on factions.
+	 */
+	factionFilter: string;
 }
 
-const contactCardHeaderHeightInPixels = 100;
-const contactCardBodyHeightInPixels = 450;
-
-const filterBarItemStyle: React.CSSProperties = {
-	height: '100%',
-	minWidth: '150px',
-	display: 'flex',
-	flexDirection: 'column',
-	justifyContent: 'space-around',
-	paddingLeft: '15px',
-	paddingRight: '15px',
+const initialState: State = {
+	nameFilter: '',
+	factionFilter: '',
 };
 
-class ContactsComponent extends React.Component<Props, State> {
+export class Contacts extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
-		this.state = {
-			nameFilter: '',
-		};
+
+		this.state = initialState;
 	}
 
 	private isSelected(contact: Contact): boolean {
@@ -73,12 +70,39 @@ class ContactsComponent extends React.Component<Props, State> {
 			throw new Error('Contacts not loaded yet.');
 		}
 
-		// TODO: apply other filters as needed
-		const filteredContacts = this.props.contacts.filter((contact) =>
+		// Filter based on name
+		let filteredContacts = this.props.contacts.filter((contact) =>
 			contact.name.toLocaleLowerCase().includes(this.state.nameFilter.toLocaleLowerCase()),
 		);
 
+		// Filter based on faction
+		if (this.state.factionFilter) {
+			filteredContacts = filteredContacts.filter((contact) => {
+				return (
+					contact.affiliations &&
+					contact.affiliations.includes(this.state.factionFilter as string)
+				);
+			});
+		}
+
+		// TODO: apply other filters as needed
+
 		return filteredContacts;
+	}
+
+	private getRepresentedFactions(): string[] {
+		const representedFactions = new Set<string>();
+		if (this.props.contacts) {
+			this.props.contacts.forEach((contact) => {
+				if (contact.affiliations) {
+					contact.affiliations.forEach((faction) => {
+						representedFactions.add(faction);
+					});
+				}
+			});
+		}
+		const representedFactionsArray = Array.from(representedFactions.values());
+		return representedFactionsArray.sort((a, b) => a.localeCompare(b));
 	}
 
 	private async fetchContacts(): Promise<void> {
@@ -100,6 +124,9 @@ class ContactsComponent extends React.Component<Props, State> {
 	}
 
 	private refreshContacts(): void {
+		// Refresh filters
+		this.setState(initialState);
+
 		// Unload all contacts, will result in this component attempting to reload them from
 		// the server.
 		this.props.unloadContacts();
@@ -109,6 +136,14 @@ class ContactsComponent extends React.Component<Props, State> {
 		this.setState({
 			...this.state,
 			nameFilter: newValue,
+		});
+	}
+
+	private setFactionFilter(newValue: string): void {
+		console.log(`Faction filter updated to: ${newValue}`);
+		this.setState({
+			...this.state,
+			factionFilter: newValue,
 		});
 	}
 
@@ -146,12 +181,26 @@ class ContactsComponent extends React.Component<Props, State> {
 	}
 
 	private renderToolbar(): React.ReactNode {
+		const representedFactions = this.getRepresentedFactions();
+		// TODO: base options off of name filter?
+		const factionFilterOptions: React.ReactNodeArray = [
+			<MenuItem key={`faction-filter-option-none`} value={undefined}>
+				<em>None</em>
+			</MenuItem>,
+		];
+		representedFactions.forEach((faction) => {
+			factionFilterOptions.push(
+				<MenuItem key={`faction-filter-option-${faction}`} value={faction}>
+					{faction}
+				</MenuItem>,
+			);
+		});
+
 		return (
 			<AppBar
 				id="contacts-toolbar"
 				position="static"
 				style={{
-					// height: '25px',
 					backgroundColor: background3,
 					padding: '3px',
 				}}
@@ -170,13 +219,23 @@ class ContactsComponent extends React.Component<Props, State> {
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
-							justifyContent: 'space-around',
 						}}
 					>
-						<div style={filterBarItemStyle}>
+						<div
+							style={{
+								height: '100%',
+								minWidth: '125px',
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'space-around',
+								paddingLeft: '5px',
+								paddingRight: '5px',
+								textAlign: 'left',
+							}}
+						>
 							<TextField
 								type="search"
-								defaultValue={this.state.nameFilter}
+								value={this.state.nameFilter}
 								label={`Filter Name`}
 								id={`name_filter`}
 								variant="outlined"
@@ -186,6 +245,37 @@ class ContactsComponent extends React.Component<Props, State> {
 									event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
 								) => this.updateNameFilter(event.target.value.toLocaleLowerCase())}
 							/>
+						</div>
+
+						<div
+							style={{
+								height: '100%',
+								minWidth: '175px',
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'space-around',
+								paddingLeft: '5px',
+								paddingRight: '5px',
+								textAlign: 'left',
+							}}
+						>
+							<FormControl variant="outlined" size="small">
+								<InputLabel id="faction-filter-label">
+									Filter Affiliation
+								</InputLabel>
+								<Select
+									id="faction-filter-select"
+									labelId="faction-filter-label"
+									label="Filter Affiliation"
+									value={this.state.factionFilter}
+									onChange={(event) =>
+										this.setFactionFilter(event.target.value as string)
+									}
+									variant="outlined"
+								>
+									{factionFilterOptions}
+								</Select>
+							</FormControl>
 						</div>
 					</div>
 					<IconButton
@@ -213,7 +303,10 @@ class ContactsComponent extends React.Component<Props, State> {
 
 		return (
 			<Scrollbars
-				className="Contacts-view"
+				style={{
+					float: 'right',
+					flex: 1,
+				}}
 				autoHide={true}
 				autoHeight={false}
 				onClick={() => {
@@ -231,9 +324,20 @@ class ContactsComponent extends React.Component<Props, State> {
 					}}
 				>
 					{filteredContacts.map((contact) => {
+						const isSelected = this.isSelected(contact);
 						return (
 							<Grid item key={contact.name}>
-								{this.renderContact(contact)}
+								<ContactCard
+									contact={contact}
+									selected={isSelected}
+									onToggleSelection={() => {
+										if (isSelected) {
+											this.props.deselectContact();
+										} else {
+											this.props.selectContact(contact._id);
+										}
+									}}
+								/>
 							</Grid>
 						);
 					})}
@@ -241,116 +345,4 @@ class ContactsComponent extends React.Component<Props, State> {
 			</Scrollbars>
 		);
 	}
-
-	private renderContact(contact: Contact): React.ReactNode {
-		const isSelected = this.isSelected(contact);
-		const cardHeader = this.renderContactCardHeader(contact);
-		return (
-			<Card
-				onClick={(event) => {
-					if (!isSelected) {
-						this.props.selectContact(contact._id);
-					}
-					// Ensures that deselect event capture on container
-					// does not immediately deselect the contact.
-					event.stopPropagation();
-				}}
-				raised={isSelected}
-				style={{
-					minWidth: 360,
-					maxWidth: 500,
-					overflow: 'hidden',
-					backgroundColor: background3,
-				}}
-			>
-				{cardHeader}
-				<Collapse in={isSelected}>
-					<CardContent>
-						<ContactDetails
-							contact={contact}
-							heightInPixels={contactCardBodyHeightInPixels}
-						/>
-					</CardContent>
-				</Collapse>
-			</Card>
-		);
-	}
-
-	private renderContactCardHeader(contact: Contact): React.ReactNode {
-		const isSelected = this.isSelected(contact);
-		const name = this.renderName(contact);
-		const imageHeightInPixels = 60;
-
-		// Only display the contact image when the card is not expanded
-		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: imageHeightInPixels,
-			containerShape: ImageContainerShape.RoundedRectangle,
-		});
-
-		const burgerButton = (
-			<HamburgerSqueeze
-				barColor="white"
-				buttonWidth={30}
-				isActive={isSelected}
-				toggleButton={
-					isSelected
-						? () => this.props.deselectContact()
-						: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-						  (event: any) => {
-								// Ensures that deselect event capture on container
-								// does not immediately deselect the contact.
-								event.stopPropagation();
-								this.props.selectContact(contact._id);
-						  }
-				}
-			/>
-		);
-
-		return (
-			<CardHeader
-				avatar={
-					<Collapse in={!isSelected} timeout={150}>
-						{contactImage}
-					</Collapse>
-				}
-				title={name}
-				action={burgerButton}
-				style={{
-					height: `${contactCardHeaderHeightInPixels}px`,
-				}}
-			></CardHeader>
-		);
-	}
-
-	private renderName(contact: Contact): React.ReactNode {
-		return (
-			<h5
-				style={{
-					minWidth: 100,
-				}}
-			>
-				{contact.name}
-			</h5>
-		);
-	}
 }
-
-/**
- * {@inheritdoc react-redux/MapStateToPropsParam}
- */
-function mapStateToProps(state: AppState): Parameters {
-	return state;
-}
-
-/**
- * Contacts app.
- * Displays known contacts.
- */
-const Contacts = connect(mapStateToProps, {
-	selectContact,
-	deselectContact,
-	loadContacts,
-	unloadContacts,
-})(ContactsComponent);
-
-export default Contacts;

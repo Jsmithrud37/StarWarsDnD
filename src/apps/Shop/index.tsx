@@ -1,6 +1,6 @@
-import Shop from './Shop';
+import ShopsApp from './ShopsApp';
 import { reducer } from './State';
 
-export default Shop;
+export default ShopsApp;
 
 export const reducers = reducer;

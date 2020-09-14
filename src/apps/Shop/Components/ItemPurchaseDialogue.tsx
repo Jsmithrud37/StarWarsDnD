@@ -1,7 +1,7 @@
 import { Card, CardContent, Button } from '@material-ui/core';
 import React from 'react';
-import { background2 } from '../../Theming';
-import { InventoryItem } from './Inventory';
+import { background2 } from '../../../Theming';
+import { InventoryItem } from '../Inventory';
 
 interface Props {
 	item: InventoryItem;
