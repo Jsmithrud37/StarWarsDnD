@@ -198,7 +198,7 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					}}
 				>
 					<Typography variant="body2" color="textSecondary">
-						{date.toString()}
+						{date.shortRepresentation}
 					</Typography>
 				</div>
 			</div>
@@ -294,7 +294,7 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 							Date:
 						</Typography>
 						<Typography align="left" variant="subtitle2" paragraph>
-							{date.toString()}
+							{date.longRepresentation}
 						</Typography>
 					</CardContent>
 				</Collapse>
