@@ -35,6 +35,12 @@ type Props = Actions & Parameters;
 interface LocalState {
 	sortAscending: boolean;
 	selectedEvent?: Id;
+
+	/**
+	 * Width of the viewport. Updated on window resize events.
+	 * Used to lay out timeline view differently in narrow views.
+	 */
+	viewPortWidthInPixels: number;
 }
 
 class TimelineAppComponent extends React.Component<Props, LocalState> {
@@ -43,7 +49,29 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 		this.state = {
 			sortAscending: true,
 			selectedEvent: undefined,
+			viewPortWidthInPixels: window.innerWidth,
 		};
+	}
+
+	private updateViewPortWidth(): void {
+		this.setState({
+			...this.state,
+			viewPortWidthInPixels: window.innerWidth,
+		});
+	}
+
+	/**
+	 * {@inheritdoc React.Component.componentDidMount}
+	 */
+	public componentDidMount(): void {
+		window.addEventListener('resize', this.updateViewPortWidth.bind(this));
+	}
+
+	/**
+	 * {@inheritdoc React.Component.componentWillUnmount}
+	 */
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', this.updateViewPortWidth.bind(this));
 	}
 
 	private async fetchEvents(): Promise<void> {
@@ -88,6 +116,8 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 	}
 
 	public render(): React.ReactNode {
+		const useNarrowView = this.state.viewPortWidthInPixels < 540;
+
 		let view;
 		if (this.props.events === undefined) {
 			this.fetchEvents();
@@ -104,7 +134,23 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 						this.deselectEvent();
 					}}
 				>
-					<Timeline align="alternate">{renderedEvents}</Timeline>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'center',
+						}}
+					>
+						<div
+							style={{
+								maxWidth: '1000px',
+							}}
+						>
+							<Timeline align={useNarrowView ? 'left' : 'alternate'}>
+								{renderedEvents}
+							</Timeline>
+						</div>
+					</div>
 				</Scrollbars>
 			);
 		}
@@ -207,7 +253,6 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 
 	private renderEventCard(timelineEvent: TimelineEvent): React.ReactNode {
 		const isSelected = timelineEvent._id === this.state.selectedEvent;
-		const date = getDate(timelineEvent);
 
 		return (
 			<Card
@@ -259,7 +304,7 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					>
 						<HamburgerSqueeze
 							barColor="white"
-							buttonWidth={30}
+							buttonWidth={25}
 							isActive={isSelected}
 							toggleButton={
 								isSelected
@@ -281,24 +326,42 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 							backgroundColor: background3,
 						}}
 					>
-						<Typography align="left" paragraph variant="subtitle2">
-							{timelineEvent.description}
-						</Typography>
-						<Typography align="left" variant="subtitle2">
-							Location:
-						</Typography>
-						<Typography align="left" variant="subtitle2" paragraph>
-							{timelineEvent.location}
-						</Typography>
-						<Typography align="left" variant="subtitle2">
-							Date:
-						</Typography>
-						<Typography align="left" variant="subtitle2" paragraph>
-							{date.longRepresentation}
-						</Typography>
+						{this.renderNotes(timelineEvent)}
+						{this.renderLocation(timelineEvent)}
+						{this.renderDate(timelineEvent)}
 					</CardContent>
 				</Collapse>
 			</Card>
+		);
+	}
+
+	private renderNotes(timelineEvent: TimelineEvent): React.ReactNode {
+		return timelineEvent.description
+			? this.renderEventData(timelineEvent.description)
+			: React.Fragment;
+	}
+
+	private renderLocation(timelineEvent: TimelineEvent): React.ReactNode {
+		return this.renderEventData(timelineEvent.location, 'Location');
+	}
+
+	private renderDate(timelineEvent: TimelineEvent): React.ReactNode {
+		const date = getDate(timelineEvent);
+		return this.renderEventData(date.longRepresentation, 'Date');
+	}
+
+	private renderEventData(data: string, label?: string): React.ReactNode {
+		return (
+			<div
+				style={{
+					textAlign: 'left',
+				}}
+			>
+				<p>
+					{label ? <b>{label}: </b> : <></>}
+					{data}
+				</p>
+			</div>
 		);
 	}
 }

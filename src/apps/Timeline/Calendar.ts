@@ -194,6 +194,11 @@ export class Date {
 	public readonly dayOfTheYear: number;
 
 	/**
+	 * Name of the day of the week.
+	 */
+	public readonly weekday: string;
+
+	/**
 	 * <month-or-festival-shorthand>/<day-of-the-month>/<year>
 	 */
 	public readonly shortRepresentation: string;
@@ -212,11 +217,23 @@ export class Date {
 		this.year = year;
 		this.dayOfTheYear = day;
 
-		const weekday = weekdayFromDay(day);
+		this.weekday = weekdayFromDay(day);
 		const { monthOrFestivalWeek, dayOfMonthOrWeek } = monthOrFestivalFromDay(day);
 
-		this.shortRepresentation = `${monthOrFestivalWeek}/${dayOfMonthOrWeek + 1}/${year}`; // TODO: festival week shorthand
-		this.longRepresentation = `${weekday}, ${monthOrFestivalWeek}/${dayOfMonthOrWeek}/${year}`;
+		const monthOrFestivalWeekString = monthOrFestivalWeek.toLocaleString('en', {
+			minimumIntegerDigits: 2,
+		});
+
+		const dayOfMonthOrWeekString = dayOfMonthOrWeek.toLocaleString('en', {
+			minimumIntegerDigits: 2,
+		});
+
+		const yearString = year.toLocaleString('en', {
+			minimumIntegerDigits: 4,
+		});
+
+		this.shortRepresentation = `${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`; // TODO: festival week shorthand
+		this.longRepresentation = `${this.weekday}, ${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`;
 	}
 
 	public compareWith(other: Date): number {
