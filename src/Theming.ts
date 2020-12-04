@@ -17,19 +17,19 @@ export const background3 = createBackgroundColorAtLevel(3);
 export const background4 = createBackgroundColorAtLevel(4);
 export const background5 = createBackgroundColorAtLevel(5);
 
-export enum Color {
+export enum ThemeColor {
 	Red = '0',
 	Yellow = '60',
 	Green = '120',
-	Blue = '240',
+	Blue = '220',
 	Purple = '300',
 }
 
 /**
  * Creates a content theming color for a given "level" in the application.
  */
-export function createContentColorForLevel(colorBase: Color, level: number): string {
-	return createHslaColorAtLevel(colorBase, '15%', level);
+export function createContentColorForLevel(colorBase: ThemeColor, level: number): string {
+	return createHslaColorAtLevel(colorBase, '20%', level);
 }
 
 /**
