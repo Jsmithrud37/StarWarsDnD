@@ -22,7 +22,8 @@ export function isDroid(contact: Contact): boolean {
 }
 
 /**
- * TODO
+ * Gets the appropriate theme color for a Contact Card based on the contact's information.
+ * For now, this strictly reflects whether or not the contact is a player character.
  */
 export function getContactCardColor(contact: Contact): ThemeColor {
 	return contact.playerCharacter ? ThemeColor.Green : ThemeColor.Blue;
