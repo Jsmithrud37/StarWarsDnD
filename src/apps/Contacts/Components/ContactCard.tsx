@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, Collapse } from '@material-ui/core';
 import React from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
-import { ThemeColor, createContentColorForLevel } from '../../../Theming';
+import { createContentColorForLevel } from '../../../Theming';
 import { Contact, getContactCardColor } from '../Contact';
 import { ContactDetails } from './ContactDetails';
 import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
