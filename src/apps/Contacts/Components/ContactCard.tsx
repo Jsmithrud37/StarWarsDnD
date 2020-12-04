@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, Collapse } from '@material-ui/core';
 import React from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
-import { background3 } from '../../../Theming';
-import { Contact } from '../Contact';
+import { createContentColorForLevel } from '../../../Theming';
+import { Contact, getContactCardColor } from '../Contact';
 import { ContactDetails } from './ContactDetails';
 import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
 
@@ -37,7 +37,10 @@ export class ContactCard extends React.Component<ContactCardProps> {
 					minWidth: 360,
 					maxWidth: 500,
 					overflow: 'hidden',
-					backgroundColor: background3,
+					backgroundColor: createContentColorForLevel(
+						getContactCardColor(this.props.contact),
+						3,
+					),
 				}}
 			>
 				{cardHeader}
