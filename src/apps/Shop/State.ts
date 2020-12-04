@@ -37,7 +37,11 @@ export const reducer: Reducer<AppState, ShopActionTypes> = (
 			};
 		case LOAD_INVENTORY:
 			const updatedInventoryMap = new Map<ShopId, Inventory>(currentState.inventory);
-			updatedInventoryMap.set(action.shopId, action.inventory);
+			if (action.inventory === undefined) {
+				updatedInventoryMap.delete(action.shopId);
+			} else {
+				updatedInventoryMap.set(action.shopId, action.inventory);
+			}
 			return {
 				...currentState,
 				inventory: updatedInventoryMap,
