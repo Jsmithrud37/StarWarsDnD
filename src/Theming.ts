@@ -17,11 +17,33 @@ export const background3 = createBackgroundColorAtLevel(3);
 export const background4 = createBackgroundColorAtLevel(4);
 export const background5 = createBackgroundColorAtLevel(5);
 
+export enum Color {
+	Red = '0',
+	Yellow = '60',
+	Green = '120',
+	Blue = '240',
+	Purple = '300',
+}
+
 /**
- * Creates a background color based on level
+ * Creates a content theming color for a given "level" in the application.
+ */
+export function createContentColorForLevel(colorBase: Color, level: number): string {
+	return createHslaColorAtLevel(colorBase, '15%', level);
+}
+
+/**
+ * Creates a background theming color for a given "level" in the application.
  */
 function createBackgroundColorAtLevel(level: number): string {
+	return createHslaColorAtLevel('220', '15%', level);
+}
+
+/**
+ * Creates an HSLA color at a given "level" in the application.
+ */
+function createHslaColorAtLevel(hue: string, saturation: string, level: number): string {
 	const baseLightPercent = 10;
 	const lightDelta = 3;
-	return `hsla(220, 15%, ${baseLightPercent + level * lightDelta}%, 1)`;
+	return `hsla(${hue}, ${saturation}, ${baseLightPercent + level * lightDelta}%, 1)`;
 }
