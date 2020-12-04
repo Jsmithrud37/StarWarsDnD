@@ -1,5 +1,5 @@
 import React from 'react';
-import { background2, background4, background5, background3 } from '../../Theming';
+import { background2, background5, createContentColorForLevel } from '../../Theming';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {
 	Timeline,
@@ -11,7 +11,7 @@ import {
 } from '@material-ui/lab';
 import { renderFactionEmblem, ImageContainerShape } from '../../utilities/ImageUtilities';
 import Typography from '@material-ui/core/Typography/Typography';
-import { TimelineEvent } from './TimelineEvent';
+import { getThemeColorForEvent, TimelineEvent } from './TimelineEvent';
 import { connect } from 'react-redux';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { AppState } from './State';
@@ -261,7 +261,10 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 					minWidth: 250,
 					// maxWidth: 600,
 					overflow: 'hidden',
-					backgroundColor: background4,
+					backgroundColor: createContentColorForLevel(
+						getThemeColorForEvent(timelineEvent),
+						4,
+					),
 				}}
 				onClick={(event) => {
 					// Clicks on the card should not collapse the card.
@@ -323,7 +326,10 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 				<Collapse in={isSelected}>
 					<CardContent
 						style={{
-							backgroundColor: background3,
+							backgroundColor: createContentColorForLevel(
+								getThemeColorForEvent(timelineEvent),
+								3,
+							),
 						}}
 					>
 						{this.renderNotes(timelineEvent)}
