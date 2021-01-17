@@ -40,6 +40,11 @@
 			"last 1 safari version"
 		]
 	},
+	"jest": {
+		"collectCoverageFrom": [
+			"src/**/*.{js,jsx,ts,tsx}"
+		]
+	},
 	"dependencies": {
 		"@auth0/auth0-react": "^1.2.0",
 		"@babel/runtime": "^7.12.5",
@@ -113,10 +118,5 @@
 		"prettier": "^2.2.1",
 		"sort-package-json": "^1.48.1",
 		"typescript": "^3.2.1"
-	},
-	"jest": {
-		"collectCoverageFrom": [
-			"src/**/*.{js,jsx,ts,tsx}"
-		]
 	}
 }
