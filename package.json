@@ -23,7 +23,7 @@
 		"start": "run-p start:*",
 		"start:backend": "netlify-lambda serve -c ./webpack.backend.js ./backend",
 		"start:frontend": "react-scripts start",
-		"test": "react-scripts test"
+		"test": "react-scripts test --coverage --coverageDirectory=reports/coverage"
 	},
 	"browserslist": {
 		"production": [
@@ -110,5 +110,10 @@
 		"prettier": "^2.2.1",
 		"sort-package-json": "^1.48.1",
 		"typescript": "^3.2.1"
+	},
+	"jest": {
+		"collectCoverageFrom": [
+			"src/**/*.{js,jsx,ts,tsx}"
+		]
 	}
 }
