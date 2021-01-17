@@ -99,7 +99,7 @@ interface PrivateState {
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-class DatapadComponent extends React.Component<Props, PrivateState> {
+export class DatapadComponent extends React.Component<Props, PrivateState> {
 	/**
 	 * Redux data store for the Shop app.
 	 */
