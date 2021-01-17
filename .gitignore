@@ -27,7 +27,6 @@ backend-build
 
 # Local debug environment variables. Contains private auth information and should not be checked in.
 backend-debug-environment.json
-src/debug-environment.json
 
 # Eslint cache file
 .eslintcache

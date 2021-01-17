@@ -6,26 +6,10 @@ import App from './App';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 
-// Load environment variables from git-ignored file for local debugging.
-// The values will be loaded into the environment already in production.
-let authZeroDomain, authZeroClientId: string;
-if (process.env.NODE_ENV === 'production') {
-	if (!process.env.AUTH_DOMAIN || !process.env.AUTH_CLIENT_ID) {
-		throw new Error('Missing environment variable.');
-	}
-	authZeroDomain = process.env.AUTH_DOMAIN;
-	authZeroClientId = process.env.AUTH_CLIENT_ID;
-} else {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const config = require('./debug-environment.json');
-	authZeroDomain = config.AUTH_DOMAIN;
-	authZeroClientId = config.AUTH_CLIENT_ID;
-}
-
 ReactDOM.render(
 	<Auth0Provider
-		domain={authZeroDomain}
-		clientId={authZeroClientId}
+		domain="datapad.us.auth0.com"
+		clientId="U0kkfC5BuX8bn9b0TEAh6DOWclZmYyv4"
 		redirectUri={window.location.origin}
 	>
 		<App />
