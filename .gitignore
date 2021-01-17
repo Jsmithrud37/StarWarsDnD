@@ -31,3 +31,6 @@ src/debug-environment.json
 
 # Eslint cache file
 .eslintcache
+
+# Test report output
+reports/*
