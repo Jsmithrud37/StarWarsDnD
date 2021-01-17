@@ -22,6 +22,20 @@ export function isDroid(contact: Contact): boolean {
 }
 
 /**
+ * Returns whether or not the contact is a player character.
+ */
+export function isPlayerCharacter(contact: Contact): boolean {
+	return contact.playerCharacter ?? false;
+}
+
+/**
+ * Gets only player-character contacts
+ */
+export function getPlayerCharacters(contacts: Contact[]): Contact[] {
+	return contacts.filter((contact) => isPlayerCharacter(contact));
+}
+
+/**
  * Gets the appropriate theme color for a Contact Card based on the contact's information.
  * For now, this strictly reflects whether or not the contact is a player character.
  */

@@ -263,6 +263,10 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 	 * Renders the application view
 	 */
 	private renderApp(): ReactNode {
+		if (!this.props.signedInPlayer) {
+			throw new Error("Player data has not been loaded yet. Can't render app without it.");
+		}
+
 		const selection = this.props.appSelection;
 		switch (selection) {
 			case AppId.GalaxyMap:
@@ -270,7 +274,7 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Contacts:
 				return (
 					<Provider store={this.contactsStore}>
-						<ContactsApp />
+						<ContactsApp player={this.props.signedInPlayer} />
 					</Provider>
 				);
 			case AppId.Shops:
