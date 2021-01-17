@@ -1,3 +1,11 @@
+# Frontend build output
 build
+
+# Backend build output
 backend-build
+
+# ...node_modules...
 node_modules
+
+# Test reports
+reports

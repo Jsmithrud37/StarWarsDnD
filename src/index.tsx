@@ -1,34 +1,35 @@
+import { Auth0Provider } from '@auth0/auth0-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import Datapad, { reducers } from './apps/Datapad';
+import App from './App';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { MuiThemeProvider } from '@material-ui/core';
-import { appTheme } from './Theming';
 
-const dataStore = createStore(reducers);
-
-const galaxyMapEnabled = true;
-const shopsEnabled = true;
-const contactsEnabled = true;
-const messengerEnabled = true;
-const timelineEnabled = process.env.NODE_ENV !== 'production';
+// Load environment variables from git-ignored file for local debugging.
+// The values will be loaded into the environment already in production.
+let authZeroDomain, authZeroClientId: string;
+if (process.env.NODE_ENV === 'production') {
+	if (!process.env.AUTH_DOMAIN || !process.env.AUTH_CLIENT_ID) {
+		throw new Error('Missing environment variable.');
+	}
+	authZeroDomain = process.env.AUTH_DOMAIN;
+	authZeroClientId = process.env.AUTH_CLIENT_ID;
+} else {
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const config = require('./debug-environment.json');
+	authZeroDomain = config.AUTH_DOMAIN;
+	authZeroClientId = config.AUTH_CLIENT_ID;
+}
 
 ReactDOM.render(
-	<Provider store={dataStore}>
-		<MuiThemeProvider theme={appTheme}>
-			<Datapad
-				galaxyMapEnabled={galaxyMapEnabled}
-				shopsEnabled={shopsEnabled}
-				contactsEnabled={contactsEnabled}
-				messengerEnabled={messengerEnabled}
-				timelineEnabled={timelineEnabled}
-			/>
-		</MuiThemeProvider>
-	</Provider>,
+	<Auth0Provider
+		domain={authZeroDomain}
+		clientId={authZeroClientId}
+		redirectUri={window.location.origin}
+	>
+		<App />
+	</Auth0Provider>,
 	document.getElementById('root'),
 );
 

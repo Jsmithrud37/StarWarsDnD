@@ -8,12 +8,15 @@
 		"build:backend": "netlify-lambda build -c ./webpack.backend.js ./backend",
 		"build:frontend": "react-scripts build",
 		"check-peer-dependencies": "check-peer-deps",
-		"clean": "del-cli build/* backend-build/*",
+		"clean": "run-p clean:*",
+		"clean:backend": "del-cli backend-build/*",
+		"clean:frontend": "del-cli build/*",
+		"clean:test-reports": "del-cli reports/*",
 		"eject": "react-scripts eject",
-		"format": "run-s format:*",
-		"format:ecmascript": "eslint ./{backend,src}/**/*.{js,jsx,ts,tsx} --fix",
-		"format:package-json": "sort-package-json ./package.json",
-		"format:prettier": "prettier . --write",
+		"fix": "run-s fix:*",
+		"fix:ecmascript": "eslint ./{backend,src}/**/*.{js,jsx,ts,tsx} --fix",
+		"fix:package-json": "sort-package-json ./package.json",
+		"fix:prettier": "prettier . --write",
 		"postinstall": "npm run check-peer-dependencies",
 		"lint": "run-p lint:*",
 		"lint:ecmascript": "eslint ./{backend,src}/**/*.{js,jsx,ts,tsx}",
@@ -23,7 +26,7 @@
 		"start": "run-p start:*",
 		"start:backend": "netlify-lambda serve -c ./webpack.backend.js ./backend",
 		"start:frontend": "react-scripts start",
-		"test": "react-scripts test"
+		"test": "react-scripts test --coverage --coverageDirectory=reports/coverage"
 	},
 	"browserslist": {
 		"production": [
@@ -37,7 +40,13 @@
 			"last 1 safari version"
 		]
 	},
+	"jest": {
+		"collectCoverageFrom": [
+			"src/**/*.{js,jsx,ts,tsx}"
+		]
+	},
 	"dependencies": {
+		"@auth0/auth0-react": "^1.2.0",
 		"@babel/runtime": "^7.12.5",
 		"@material-ui/core": "^4.11.2",
 		"@material-ui/icons": "^4.11.2",

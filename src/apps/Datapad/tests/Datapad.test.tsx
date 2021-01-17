@@ -1,21 +1,45 @@
 import { render } from '@testing-library/react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { ReactNode } from 'react';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import Datapad from '../Datapad';
-import { reducer as datapadReducer } from '../State';
+import { changeApp, collapseMenu, expandMenu, setPlayer } from '../Actions';
+import AppId from '../AppId';
+import { DatapadComponent } from '../Datapad';
+import { Player, PlayerKind } from '../Player';
 
-const dataStore = createStore(datapadReducer);
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const userName = 'test-user';
+const character = 'test-character';
+const player: Player = {
+	userName,
+	playerKind: PlayerKind.Player,
+	characters: [character],
+};
+
+const initialAppSelection = AppId.GalaxyMap;
+
+/**
+ * Mocks the logout functionality supported by the Datapad
+ */
+function mockLogout(): void {
+	console.log('User logged out.');
+}
 
 /**
  * Renders the datapad app, initialized with its required Redux datastore.
  */
 function renderApp(): ReactNode {
 	return (
-		<Provider store={dataStore}>
-			<Datapad />
-		</Provider>
+		<DatapadComponent
+			userName={userName}
+			logoutFunction={mockLogout}
+			signedInPlayer={player}
+			appSelection={initialAppSelection}
+			isMenuCollapsed={false}
+			changeApp={changeApp}
+			collapseMenu={collapseMenu}
+			expandMenu={expandMenu}
+			setPlayer={setPlayer}
+		/>
 	);
 }
 
@@ -29,4 +53,27 @@ test('Menu contains expected buttons', () => {
 		const element = getByText(query);
 		expect(element).toBeInTheDocument();
 	}
+});
+
+test('Menu contains welcome for user', () => {
+	const { getByText } = render(<>{renderApp()}</>);
+
+	const element = getByText(`Welcome ${userName}!`);
+	expect(element).toBeInTheDocument();
+});
+
+test('Menu contains Google Drive link', () => {
+	const { getByText } = render(<>{renderApp()}</>);
+
+	const element = getByText(`Drive`);
+	expect(element).toBeInTheDocument();
+	expect(element).toHaveAttribute('href');
+});
+
+test('Menu contains SW5e link', () => {
+	const { getByText } = render(<>{renderApp()}</>);
+
+	const element = getByText(`SW5e`);
+	expect(element).toBeInTheDocument();
+	expect(element).toHaveAttribute('href', 'https://sw5e.com/');
 });
