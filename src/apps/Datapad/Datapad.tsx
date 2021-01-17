@@ -7,7 +7,7 @@ import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import ShopsApp, { reducers as shopReducers } from '../Shop';
 import Timeline from '../Timeline';
-import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
+import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
 import {
@@ -28,6 +28,9 @@ import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { background1 } from '../../Theming';
+import { Player } from './Player';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
+import LoadingScreen from '../../shared-components/LoadingScreen';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -123,7 +126,40 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 		});
 	}
 
+	private async fetchPlayer(): Promise<void> {
+		interface FetchPlayerResult {
+			player: Player;
+		}
+
+		const getPlayerFunction = 'GetPlayer';
+		const getPlayerParameters = [
+			{
+				name: 'userName',
+				value: this.props.userName.toLocaleLowerCase(),
+			},
+		];
+		const response = await executeBackendFunction<FetchPlayerResult>(
+			getPlayerFunction,
+			getPlayerParameters,
+		);
+		if (response) {
+			// TODO: is this check needed?
+			const player = response.player;
+			this.props.setPlayer(player);
+		} else {
+			throw new Error(
+				`Player associated with user "${this.props.userName}" not found. Talk to your DM 😉`,
+			);
+		}
+	}
+
 	public render(): ReactNode {
+		if (!this.props.signedInPlayer) {
+			// If we have not found the player data for
+			this.fetchPlayer();
+			return <LoadingScreen text={`Loading player data...`} />;
+		}
+
 		const appView: ReactNode = (
 			<div
 				id={viewId}
@@ -435,6 +471,7 @@ const Datapad = connect(mapStateToProps, {
 	changeApp,
 	collapseMenu,
 	expandMenu,
+	setPlayer,
 })(DatapadComponent);
 
 export default Datapad;

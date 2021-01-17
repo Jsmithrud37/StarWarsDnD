@@ -1,11 +1,18 @@
 import { Reducer } from 'redux';
-import { CHANGE_APP, COLLAPSE_MENU, DatapadActions, EXPAND_MENU } from './Actions';
+import { CHANGE_APP, COLLAPSE_MENU, DatapadActions, EXPAND_MENU, SET_PLAYER } from './Actions';
 import AppId from './AppId';
+import { Player } from './Player';
 
 /**
  * State utilized by the Datapad app component
  */
 export interface AppState {
+	/**
+	 * Signed in player.
+	 * If not present, means that the player needs to be fetched from the backend.
+	 */
+	signedInPlayer?: Player;
+
 	/**
 	 * Currently selected application.
 	 */
@@ -21,6 +28,7 @@ export interface AppState {
  * Initial state used by the Datapad app component
  */
 export const initialState: AppState = {
+	signedInPlayer: undefined,
 	appSelection: AppId.GalaxyMap,
 	isMenuCollapsed: false,
 };
@@ -50,6 +58,11 @@ export const reducer: Reducer<AppState, DatapadActions> = (
 			return {
 				...currentState,
 				isMenuCollapsed: false,
+			};
+		case SET_PLAYER:
+			return {
+				...currentState,
+				signedInPlayer: action.player,
 			};
 		default:
 			return currentState;
