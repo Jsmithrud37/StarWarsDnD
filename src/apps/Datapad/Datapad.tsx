@@ -2,10 +2,10 @@ import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
-import Contacts, { reducers as contactsReducers } from '../Contacts';
+import ContactsApp, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
-import Shop, { reducers as shopReducers } from '../Shop';
+import ShopsApp, { reducers as shopReducers } from '../Shop';
 import Timeline from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
 import AppId from './AppId';
@@ -199,7 +199,9 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				<IconButton
 					onClick={() => this.props.expandMenu()}
 					style={{
-						float: 'left',
+						position: 'absolute',
+						left: '2px',
+						bottom: '2px',
 					}}
 				>
 					<MenuIcon />
@@ -208,8 +210,11 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					src="images/Order-Of-The-Fallen-Logo-Long.png"
 					alt="Campaign logo"
 					style={{
-						height: '75px',
-						margin: '15px',
+						height: '60px',
+						marginTop: '15px',
+						marginBottom: '15px',
+						marginLeft: '5px',
+						marginRight: '5px',
 						pointerEvents: 'none',
 						objectFit: 'scale-down',
 					}}
@@ -229,13 +234,13 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Contacts:
 				return (
 					<Provider store={this.contactsStore}>
-						<Contacts />
+						<ContactsApp />
 					</Provider>
 				);
 			case AppId.Shops:
 				return (
 					<Provider store={this.shopStore}>
-						<Shop />
+						<ShopsApp />
 					</Provider>
 				);
 			case AppId.Messenger:

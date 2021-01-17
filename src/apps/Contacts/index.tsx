@@ -1,6 +1,6 @@
-import Contacts from './Contacts';
+import ContactsApp from './ContactsApp';
 import { reducer } from './State';
 
-export default Contacts;
+export default ContactsApp;
 
 export const reducers = reducer;

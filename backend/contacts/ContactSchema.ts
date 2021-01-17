@@ -12,6 +12,7 @@ export const contactSchema = new Schema(
 		affiliations: { type: [String], required: false },
 		status: { type: String, required: false },
 		bio: { type: String, required: false },
+		playerCharacter: { type: Boolean, required: false },
 	},
 	{
 		timestamps: true,

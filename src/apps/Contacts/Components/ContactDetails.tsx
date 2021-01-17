@@ -10,11 +10,10 @@ import {
 	ImageContainerShape,
 	renderContactImage,
 	renderFactionEmblem,
-} from '../../utilities/ImageUtilities';
-import { Contact, isDroid } from './Contact';
+} from '../../../utilities/ImageUtilities';
+import { Contact, getContactCardColor, isDroid } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
-import './Styling/Contacts.css';
-import { background4 } from '../../Theming';
+import { createContentColorForLevel } from '../../../Theming';
 
 /**
  * Tabs in the contact card view
@@ -79,6 +78,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 		const tabPanelStyle = {
 			height: `${bodyHeightInPixels}px`,
+			padding: '5px',
 		};
 
 		const tabPanels: React.ReactNodeArray = [
@@ -119,7 +119,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 						position="static"
 						style={{
 							height: `${headerHeightInPixels}px`,
-							backgroundColor: background4,
+							backgroundColor: createContentColorForLevel(
+								getContactCardColor(this.props.contact),
+								4,
+							),
 						}}
 					>
 						<Tabs

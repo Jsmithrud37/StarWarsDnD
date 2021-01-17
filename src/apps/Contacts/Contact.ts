@@ -1,3 +1,4 @@
+import { ThemeColor } from '../../Theming';
 import { Id } from '../../utilities/DatabaseUtilities';
 
 // TODO: get from schema
@@ -10,6 +11,7 @@ export interface Contact {
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
 	bio?: string; // undefined === no bio
+	playerCharacter?: boolean; // undefined == false
 }
 
 /**
@@ -17,4 +19,12 @@ export interface Contact {
  */
 export function isDroid(contact: Contact): boolean {
 	return contact.species === 'Droid';
+}
+
+/**
+ * Gets the appropriate theme color for a Contact Card based on the contact's information.
+ * For now, this strictly reflects whether or not the contact is a player character.
+ */
+export function getContactCardColor(contact: Contact): ThemeColor {
+	return contact.playerCharacter ? ThemeColor.Green : ThemeColor.Blue;
 }
