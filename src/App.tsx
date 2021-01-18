@@ -22,11 +22,7 @@ class AppComponent extends React.Component<WithAuth0Props> {
 	}
 
 	public render(): React.ReactNode {
-		if (this.props.auth0.isLoading) {
-			return this.renderLoading();
-		} else if (!this.props.auth0.isAuthenticated) {
-			return this.renderLogin();
-		} else {
+		if (this.props.auth0.isAuthenticated) {
 			if (!this.props.auth0.user) {
 				throw new Error('Authentication failed to provide user data.');
 			}
@@ -47,6 +43,12 @@ class AppComponent extends React.Component<WithAuth0Props> {
 					</MuiThemeProvider>
 				</Provider>
 			);
+		} else {
+			if (this.props.auth0.isLoading) {
+				return this.renderLoading();
+			} else {
+				return this.renderLogin();
+			}
 		}
 	}
 
