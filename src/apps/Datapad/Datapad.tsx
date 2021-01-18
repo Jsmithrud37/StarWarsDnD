@@ -28,7 +28,7 @@ import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { background1 } from '../../Theming';
-import { Player } from './Player';
+import { Player, PlayerKind } from './Player';
 import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import LoadingScreen from '../../shared-components/LoadingScreen';
 
@@ -292,6 +292,14 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 		}
 	}
 
+	menuTextContainerStyle: React.CSSProperties = {
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		paddingLeft: '10px',
+		paddingTop: '5px',
+	};
+
 	/**
 	 * Renders the Datapad main menu
 	 */
@@ -314,12 +322,17 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 					}}
 				>
 					{this.renderWelcome()}
+					{this.renderUserRole()}
+					{this.renderCharacters()}
+					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					{this.renderAppsList()}
 					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
+					<Divider orientation="horizontal" />
 					{this.renderMenuMisc()}
+					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					{this.renderMenuFooter()}
@@ -330,30 +343,76 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 
 	private renderWelcome(): React.ReactNode {
 		const userName: string = this.props.userName;
+
 		return (
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-					alignItems: 'space-around',
-				}}
-			>
+			<ListItem>
 				<div
 					style={{
 						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-						paddingLeft: '10px',
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+						alignItems: 'space-around',
 					}}
 				>
-					<h5>{`Welcome ${userName}!`}</h5>
+					<div style={this.menuTextContainerStyle}>
+						<h5>{`Welcome ${userName}!`}</h5>
+					</div>
+					<div>
+						<IconButton onClick={() => this.props.collapseMenu()}>
+							<CloseIcon />
+						</IconButton>
+					</div>
 				</div>
-				<div>
-					<IconButton onClick={() => this.props.collapseMenu()}>
-						<CloseIcon />
-					</IconButton>
-				</div>
+			</ListItem>
+		);
+	}
+
+	private renderUserRole(): React.ReactNode {
+		const player = this.props.signedInPlayer;
+
+		if (!player) {
+			throw new Error('No player set. Cannot render datapad menu.');
+		}
+
+		return (
+			<div style={this.menuTextContainerStyle}>
+				<h6>
+					<b>Role: </b>
+					{player.playerKind}
+				</h6>
+			</div>
+		);
+	}
+
+	private renderCharacters(): React.ReactNode {
+		const player = this.props.signedInPlayer;
+
+		if (!player) {
+			throw new Error('No player set. Cannot render datapad menu.');
+		}
+
+		const userIsDungeonMaster = player.playerKind === PlayerKind.DungeonMaster;
+
+		const playerCharactersListRender = (
+			<ul>
+				<li>
+					{userIsDungeonMaster ? (
+						<b>all</b>
+					) : (
+						player.characters?.map((character) => {
+							return <li key={character}>{character}</li>;
+						})
+					)}
+				</li>
+			</ul>
+		);
+
+		return (
+			<div style={this.menuTextContainerStyle}>
+				<h6>
+					<b>Characters:</b>
+				</h6>
+				{playerCharactersListRender}
 			</div>
 		);
 	}
@@ -361,6 +420,9 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 	private renderAppsList(): React.ReactNode {
 		return (
 			<div>
+				<div style={this.menuTextContainerStyle}>
+					<h5>Applications:</h5>
+				</div>
 				{/* TODO: user details */}
 				{/* <Divider orientation="horizontal"></Divider> */}
 				{this.createMenuItem(
@@ -429,9 +491,19 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 	private renderMenuFooter(): React.ReactNode {
 		return (
 			<ListItem>
-				<Button variant="contained" onClick={() => this.props.logoutFunction()}>
-					Log Out
-				</Button>
+				<div
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'start',
+						padding: '10px',
+					}}
+				>
+					<Button variant="contained" onClick={() => this.props.logoutFunction()}>
+						Log Out
+					</Button>
+				</div>
 			</ListItem>
 		);
 	}
