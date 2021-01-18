@@ -240,7 +240,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderSpecies(contact: Contact): React.ReactNode {
-		const speciesLink = this.getSpeciesLinkUrl(contact.species);
+		const speciesLink = this.getSpeciesLinkUrl(contact);
 		return (
 			<TableRow>
 				<TableCell>
@@ -275,7 +275,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderHomeworld(contact: Contact): React.ReactNode {
-		const homeworldLink = this.getPlanetLinkUrl(contact.homeworld);
+		const homeworldLink = this.getPlanetLinkUrl(contact);
 		return (
 			<TableRow>
 				<TableCell>
@@ -305,14 +305,19 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private getSpeciesLinkUrl(species: string | undefined): string | undefined {
-		return species
-			? `https://starwars.fandom.com/wiki/${species.replace(' ', '_')}`
+	private getSpeciesLinkUrl(contact: Contact): string | undefined {
+		if (contact.speciesUrl) {
+			return contact.speciesUrl;
+		}
+		return contact.species
+			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}`
 			: undefined;
 	}
 
-	private getPlanetLinkUrl(planet: string | undefined): string | undefined {
-		return planet ? `https://starwars.fandom.com/wiki/${planet.replace(' ', '_')}` : undefined;
+	private getPlanetLinkUrl(contact: Contact): string | undefined {
+		return contact.homeworld
+			? `https://starwars.fandom.com/wiki/${contact.homeworld.replace(' ', '_')}`
+			: undefined;
 	}
 
 	private stringOrUnknown(value: string | undefined): string {

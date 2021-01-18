@@ -18,11 +18,22 @@ import {
 import { background2, background3 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { ContactCard } from './ContactCard';
+import { getCharactersBelongingToPlayer, Player, PlayerKind } from '../../Datapad/Player';
+
+/**
+ * Externally specified props
+ */
+export interface InputProps {
+	/**
+	 * Signed in player
+	 */
+	player: Player;
+}
 
 /**
  * State parameters used by the Datapad app component.
  */
-type Parameters = AppState;
+type Parameters = AppState & InputProps;
 
 /**
  * Contacts {@link https://reactjs.org/docs/render-props.html | Render Props}
@@ -38,7 +49,7 @@ interface State {
 	 * This filter is based on sub-string matching, as it is backed by a text entry field.
 	 * Any contact name including this string will be matched.
 	 */
-	nameFilter: string;
+	nameFilter?: string;
 
 	/**
 	 * Filter to faction.
@@ -46,12 +57,20 @@ interface State {
 	 * Any contact including a faction which exactly matches this will be matched.
 	 * empty string indicates that no filtering should be performed on factions.
 	 */
-	factionFilter: string;
+	factionFilter?: string;
+
+	/**
+	 * Filter for a particular player character.
+	 * The app will only show characters known by the specified character.
+	 * Unspecified means to show any character known by *any* of the player's characters.
+	 */
+	knownByFilter?: string;
 }
 
 const initialState: State = {
-	nameFilter: '',
-	factionFilter: '',
+	nameFilter: undefined,
+	factionFilter: undefined,
+	knownByFilter: undefined,
 };
 
 export class Contacts extends React.Component<Props, State> {
@@ -66,23 +85,72 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	private getFilteredContacts(): Contact[] {
-		if (this.props.contacts === undefined) {
+		const contacts = this.props.contacts;
+		if (contacts === undefined) {
 			throw new Error('Contacts not loaded yet.');
 		}
 
+		let filteredContacts = contacts;
+
 		// Filter based on name
-		let filteredContacts = this.props.contacts.filter((contact) =>
-			contact.name.toLocaleLowerCase().includes(this.state.nameFilter.toLocaleLowerCase()),
-		);
+		const nameFilter = this.state.nameFilter;
+		if (nameFilter) {
+			filteredContacts = contacts.filter((contact) =>
+				contact.name.toLocaleLowerCase().includes(nameFilter.toLocaleLowerCase()),
+			);
+		}
 
 		// Filter based on faction
-		if (this.state.factionFilter) {
+		const factionFilter = this.state.factionFilter;
+		if (factionFilter) {
 			filteredContacts = filteredContacts.filter((contact) => {
-				return (
-					contact.affiliations &&
-					contact.affiliations.includes(this.state.factionFilter as string)
-				);
+				return contact.affiliations && contact.affiliations.includes(factionFilter);
 			});
+		}
+
+		// Filter based on player character knowledge
+		const knownByFilter = this.state.knownByFilter;
+		if (this.props.player.playerKind !== PlayerKind.DungeonMaster || knownByFilter) {
+			let playerCharactersToConsider = getCharactersBelongingToPlayer(
+				contacts,
+				this.props.player,
+			);
+			// If no known-by filter is set, we will load characters known by *all* the player's
+			// characters.
+			if (knownByFilter) {
+				playerCharactersToConsider = playerCharactersToConsider.filter(
+					(character) =>
+						character.name.toLocaleLowerCase() === knownByFilter.toLocaleLowerCase(),
+				);
+			}
+			filteredContacts = filteredContacts.filter((contact) => {
+				// An undefined / empty entry for `knownBy` indicates the character is known by everyone.
+				if (!contact.knownBy || contact.knownBy.length === 0) {
+					return true;
+				}
+
+				let known = false;
+				const knownCharacters = contact.knownBy;
+
+				for (const knownCharacter of knownCharacters) {
+					for (const character of playerCharactersToConsider) {
+						if (
+							character.name.toLocaleLowerCase() ===
+							knownCharacter.toLocaleLowerCase()
+						) {
+							known = true;
+							break;
+						}
+					}
+					if (known) {
+						break;
+					}
+				}
+				return known;
+			});
+		} else {
+			// If the user is the DM, and no filter is specified, return all characters
+			// (even if not known by any player characters)
 		}
 
 		// TODO: apply other filters as needed
@@ -132,18 +200,26 @@ export class Contacts extends React.Component<Props, State> {
 		this.props.unloadContacts();
 	}
 
-	private updateNameFilter(newValue: string): void {
+	private updateNameFilter(newValue?: string): void {
 		this.setState({
 			...this.state,
 			nameFilter: newValue,
 		});
 	}
 
-	private setFactionFilter(newValue: string): void {
+	private setFactionFilter(newValue?: string): void {
 		console.log(`Faction filter updated to: ${newValue}`);
 		this.setState({
 			...this.state,
 			factionFilter: newValue,
+		});
+	}
+
+	private setKnownByFilter(newValue?: string): void {
+		console.log(`Known-by filter updated to: ${newValue}`);
+		this.setState({
+			...this.state,
+			knownByFilter: newValue,
 		});
 	}
 
@@ -181,21 +257,6 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	private renderToolbar(): React.ReactNode {
-		const representedFactions = this.getRepresentedFactions();
-		// TODO: base options off of name filter?
-		const factionFilterOptions: React.ReactNodeArray = [
-			<MenuItem key={`faction-filter-option-none`} value={undefined}>
-				<em>None</em>
-			</MenuItem>,
-		];
-		representedFactions.forEach((faction) => {
-			factionFilterOptions.push(
-				<MenuItem key={`faction-filter-option-${faction}`} value={faction}>
-					{faction}
-				</MenuItem>,
-			);
-		});
-
 		return (
 			<AppBar
 				id="contacts-toolbar"
@@ -221,62 +282,9 @@ export class Contacts extends React.Component<Props, State> {
 							flexDirection: 'row',
 						}}
 					>
-						<div
-							style={{
-								height: '100%',
-								minWidth: '125px',
-								display: 'flex',
-								flexDirection: 'column',
-								justifyContent: 'space-around',
-								paddingLeft: '5px',
-								paddingRight: '5px',
-								textAlign: 'left',
-							}}
-						>
-							<TextField
-								type="search"
-								value={this.state.nameFilter}
-								label={`Filter Name`}
-								id={`name_filter`}
-								variant="outlined"
-								multiline={false}
-								size="small"
-								onChange={(
-									event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-								) => this.updateNameFilter(event.target.value.toLocaleLowerCase())}
-							/>
-						</div>
-
-						<div
-							style={{
-								height: '100%',
-								minWidth: '175px',
-								display: 'flex',
-								flexDirection: 'column',
-								justifyContent: 'space-around',
-								paddingLeft: '5px',
-								paddingRight: '5px',
-								textAlign: 'left',
-							}}
-						>
-							<FormControl variant="outlined" size="small">
-								<InputLabel id="faction-filter-label">
-									Filter Affiliation
-								</InputLabel>
-								<Select
-									id="faction-filter-select"
-									labelId="faction-filter-label"
-									label="Filter Affiliation"
-									value={this.state.factionFilter}
-									onChange={(event) =>
-										this.setFactionFilter(event.target.value as string)
-									}
-									variant="outlined"
-								>
-									{factionFilterOptions}
-								</Select>
-							</FormControl>
-						</div>
+						{this.renderNameFilterBox()}
+						{this.renderKnownByFilterDropDown()}
+						{this.renderFactionFilterDropDown()}
 					</div>
 					<IconButton
 						id="refresh-contacts"
@@ -287,6 +295,138 @@ export class Contacts extends React.Component<Props, State> {
 					</IconButton>
 				</div>
 			</AppBar>
+		);
+	}
+
+	private renderKnownByFilterDropDown(): ReactNode {
+		const playerCharacters = getCharactersBelongingToPlayer(
+			this.props.contacts ?? [],
+			this.props.player,
+		);
+
+		// If the player has no characters, do not show filter menu
+		if (!playerCharacters) {
+			return React.Fragment;
+		}
+
+		const playerCharacterNames = playerCharacters.map((character) => character.name);
+
+		const knownByFilterOptions: React.ReactNodeArray = [
+			<MenuItem key={`known-by-filter-option-all`} value={undefined}>
+				<em>All Characters</em>
+			</MenuItem>,
+		];
+		playerCharacterNames.forEach((characterName) => {
+			knownByFilterOptions.push(
+				<MenuItem key={`known-by-filter-option-${characterName}`} value={characterName}>
+					{characterName}
+				</MenuItem>,
+			);
+		});
+
+		return (
+			<div
+				style={{
+					height: '100%',
+					minWidth: '175px',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'space-around',
+					paddingLeft: '5px',
+					paddingRight: '5px',
+					textAlign: 'left',
+				}}
+			>
+				<FormControl variant="outlined" size="small">
+					<InputLabel id="known-by-filter-label">Known By</InputLabel>
+					<Select
+						id="known-by-filter-select"
+						labelId="known-by-filter-label"
+						label="Known By"
+						value={this.state.knownByFilter}
+						onChange={(event) => this.setKnownByFilter(event.target.value as string)}
+						variant="outlined"
+					>
+						{knownByFilterOptions}
+					</Select>
+				</FormControl>
+			</div>
+		);
+	}
+
+	private renderNameFilterBox(): ReactNode {
+		return (
+			<div
+				style={{
+					height: '100%',
+					minWidth: '125px',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'space-around',
+					paddingLeft: '5px',
+					paddingRight: '5px',
+					textAlign: 'left',
+				}}
+			>
+				<TextField
+					type="search"
+					value={this.state.nameFilter}
+					label={`Filter Name`}
+					id={`name_filter`}
+					variant="outlined"
+					multiline={false}
+					size="small"
+					onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
+						this.updateNameFilter(event.target.value?.toLocaleLowerCase())
+					}
+				/>
+			</div>
+		);
+	}
+
+	private renderFactionFilterDropDown(): ReactNode {
+		const representedFactions = this.getRepresentedFactions();
+		// TODO: base options off of name filter?
+		const factionFilterOptions: React.ReactNodeArray = [
+			<MenuItem key={`faction-filter-option-none`} value={undefined}>
+				<em>All Factions</em>
+			</MenuItem>,
+		];
+		representedFactions.forEach((faction) => {
+			factionFilterOptions.push(
+				<MenuItem key={`faction-filter-option-${faction}`} value={faction}>
+					{faction}
+				</MenuItem>,
+			);
+		});
+
+		return (
+			<div
+				style={{
+					height: '100%',
+					minWidth: '175px',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'space-around',
+					paddingLeft: '5px',
+					paddingRight: '5px',
+					textAlign: 'left',
+				}}
+			>
+				<FormControl variant="outlined" size="small">
+					<InputLabel id="faction-filter-label">Filter Affiliation</InputLabel>
+					<Select
+						id="faction-filter-select"
+						labelId="faction-filter-label"
+						label="Filter Affiliation"
+						value={this.state.factionFilter}
+						onChange={(event) => this.setFactionFilter(event.target.value as string)}
+						variant="outlined"
+					>
+						{factionFilterOptions}
+					</Select>
+				</FormControl>
+			</div>
 		);
 	}
 
