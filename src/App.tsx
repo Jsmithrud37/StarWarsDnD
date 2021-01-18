@@ -22,6 +22,18 @@ class AppComponent extends React.Component<WithAuth0Props> {
 	}
 
 	public render(): React.ReactNode {
+		if (this.props.auth0.isLoading) {
+			return <LoadingScreen text="Authenticating..." />;
+		}
+
+		if (this.props.auth0.error) {
+			return renderLoginError(
+				this.props.auth0.error,
+				this.props.auth0.loginWithRedirect,
+				this.props.auth0.logout,
+			);
+		}
+
 		if (this.props.auth0.isAuthenticated) {
 			if (!this.props.auth0.user) {
 				throw new Error('Authentication failed to provide user data.');
@@ -44,38 +56,8 @@ class AppComponent extends React.Component<WithAuth0Props> {
 				</Provider>
 			);
 		} else {
-			if (this.props.auth0.isLoading) {
-				return this.renderLoading();
-			} else {
-				return this.renderLogin();
-			}
+			return this.renderLogin();
 		}
-	}
-
-	private renderLoading(): React.ReactNode {
-		return (
-			<Modal
-				open={true}
-				aria-labelledby="simple-modal-title"
-				aria-describedby="simple-modal-description"
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<div
-					style={{
-						color: 'white',
-						padding: '10px',
-					}}
-				>
-					<div>
-						<LoadingScreen text="Loading..." />
-					</div>
-				</div>
-			</Modal>
-		);
 	}
 
 	private renderLogin(): React.ReactNode {

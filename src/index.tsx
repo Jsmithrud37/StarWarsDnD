@@ -5,15 +5,25 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
+import { background1 } from './Theming';
 
 ReactDOM.render(
-	<Auth0Provider
-		domain="datapad.us.auth0.com"
-		clientId="U0kkfC5BuX8bn9b0TEAh6DOWclZmYyv4"
-		redirectUri={window.location.origin}
+	<div
+		style={{
+			width: '100%',
+			height: '100vh',
+			backgroundColor: background1,
+			color: 'white',
+		}}
 	>
-		<App />
-	</Auth0Provider>,
+		<Auth0Provider
+			domain="datapad.us.auth0.com"
+			clientId="U0kkfC5BuX8bn9b0TEAh6DOWclZmYyv4"
+			redirectUri={window.location.origin}
+		>
+			<App />
+		</Auth0Provider>
+	</div>,
 	document.getElementById('root'),
 );
 
