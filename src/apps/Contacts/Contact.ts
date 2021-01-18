@@ -6,12 +6,14 @@ export interface Contact {
 	_id: Id;
 	name: string;
 	species?: string; // undefined === "Unkown"
+	speciesUrl?: string; // undefined => Use default url generation
 	gender?: string; // undefined === "Unkown"
 	homeworld?: string; // undefined === "Unknown"
 	affiliations?: string[]; // undefined === "None"
 	status?: string; // undefined === "Unkown"
 	bio?: string; // undefined === no bio
-	playerCharacter?: boolean; // undefined == false
+	playerCharacter?: boolean; // undefined === false
+	knownBy?: string[]; // undefined === known by everyone. Empty === known by no one.
 }
 
 /**

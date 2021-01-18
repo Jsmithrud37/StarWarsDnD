@@ -18,7 +18,7 @@ import {
 import { background2, background3 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { ContactCard } from './ContactCard';
-import { getCharactersBelongingToPlayer, Player } from '../../Datapad/Player';
+import { getCharactersBelongingToPlayer, Player, PlayerKind } from '../../Datapad/Player';
 
 /**
  * Externally specified props
@@ -85,16 +85,17 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	private getFilteredContacts(): Contact[] {
-		if (this.props.contacts === undefined) {
+		const contacts = this.props.contacts;
+		if (contacts === undefined) {
 			throw new Error('Contacts not loaded yet.');
 		}
 
-		let filteredContacts = this.props.contacts;
+		let filteredContacts = contacts;
 
 		// Filter based on name
 		const nameFilter = this.state.nameFilter;
 		if (nameFilter) {
-			filteredContacts = this.props.contacts.filter((contact) =>
+			filteredContacts = contacts.filter((contact) =>
 				contact.name.toLocaleLowerCase().includes(nameFilter.toLocaleLowerCase()),
 			);
 		}
@@ -109,10 +110,47 @@ export class Contacts extends React.Component<Props, State> {
 
 		// Filter based on player character knowledge
 		const knownByFilter = this.state.knownByFilter;
-		if (knownByFilter) {
-			filteredContacts = filteredContacts.filter(() => {
-				return true; // TODO
+		if (this.props.player.playerKind !== PlayerKind.DungeonMaster || knownByFilter) {
+			let playerCharactersToConsider = getCharactersBelongingToPlayer(
+				contacts,
+				this.props.player,
+			);
+			// If no known-by filter is set, we will load characters known by *all* the player's
+			// characters.
+			if (knownByFilter) {
+				playerCharactersToConsider = playerCharactersToConsider.filter(
+					(character) =>
+						character.name.toLocaleLowerCase() === knownByFilter.toLocaleLowerCase(),
+				);
+			}
+			filteredContacts = filteredContacts.filter((contact) => {
+				// An undefined / empty entry for `knownBy` indicates the character is known by everyone.
+				if (!contact.knownBy || contact.knownBy.length === 0) {
+					return true;
+				}
+
+				let known = false;
+				const knownCharacters = contact.knownBy;
+
+				for (const knownCharacter of knownCharacters) {
+					for (const character of playerCharactersToConsider) {
+						if (
+							character.name.toLocaleLowerCase() ===
+							knownCharacter.toLocaleLowerCase()
+						) {
+							known = true;
+							break;
+						}
+					}
+					if (known) {
+						break;
+					}
+				}
+				return known;
 			});
+		} else {
+			// If the user is the DM, and no filter is specified, return all characters
+			// (even if not known by any player characters)
 		}
 
 		// TODO: apply other filters as needed
