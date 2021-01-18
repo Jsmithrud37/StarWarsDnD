@@ -328,7 +328,7 @@ export class Contacts extends React.Component<Props, State> {
 			<div
 				style={{
 					height: '100%',
-					minWidth: '175px',
+					minWidth: '130px', // For the little carrot
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'space-around',
@@ -359,7 +359,7 @@ export class Contacts extends React.Component<Props, State> {
 			<div
 				style={{
 					height: '100%',
-					minWidth: '125px',
+					minWidth: '100px',
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'space-around',
@@ -404,7 +404,7 @@ export class Contacts extends React.Component<Props, State> {
 			<div
 				style={{
 					height: '100%',
-					minWidth: '175px',
+					minWidth: '160px', // For the little carrot icon
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'space-around',
