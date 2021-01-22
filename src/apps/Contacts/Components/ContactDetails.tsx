@@ -163,7 +163,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderBasicsTab(contact: Contact): React.ReactNode {
 		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: 150,
+			maxImageDimensionInPixels: 150,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
@@ -329,7 +329,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		displayHeightInPixels: number,
 	): React.ReactNode {
 		return renderFactionEmblem(factionName, {
-			displayHeightInPixels,
+			maxImageDimensionInPixels: displayHeightInPixels,
 			containerShape: ImageContainerShape.Rectangle,
 		});
 	}

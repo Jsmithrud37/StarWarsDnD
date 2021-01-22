@@ -29,7 +29,10 @@ export enum ImageSize {
  * Options for image rendering.
  */
 export interface ImageOptions {
-	displayHeightInPixels: number;
+	/**
+	 * Max applied to both width and height
+	 */
+	maxImageDimensionInPixels: number;
 	containerShape: ImageContainerShape;
 }
 
@@ -66,7 +69,7 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	let borderRadius = 0;
 	switch (options.containerShape) {
 		case ImageContainerShape.RoundedRectangle:
-			borderRadius = options.displayHeightInPixels / 10;
+			borderRadius = options.maxImageDimensionInPixels / 10;
 			break;
 		default:
 			break;
@@ -77,9 +80,10 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 		<ReactImage
 			src={imageUrls}
 			loader={<CircularProgress color="primary"></CircularProgress>}
-			height={options.displayHeightInPixels}
 			style={{
 				borderRadius,
+				maxHeight: options.maxImageDimensionInPixels,
+				maxWidth: options.maxImageDimensionInPixels,
 			}}
 		></ReactImage>
 	);
@@ -98,10 +102,10 @@ export function cleanName(value: string): string {
  * Potentially returns multiple sizes, given in the order of recommendation.
  */
 function getImageSizes(options: ImageOptions): ImageSize[] {
-	if (options.displayHeightInPixels > 500) {
+	if (options.maxImageDimensionInPixels > 500) {
 		return [ImageSize.Large, ImageSize.Medium, ImageSize.Small];
 	}
-	if (options.displayHeightInPixels > 250) {
+	if (options.maxImageDimensionInPixels > 250) {
 		return [ImageSize.Medium, ImageSize.Large, ImageSize.Small];
 	}
 	return [ImageSize.Small, ImageSize.Medium, ImageSize.Large];

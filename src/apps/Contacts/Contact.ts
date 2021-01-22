@@ -44,3 +44,12 @@ export function getPlayerCharacters(contacts: Contact[]): Contact[] {
 export function getContactCardColor(contact: Contact): ThemeColor {
 	return contact.playerCharacter ? ThemeColor.Green : ThemeColor.Blue;
 }
+
+/**
+ * Determines whether or not the contact has any faction affiliations
+ */
+export function getMaybeFirstFactionAffiliation(contact: Contact): string | undefined {
+	return contact.affiliations !== undefined && contact.affiliations.length > 0
+		? contact.affiliations[0]
+		: undefined;
+}
