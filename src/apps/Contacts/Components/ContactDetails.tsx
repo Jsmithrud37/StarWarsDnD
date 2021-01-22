@@ -105,7 +105,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					{bioTab}
 				</TabPanel>
 			) : (
-				<div style={tabPanelStyle} />
+				<div style={tabPanelStyle} key={DetailsTab.Bio} />
 			),
 		];
 		return (
