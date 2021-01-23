@@ -66,7 +66,8 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		const maxImageDimensionInPixels = 75;
 
 		const imageOptions: ImageOptions = {
-			maxImageDimensionInPixels,
+			maxWidthInPixels: maxImageDimensionInPixels,
+			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		};
 
