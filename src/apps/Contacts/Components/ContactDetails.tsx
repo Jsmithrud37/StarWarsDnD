@@ -105,7 +105,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					{bioTab}
 				</TabPanel>
 			) : (
-				<div style={tabPanelStyle} />
+				<div style={tabPanelStyle} key={DetailsTab.Bio} />
 			),
 		];
 		return (
@@ -130,6 +130,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 							indicatorColor="primary"
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
+							value={this.state.selectedTab}
 						>
 							<Tab
 								label={<PersonIcon />}
