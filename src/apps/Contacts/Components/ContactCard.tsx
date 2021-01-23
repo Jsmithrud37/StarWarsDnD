@@ -2,9 +2,14 @@ import { Card, CardContent, CardHeader, Collapse } from '@material-ui/core';
 import React from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { createContentColorForLevel } from '../../../Theming';
-import { Contact, getContactCardColor } from '../Contact';
+import { Contact, getContactCardColor, getMaybeFirstFactionAffiliation } from '../Contact';
 import { ContactDetails } from './ContactDetails';
-import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import {
+	ImageContainerShape,
+	ImageOptions,
+	renderContactImage,
+	renderFactionEmblem,
+} from '../../../utilities/ImageUtilities';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
@@ -58,13 +63,26 @@ export class ContactCard extends React.Component<ContactCardProps> {
 
 	private renderContactCardHeader(): React.ReactNode {
 		const name = this.renderName();
-		const imageHeightInPixels = 60;
+		const maxImageDimensionInPixels = 75;
+
+		const imageOptions: ImageOptions = {
+			maxWidthInPixels: maxImageDimensionInPixels,
+			maxHeightInPixels: maxImageDimensionInPixels,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		};
+
+		// TODO: When attempting to render faction, it gets spinner indefinitely until
+		// retrying to render the same emblem again...
 
 		// Only display the contact image when the card is not expanded
-		const contactImage = renderContactImage(this.props.contact.name, {
-			displayHeightInPixels: imageHeightInPixels,
-			containerShape: ImageContainerShape.RoundedRectangle,
-		});
+		const contactImageRender = renderContactImage(this.props.contact.name, imageOptions);
+
+		const maybeFaction = getMaybeFirstFactionAffiliation(this.props.contact);
+		const maybeFactionRender: React.ReactNode = maybeFaction
+			? renderFactionEmblem(maybeFaction, imageOptions)
+			: React.Fragment;
+
+		const maybeAvatarImage = this.props.selected ? maybeFactionRender : contactImageRender;
 
 		const burgerButton = (
 			<HamburgerSqueeze
@@ -84,9 +102,14 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		return (
 			<CardHeader
 				avatar={
-					<Collapse in={!this.props.selected} timeout={150}>
-						{contactImage}
-					</Collapse>
+					<div
+						style={{
+							height: maxImageDimensionInPixels,
+							width: maxImageDimensionInPixels,
+						}}
+					>
+						{maybeAvatarImage}
+					</div>
 				}
 				title={name}
 				action={burgerButton}

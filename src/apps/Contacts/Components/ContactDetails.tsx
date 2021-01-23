@@ -1,4 +1,4 @@
-import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow, Modal } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -46,7 +46,27 @@ export interface ContactCardProps {
 }
 
 interface State {
+	/**
+	 * Selected tab in the contact details tab view
+	 */
 	selectedTab: DetailsTab;
+
+	/**
+	 * Whether or not the image modal should be displayed
+	 */
+	imageModal: boolean;
+
+	/**
+	 * Width of the viewport in pixels.
+	 * Used for image modal display.
+	 */
+	viewportWidthInPixels: number;
+
+	/**
+	 * Width of the viewport in pixels.
+	 * Used for image modal display.
+	 */
+	viewportHeightInPixels: number;
 }
 
 export class ContactDetails extends React.Component<ContactCardProps, State> {
@@ -54,7 +74,34 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		super(props);
 		this.state = {
 			selectedTab: DetailsTab.GeneralInfo,
+			imageModal: false,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
 		};
+	}
+
+	public componentDidMount(): void {
+		this.updateWindowDimensions();
+		window.addEventListener('resize', () => this.updateWindowDimensions());
+	}
+
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', () => this.updateWindowDimensions());
+	}
+
+	private updateWindowDimensions(): void {
+		this.setState({
+			...this.state,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
+		});
+	}
+
+	toggleImageModal(shouldDisplay: boolean): void {
+		this.setState({
+			...this.state,
+			imageModal: shouldDisplay,
+		});
 	}
 
 	onTabSelection(newSelection: DetailsTab): void {
@@ -114,6 +161,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					maxHeight: `${this.props.heightInPixels}px`,
 				}}
 			>
+				{this.renderContactModal()}
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
 						position="static"
@@ -163,8 +211,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderBasicsTab(contact: Contact): React.ReactNode {
+		const maxImageDimensionInPixels = 150;
 		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: 150,
+			maxWidthInPixels: maxImageDimensionInPixels,
+			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
@@ -175,7 +225,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<div style={divStyle}>{contactImage}</div>
+				<div style={divStyle} onClick={() => this.toggleImageModal(true)}>
+					{contactImage}
+				</div>
 				<Table>
 					<TableBody>
 						{this.renderSpecies(contact)}
@@ -327,11 +379,36 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderFactionImage(
 		factionName: string,
-		displayHeightInPixels: number,
+		maxDisplayDimentionInPixels: number,
 	): React.ReactNode {
 		return renderFactionEmblem(factionName, {
-			displayHeightInPixels,
+			maxWidthInPixels: maxDisplayDimentionInPixels,
+			maxHeightInPixels: maxDisplayDimentionInPixels,
 			containerShape: ImageContainerShape.Rectangle,
 		});
+	}
+
+	private renderContactModal(): React.ReactNode {
+		const scalar = 0.85;
+		const maxWidth = scalar * this.state.viewportWidthInPixels;
+		const maxHeight = scalar * this.state.viewportHeightInPixels;
+		return (
+			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
+				<div
+					style={{
+						position: 'absolute',
+						left: '50%',
+						top: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				>
+					{renderContactImage(this.props.contact.name, {
+						maxWidthInPixels: maxWidth,
+						maxHeightInPixels: maxHeight,
+						containerShape: ImageContainerShape.RoundedRectangle,
+					})}
+				</div>
+			</Modal>
+		);
 	}
 }
