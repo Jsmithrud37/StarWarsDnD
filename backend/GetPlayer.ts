@@ -9,6 +9,8 @@ import { errorResponse, successResponse } from './utilities/Responses';
 /**
  * Gets the player associated with the provided user name.
  * Netlify function.
+ * Requires the following under `event.queryStringParameters`:
+ * - userName: the name of the user player
  */
 async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	const parameters = event.queryStringParameters;
