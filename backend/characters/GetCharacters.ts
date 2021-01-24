@@ -53,7 +53,7 @@ export async function getCharacters<
 			const filterList = [];
 			for (const knownByFilter of knownByCharacterNames) {
 				filterList.push({
-					$in: knownByFilter,
+					knownBy: knownByFilter,
 				});
 			}
 			filter = {
