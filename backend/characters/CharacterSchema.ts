@@ -6,6 +6,7 @@ export const schemaOptions: SchemaOptions = {
 
 export const characterBaseSchemaInnards = {
 	name: { type: String, unique: true },
+	shortName: { type: String, required: false },
 	species: { type: String, required: false },
 	speciesUrl: { type: String, required: false },
 	gender: { type: String, required: false },
@@ -15,6 +16,7 @@ export const characterBaseSchemaInnards = {
 	status: { type: String, required: false },
 	bio: { type: String, required: false },
 	knownBy: { type: [String], required: false },
+	titles: { type: [String], required: false },
 };
 
 /**
@@ -27,6 +29,7 @@ export const characterBaseSchema = new Schema(characterBaseSchemaInnards, schema
  */
 export interface CharacterBase {
 	name: string;
+	shortName?: string;
 	species?: string;
 	speciesUrl?: string;
 	gender?: string;
@@ -36,4 +39,5 @@ export interface CharacterBase {
 	status?: string;
 	bio?: string;
 	knownBy?: string[];
+	titles?: string[];
 }

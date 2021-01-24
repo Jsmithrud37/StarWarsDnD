@@ -63,7 +63,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 	}
 
 	private renderContactCardHeader(): React.ReactNode {
-		const name = this.renderName();
+		const name = this.renderNameAndTitle();
 		const maxImageDimensionInPixels = 75;
 
 		const imageOptions: ImageOptions = {
@@ -121,15 +121,52 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		);
 	}
 
+	private renderNameAndTitle(): React.ReactNode {
+		return (
+			<div
+				style={{
+					minWidth: 100,
+					whiteSpace: 'normal',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+				}}
+			>
+				{this.renderName()}
+				{this.renderTitle()}
+			</div>
+		);
+	}
+
 	private renderName(): React.ReactNode {
+		const nameToRender = this.props.contact.shortName ?? this.props.contact.name;
 		return (
 			<h5
 				style={{
-					minWidth: 100,
+					whiteSpace: 'normal',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
 				}}
 			>
-				{this.props.contact.name}
+				{nameToRender}
 			</h5>
 		);
+	}
+
+	private renderTitle(): React.ReactNode {
+		const titles = this.props.contact.titles;
+		if (titles && titles.length != 0) {
+			return (
+				<h6
+					style={{
+						whiteSpace: 'normal',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+					}}
+				>
+					{titles[0]}
+				</h6>
+			);
+		}
+		return React.Fragment;
 	}
 }

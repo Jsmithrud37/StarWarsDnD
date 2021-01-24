@@ -4,6 +4,7 @@ import { Id } from '../utilities/DatabaseUtilities';
 export interface Character {
 	_id: Id;
 	name: string;
+	shortName?: string;
 	species?: string; // undefined === "Unkown"
 	speciesUrl?: string; // undefined => Use default url generation
 	gender?: string; // undefined === "Unkown"
@@ -12,6 +13,7 @@ export interface Character {
 	status?: string; // undefined === "Unkown"
 	bio?: string; // undefined === no bio
 	knownBy?: string[]; // undefined === known by everyone. Empty === known by no one.
+	titles?: string[]; // undefined === no titles
 }
 
 // TODO: get from schema
