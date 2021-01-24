@@ -1,5 +1,5 @@
 import { withAuth0, WithAuth0Props } from '@auth0/auth0-react';
-import { Button, Modal } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -61,21 +61,6 @@ class AppComponent extends React.Component<WithAuth0Props> {
 
 		return <LoadingScreen text="Please sign in to continue..." />;
 	}
-
-/**
- * Renders a dialogue prompting the user to login.
- * @param loginFunction - Function to be invoked to attempt a new login.
- */
-function renderLoginPrompt(loginFunction: () => void): React.ReactNode {
-	return (
-		<>
-			<h4>Please sign in to continue...</h4>
-			<br />
-			<Button variant="contained" onClick={() => loginFunction()}>
-				Login
-			</Button>
-		</>
-	);
 }
 
 /**
