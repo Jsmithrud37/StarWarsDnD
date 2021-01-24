@@ -1,5 +1,5 @@
 import { withAuth0, WithAuth0Props } from '@auth0/auth0-react';
-import { Button, Modal } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -55,63 +55,12 @@ class AppComponent extends React.Component<WithAuth0Props> {
 					</MuiThemeProvider>
 				</Provider>
 			);
-		} else {
-			return this.renderLogin();
 		}
+
+		this.props.auth0.loginWithRedirect();
+
+		return <LoadingScreen text="Please sign in to continue..." />;
 	}
-
-	private renderLogin(): React.ReactNode {
-		const body = this.props.auth0.error
-			? renderLoginError(
-					this.props.auth0.error,
-					this.props.auth0.loginWithRedirect,
-					this.props.auth0.logout,
-			  )
-			: renderLoginPrompt(this.props.auth0.loginWithRedirect);
-
-		return (
-			<Modal
-				open={true}
-				aria-labelledby="simple-modal-title"
-				aria-describedby="simple-modal-description"
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<div
-					style={{
-						backgroundColor: 'rgba(100, 0, 0, 0.7)',
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-						padding: '30px',
-						color: 'white',
-					}}
-				>
-					{body}
-				</div>
-			</Modal>
-		);
-	}
-}
-
-/**
- * Renders a dialogue prompting the user to login.
- * @param loginFunction - Function to be invoked to attempt a new login.
- */
-function renderLoginPrompt(loginFunction: () => void): React.ReactNode {
-	return (
-		<>
-			<h4>Please sign in to continue...</h4>
-			<br />
-			<Button variant="contained" onClick={() => loginFunction()}>
-				Login
-			</Button>
-		</>
-	);
 }
 
 /**
