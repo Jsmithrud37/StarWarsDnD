@@ -29,7 +29,18 @@ export enum ImageSize {
  * Options for image rendering.
  */
 export interface ImageOptions {
-	displayHeightInPixels: number;
+	/**
+	 * Max image width
+	 */
+	maxWidthInPixels: number;
+	/**
+	 * Max image height
+	 */
+	maxHeightInPixels: number;
+
+	/**
+	 * Shape of the image container
+	 */
 	containerShape: ImageContainerShape;
 }
 
@@ -66,7 +77,8 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	let borderRadius = 0;
 	switch (options.containerShape) {
 		case ImageContainerShape.RoundedRectangle:
-			borderRadius = options.displayHeightInPixels / 10;
+			const minImageDimensionInPixels = getMinImageDimensionInPixels(options);
+			borderRadius = minImageDimensionInPixels / 20;
 			break;
 		default:
 			break;
@@ -77,9 +89,10 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 		<ReactImage
 			src={imageUrls}
 			loader={<CircularProgress color="primary"></CircularProgress>}
-			height={options.displayHeightInPixels}
 			style={{
 				borderRadius,
+				maxHeight: options.maxHeightInPixels,
+				maxWidth: options.maxWidthInPixels,
 			}}
 		></ReactImage>
 	);
@@ -98,10 +111,11 @@ export function cleanName(value: string): string {
  * Potentially returns multiple sizes, given in the order of recommendation.
  */
 function getImageSizes(options: ImageOptions): ImageSize[] {
-	if (options.displayHeightInPixels > 500) {
+	const maxImageDimensionInPixels = getMaxImageDimensionInPixels(options);
+	if (maxImageDimensionInPixels > 500) {
 		return [ImageSize.Large, ImageSize.Medium, ImageSize.Small];
 	}
-	if (options.displayHeightInPixels > 250) {
+	if (maxImageDimensionInPixels > 250) {
 		return [ImageSize.Medium, ImageSize.Large, ImageSize.Small];
 	}
 	return [ImageSize.Small, ImageSize.Medium, ImageSize.Large];
@@ -113,4 +127,18 @@ function getImageSizes(options: ImageOptions): ImageSize[] {
 function getSizedUrls(urlBase: string, options: ImageOptions): string[] {
 	const recommendedSizes = getImageSizes(options);
 	return recommendedSizes.map((size) => `${urlBase}-${size}.png`);
+}
+
+/**
+ * Gets minimum between the width and height
+ */
+function getMinImageDimensionInPixels(options: ImageOptions): number {
+	return Math.min(options.maxHeightInPixels, options.maxWidthInPixels);
+}
+
+/**
+ * Gets maximum between the width and height
+ */
+function getMaxImageDimensionInPixels(options: ImageOptions): number {
+	return Math.min(options.maxHeightInPixels, options.maxWidthInPixels);
 }
