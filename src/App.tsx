@@ -55,48 +55,12 @@ class AppComponent extends React.Component<WithAuth0Props> {
 					</MuiThemeProvider>
 				</Provider>
 			);
-		} else {
-			return this.renderLogin();
 		}
-	}
 
-	private renderLogin(): React.ReactNode {
-		const body = this.props.auth0.error
-			? renderLoginError(
-					this.props.auth0.error,
-					this.props.auth0.loginWithRedirect,
-					this.props.auth0.logout,
-			  )
-			: renderLoginPrompt(this.props.auth0.loginWithRedirect);
+		this.props.auth0.loginWithRedirect();
 
-		return (
-			<Modal
-				open={true}
-				aria-labelledby="simple-modal-title"
-				aria-describedby="simple-modal-description"
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<div
-					style={{
-						backgroundColor: 'rgba(100, 0, 0, 0.7)',
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-						padding: '30px',
-						color: 'white',
-					}}
-				>
-					{body}
-				</div>
-			</Modal>
-		);
+		return <LoadingScreen text="Please sign in to continue..." />;
 	}
-}
 
 /**
  * Renders a dialogue prompting the user to login.
