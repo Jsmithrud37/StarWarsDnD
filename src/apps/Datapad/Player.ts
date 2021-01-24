@@ -1,5 +1,3 @@
-import { Contact, getPlayerCharacters } from '../Contacts/Contact';
-
 /**
  * Represents a Player. Corresponds with `PlayerSchema` in the backend code.
  */
@@ -19,20 +17,8 @@ export enum PlayerKind {
 }
 
 /**
- * Gets the characters which are manageable by the given player.
- * DMs can manage all characters.
- * Otherwise, only characters belonging to the signed in player will be returned.
+ * Whether or not the specified player is the Dungeon Master
  */
-export function getCharactersBelongingToPlayer(characters: Contact[], player: Player): Contact[] {
-	// Get all player characters
-	const playerCharacters = getPlayerCharacters(characters);
-
-	// Dungeon master can view all characters
-	if (player.playerKind === PlayerKind.DungeonMaster) {
-		return playerCharacters;
-	}
-
-	return playerCharacters.filter((character) => {
-		return player.characters?.includes(character.name);
-	});
+export function isPlayerDungeonMaster(player: Player): boolean {
+	return player.playerKind === PlayerKind.DungeonMaster;
 }

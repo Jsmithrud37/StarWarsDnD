@@ -1,9 +1,8 @@
 import React, { ReactNode, ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
+import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
-import { Contact } from '../Contact';
 import { AppState } from '../State';
 import {
 	Grid,
@@ -18,7 +17,9 @@ import {
 import { background2, background3 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { ContactCard } from './ContactCard';
-import { getCharactersBelongingToPlayer, Player, PlayerKind } from '../../Datapad/Player';
+import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
+import { Contact, getPlayerCharacters } from '../Contact';
+import { NonPlayerCharacter, PlayerCharacter } from '../../../characters';
 
 /**
  * Externally specified props
@@ -110,47 +111,10 @@ export class Contacts extends React.Component<Props, State> {
 
 		// Filter based on player character knowledge
 		const knownByFilter = this.state.knownByFilter;
-		if (this.props.player.playerKind !== PlayerKind.DungeonMaster || knownByFilter) {
-			let playerCharactersToConsider = getCharactersBelongingToPlayer(
-				contacts,
-				this.props.player,
-			);
-			// If no known-by filter is set, we will load characters known by *all* the player's
-			// characters.
-			if (knownByFilter) {
-				playerCharactersToConsider = playerCharactersToConsider.filter(
-					(character) =>
-						character.name.toLocaleLowerCase() === knownByFilter.toLocaleLowerCase(),
-				);
-			}
+		if (knownByFilter) {
 			filteredContacts = filteredContacts.filter((contact) => {
-				// An undefined / empty entry for `knownBy` indicates the character is known by everyone.
-				if (!contact.knownBy || contact.knownBy.length === 0) {
-					return true;
-				}
-
-				let known = false;
-				const knownCharacters = contact.knownBy;
-
-				for (const knownCharacter of knownCharacters) {
-					for (const character of playerCharactersToConsider) {
-						if (
-							character.name.toLocaleLowerCase() ===
-							knownCharacter.toLocaleLowerCase()
-						) {
-							known = true;
-							break;
-						}
-					}
-					if (known) {
-						break;
-					}
-				}
-				return known;
+				return contact.knownBy?.includes(knownByFilter) ?? true;
 			});
-		} else {
-			// If the user is the DM, and no filter is specified, return all characters
-			// (even if not known by any player characters)
 		}
 
 		// TODO: apply other filters as needed
@@ -158,12 +122,26 @@ export class Contacts extends React.Component<Props, State> {
 		return filteredContacts;
 	}
 
+	/**
+	 * Gets the names of all player characters.
+	 * Accomplished by knowing that the DM can always see *all* characters,
+	 * so by filtering character list to PCs, can be guaranteed to see all names.
+	 */
+	private getAllPlayerCharacterNamesForDungeonMaster(): string[] {
+		const contacts = this.props.contacts;
+		if (!contacts) {
+			throw new Error('Contacts have not been loaded.');
+		}
+		const playerCharacters = getPlayerCharacters(contacts);
+		return playerCharacters.map((pc) => pc.name);
+	}
+
 	private getRepresentedFactions(): string[] {
 		const representedFactions = new Set<string>();
 		if (this.props.contacts) {
 			this.props.contacts.forEach((contact) => {
 				if (contact.affiliations) {
-					contact.affiliations.forEach((faction) => {
+					contact.affiliations.forEach((faction: string) => {
 						representedFactions.add(faction);
 					});
 				}
@@ -174,21 +152,36 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	private async fetchContacts(): Promise<void> {
-		interface FetchContactsQueryResult {
-			contacts: Contact[];
-		}
+		const results: QueryResult<FetchCharactersQueryResult> = isPlayerDungeonMaster(
+			this.props.player,
+		)
+			? await this.fetchAllCharacters()
+			: await this.fetchKnownCharacters();
 
-		const getContactsFunction = 'GetAllContacts';
-		const response = await executeBackendFunction<FetchContactsQueryResult>(
-			getContactsFunction,
-		);
-
-		if (response) {
-			const contacts: Contact[] = response.contacts;
+		if (results) {
+			const contacts: Contact[] = mapCharactersToContacts(
+				results.playerCharacters,
+				results.nonPlayerCharacters,
+			);
 			this.props.loadContacts(contacts);
 		} else {
 			throw new Error('Failed to load contacts from the server.');
 		}
+	}
+
+	private fetchAllCharacters(): Promise<QueryResult<FetchCharactersQueryResult>> {
+		const getContactsFunction = 'GetAllCharacters';
+		return executeBackendFunction<FetchCharactersQueryResult>(getContactsFunction);
+	}
+
+	private fetchKnownCharacters(): Promise<QueryResult<FetchCharactersQueryResult>> {
+		const getContactsFunction = 'GetKnownCharacters';
+		return executeBackendFunction<FetchCharactersQueryResult>(getContactsFunction, [
+			{
+				name: 'userName',
+				value: this.props.player.userName,
+			},
+		]);
 	}
 
 	private refreshContacts(): void {
@@ -224,12 +217,33 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	public render(): ReactNode {
-		if (this.props.contacts === undefined) {
+		const contacts = this.props.contacts;
+
+		let renderContent;
+		if (contacts) {
+			const toolbar = this.renderToolbar();
+			const view = this.renderContacts();
+			renderContent = (
+				<>
+					{toolbar}
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							height: '100%',
+							width: '100%',
+							flex: '1',
+						}}
+					>
+						{view}
+					</div>
+				</>
+			);
+		} else {
 			this.fetchContacts();
+			renderContent = this.renderLoadingScreen();
 		}
 
-		const toolbar = this.renderToolbar();
-		const content = this.props.contacts ? this.renderContacts() : this.renderLoadingScreen();
 		return (
 			<div
 				style={{
@@ -240,18 +254,7 @@ export class Contacts extends React.Component<Props, State> {
 					backgroundColor: background2,
 				}}
 			>
-				{toolbar}
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						height: '100%',
-						width: '100%',
-						flex: '1',
-					}}
-				>
-					{content}
-				</div>
+				{renderContent}
 			</div>
 		);
 	}
@@ -299,17 +302,14 @@ export class Contacts extends React.Component<Props, State> {
 	}
 
 	private renderKnownByFilterDropDown(): ReactNode {
-		const playerCharacters = getCharactersBelongingToPlayer(
-			this.props.contacts ?? [],
-			this.props.player,
-		);
+		const playerCharacterNames = isPlayerDungeonMaster(this.props.player)
+			? this.getAllPlayerCharacterNamesForDungeonMaster()
+			: this.props.player.characters;
 
 		// If the player has no characters, do not show filter menu
-		if (!playerCharacters) {
+		if (!playerCharacterNames) {
 			return React.Fragment;
 		}
-
-		const playerCharacterNames = playerCharacters.map((character) => character.name);
 
 		const knownByFilterOptions: React.ReactNodeArray = [
 			<MenuItem key={`known-by-filter-option-all`} value={undefined}>
@@ -485,4 +485,22 @@ export class Contacts extends React.Component<Props, State> {
 			</Scrollbars>
 		);
 	}
+}
+
+interface FetchCharactersQueryResult {
+	playerCharacters: PlayerCharacter[];
+	nonPlayerCharacters: NonPlayerCharacter[];
+}
+
+/**
+ * Creates a flat list of Contacts from lists of player and non-player characters
+ */
+function mapCharactersToContacts(
+	playerCharacters: PlayerCharacter[],
+	nonPlayerCharacters: NonPlayerCharacter[],
+): Contact[] {
+	const result: Contact[] = [];
+	result.push(...playerCharacters.map((pc) => ({ ...pc, isPlayerCharacter: true })));
+	result.push(...nonPlayerCharacters.map((pc) => ({ ...pc, isPlayerCharacter: false })));
+	return result;
 }

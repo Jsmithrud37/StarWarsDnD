@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, Collapse } from '@material-ui/core';
 import React from 'react';
 import { HamburgerSqueeze } from 'react-animated-burgers';
 import { createContentColorForLevel } from '../../../Theming';
-import { Contact, getContactCardColor, getMaybeFirstFactionAffiliation } from '../Contact';
+import { Contact, getContactCardColor } from '../Contact';
 import { ContactDetails } from './ContactDetails';
 import {
 	ImageContainerShape,
@@ -10,6 +10,7 @@ import {
 	renderContactImage,
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
+import { getMaybeFirstFactionAffiliation } from '../../../characters';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;

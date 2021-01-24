@@ -13,3 +13,12 @@ export const playerSchema = new Schema(
 		timestamps: true,
 	},
 );
+
+/**
+ * Data type corresponding with {@link playerSchema}
+ */
+export interface Player {
+	userName: string;
+	playerKind: string;
+	characters?: string[];
+}
