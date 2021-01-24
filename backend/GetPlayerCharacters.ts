@@ -2,6 +2,7 @@
 
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { Connection } from 'mongoose';
+import { PlayerCharacter } from './characters/PlayerCharacterSchema';
 import { playerSchema, databaseName } from './players';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
@@ -26,36 +27,41 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 	}
 
 	try {
-		const playerCharacters = await withDbConnection(databaseName, async (db: Connection) => {
-			const model = db.model('PlayerCharacter', playerSchema, collectionName);
-
-			console.log('Retrieved players collection.');
-			console.log('Querying for results...');
-			const playerCharacters = await model
-				.find()
-				.where('player')
-				.equals(parameters.userName)
-				.sort({ name: 1 });
-
-			console.log(
-				`Found ${playerCharacters.length} characters belonging to ${parameters.userName}.`,
-			);
-
-			return playerCharacters;
-		});
-
-		if (!playerCharacters) {
-			return errorResponse(new Error(`No characters found for user ${playerCharacters}.`));
-		}
-
+		const playerCharacters = await getPlayerCharacters(parameters.userName);
 		const resultBody = {
-			characters: JSON.stringify(playerCharacters),
+			characters: playerCharacters,
 		};
 
 		return successResponse(resultBody);
 	} catch (error) {
 		return errorResponse(error);
 	}
+}
+
+/**
+ * Queries the database for all characters belonging to the specified user.
+ */
+export async function getPlayerCharacters(userName: string): Promise<PlayerCharacter> {
+	const playerCharacters = await withDbConnection(databaseName, async (db: Connection) => {
+		const model = db.model('PlayerCharacter', playerSchema, collectionName);
+
+		console.log('Retrieved players collection.');
+		console.log('Querying for results...');
+		const playerCharacters = await model
+			.find({
+				player: userName,
+			})
+			.sort({ name: 1 });
+
+		console.log(`Found ${playerCharacters.length} characters belonging to ${userName}.`);
+
+		return playerCharacters;
+	});
+
+	if (!playerCharacters) {
+		throw new Error(`No characters found for user ${playerCharacters}.`);
+	}
+	return playerCharacters;
 }
 
 exports.handler = handler;

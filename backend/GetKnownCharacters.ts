@@ -1,61 +1,61 @@
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 
-import { APIGatewayProxyResult } from 'aws-lambda';
-import { Connection } from 'mongoose';
-import { databaseName, playerCharacterSchema, nonPlayerCharacterSchema } from './characters';
-import { withDbConnection } from './utilities/DbConnect';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { getCharacters, npcCollectionName, pcCollectionName } from './characters';
+import {
+	NonPlayerCharacter,
+	nonPlayerCharacterSchema,
+} from './characters/NonPlayerCharacterSchema';
+import { PlayerCharacter, playerCharacterSchema } from './characters/PlayerCharacterSchema';
+import { getPlayer } from './GetPlayer';
+import { Player } from './players';
 import { errorResponse, successResponse } from './utilities/Responses';
 
-const pcCollectionName = 'player-characters';
-const npcCollectionName = 'non-player-characters';
-
-/*
-TODO: split out query logic from handler so it can be re-used
-*/
-
 /**
- * Gets all known characters from the database.
- * Used to get all contacts for when the app is viewed by the DM.
+ * Gets all characters known by the specified character.
  * Netlify function.
+ * Requires the following under `event.queryStringParameters`:
+ * - userName: the player user name for which player characters will be found.
  */
-async function handler(): Promise<APIGatewayProxyResult> {
-	// Get player characters
-	try {
-		const playerCharacters = await getCharacters(pcCollectionName, playerCharacterSchema);
-		const nonPlayerCharacters = await getCharacters(
-			npcCollectionName,
-			nonPlayerCharacterSchema,
-		);
+async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	const parameters = event.queryStringParameters;
 
-		const allCharacters = [...playerCharacters, ...nonPlayerCharacters];
+	if (!parameters.userName) {
+		return errorResponse(new Error('Caller did not specify `userName` parameter in query.'));
+	}
+
+	try {
+		const player: Player = await getPlayer(parameters.userName);
+		const userCharacters = player.characters;
+
+		let knownPlayerCharacters: PlayerCharacter[];
+		let knownNonPlayerCharacters: NonPlayerCharacter[];
+		if (userCharacters && userCharacters.length > 0) {
+			// Get known player characters
+			knownPlayerCharacters = await getCharacters<
+				PlayerCharacter,
+				typeof playerCharacterSchema
+			>(pcCollectionName, playerCharacterSchema, userCharacters);
+
+			// Get known non-player characters
+			knownNonPlayerCharacters = await getCharacters<
+				NonPlayerCharacter,
+				typeof nonPlayerCharacterSchema
+			>(npcCollectionName, nonPlayerCharacterSchema, userCharacters);
+		} else {
+			knownPlayerCharacters = [];
+			knownNonPlayerCharacters = [];
+		}
 
 		const resultBody = {
-			characters: allCharacters,
+			playerCharacters: knownPlayerCharacters,
+			nonPlayerCharacters: knownNonPlayerCharacters,
 		};
 
 		return successResponse(resultBody);
 	} catch (error) {
 		return errorResponse(error);
 	}
-}
-
-/**
- * Helper function for querying for all contacts, since they are split between 2 collections.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getCharacters(collectionName: string, schema: any): Promise<any> {
-	const contacts = await withDbConnection(databaseName, async (db: Connection) => {
-		const model = db.model('Character', schema, collectionName);
-
-		console.log(`Retrieved ${collectionName} collection.`);
-		console.log('Querying for results...');
-		const contacts = await model.find().sort({ name: 1 });
-
-		console.log(`Found ${contacts.length} results.`);
-		return contacts;
-	});
-
-	return contacts;
 }
 
 exports.handler = handler;

@@ -1,8 +1,6 @@
-// Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
-
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { Connection } from 'mongoose';
-import { playerSchema, databaseName, collectionName } from './players';
+import { playerSchema, databaseName, collectionName, Player } from './players';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
@@ -18,36 +16,10 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 	if (!parameters.userName) {
 		return errorResponse(new Error('Caller did not specify `userName` parameter in query.'));
 	}
-	const queryUserName = parameters.userName.toLocaleLowerCase();
+
+	const player: Player = await getPlayer(parameters.userName);
 
 	try {
-		const player = await withDbConnection(databaseName, async (db: Connection) => {
-			const model = db.model('Player', playerSchema, collectionName);
-
-			console.log('Retrieved players collection.');
-			console.log('Querying for results...');
-			const players = await model.find().sort({ name: 1 });
-
-			console.log(`Found ${players.length} results.`);
-
-			console.log(`Searching for specified player...`);
-
-			let player = undefined;
-			players.forEach((currentPlayer) => {
-				const currentUserName = (currentPlayer.userName as string).toLocaleLowerCase();
-				if (queryUserName === currentUserName) {
-					console.log('Specified player found!');
-					player = currentPlayer;
-				}
-			});
-
-			return player;
-		});
-
-		if (!player) {
-			return errorResponse(new Error('Specified player not found. Adding to database...'));
-		}
-
 		const resultBody = {
 			player,
 		};
@@ -56,6 +28,33 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 	} catch (error) {
 		return errorResponse(error);
 	}
+}
+
+/**
+ * Gets the player associated with the specified user name.
+ */
+export async function getPlayer(userName: string): Promise<Player> {
+	const player = await withDbConnection(databaseName, async (db: Connection) => {
+		const model = db.model('Player', playerSchema, collectionName);
+
+		console.log('Retrieved players collection.');
+		console.log('Querying for results...');
+		const players: Player[] = await model.find({ userName: userName });
+
+		if (!players) {
+			throw new Error('Specified player not found.');
+		}
+
+		if (players.length > 1) {
+			throw new Error(
+				'Multiple players found for the same `userName`. This should not be possible.',
+			);
+		}
+		console.log(`Player found!`);
+
+		return players[0];
+	});
+	return player;
 }
 
 exports.handler = handler;

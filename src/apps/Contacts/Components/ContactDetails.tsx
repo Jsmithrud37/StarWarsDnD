@@ -11,9 +11,10 @@ import {
 	renderContactImage,
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
-import { Contact, getContactCardColor, isDroid } from '../Contact';
+import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createContentColorForLevel } from '../../../Theming';
+import { isDroid } from '../../../characters';
 
 /**
  * Tabs in the contact card view
@@ -117,7 +118,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		const hasBio: boolean = contact.bio !== undefined;
 
 		const basicsTab = this.renderBasicsTab(contact);
-		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations as string[]);
+		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations);
 		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
@@ -240,13 +241,13 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private renderAffiliationsTab(affiliations: string[]): React.ReactNode {
+	private renderAffiliationsTab(affiliations: string[] | undefined): React.ReactNode {
 		const divStyle = {
 			width: '100%',
 			padding: '10px',
 		};
 
-		if (affiliations.length === 0) {
+		if (!affiliations || affiliations.length === 0) {
 			return (
 				<div style={divStyle}>
 					<p>No known affiliations</p>

@@ -1,7 +1,4 @@
 export * from './CharacterSchema';
-
-/**
- * Database including all of the contact-related collections.
- * TODO: rename to `contacts`
- */
-export const databaseName = 'datapad';
+export * from './NonPlayerCharacterSchema';
+export * from './PlayerCharacterSchema';
+export * from './GetCharacters';

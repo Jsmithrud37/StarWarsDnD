@@ -1,10 +1,10 @@
 import { Schema, SchemaOptions } from 'mongoose';
 
-const schemaOptions: SchemaOptions = {
+export const schemaOptions: SchemaOptions = {
 	timestamps: true,
 };
 
-const characterSchemaInnards = {
+export const characterBaseSchemaInnards = {
 	name: { type: String, unique: true },
 	species: { type: String, required: false },
 	speciesUrl: { type: String, required: false },
@@ -20,24 +20,20 @@ const characterSchemaInnards = {
 /**
  * DB Schema for a Character entry.
  */
-export const characterSchema = new Schema(characterSchemaInnards, schemaOptions);
-
-const playerCharacterSchemaInnards = characterSchemaInnards && {
-	player: { type: String, unique: true },
-};
+export const characterBaseSchema = new Schema(characterBaseSchemaInnards, schemaOptions);
 
 /**
- * DB Schema for a Player-Character entry.
+ * Data type corresponding to {@link characterBaseSchema}
  */
-export const playerCharacterSchema = new Schema(playerCharacterSchemaInnards, schemaOptions);
-
-const nonPlayerCharacterSchemaInnards =
-	characterSchemaInnards &&
-	{
-		// TODO?
-	};
-
-/**
- * DB Schema for a Non-Player-Character entry.
- */
-export const nonPlayerCharacterSchema = new Schema(nonPlayerCharacterSchemaInnards, schemaOptions);
+export interface CharacterBase {
+	name: string;
+	species?: string;
+	speciesUrl?: string;
+	gender?: string;
+	homeworld?: string;
+	homeworldUrl?: string;
+	affiliations?: string[];
+	status?: string;
+	bio?: string;
+	knownBy?: string[];
+}
