@@ -26,10 +26,30 @@ export enum ThemeColor {
 }
 
 /**
+ * Saturation by color
+ */
+function saturationForColor(color: ThemeColor): string {
+	switch (color) {
+		case ThemeColor.Red:
+			return '50%';
+		case ThemeColor.Yellow:
+			return '50%';
+		case ThemeColor.Green:
+			return '20%';
+		case ThemeColor.Blue:
+			return '25%';
+		case ThemeColor.Purple:
+			return '20%';
+		default:
+			throw new Error(`Unrecognized ThemeColor value: ${color}`);
+	}
+}
+
+/**
  * Creates a content theming color for a given "level" in the application.
  */
 export function createContentColorForLevel(colorBase: ThemeColor, level: number): string {
-	return createHslaColorAtLevel(colorBase, '20%', level);
+	return createHslaColorAtLevel(colorBase, saturationForColor(colorBase), level);
 }
 
 /**

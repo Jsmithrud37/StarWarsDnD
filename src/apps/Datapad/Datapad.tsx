@@ -6,7 +6,7 @@ import ContactsApp, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import ShopsApp, { reducers as shopReducers } from '../Shop';
-import Timeline from '../Timeline';
+import Timeline, { reducers as timelineReducers } from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
@@ -104,6 +104,11 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 	 */
 	private readonly contactsStore: never;
 
+	/**
+	 * Redux data store for the Timeline app.
+	 */
+	private readonly timelineStore: never;
+
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
@@ -112,6 +117,7 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 		};
 		this.shopStore = createStore(shopReducers);
 		this.contactsStore = createStore(contactsReducers);
+		this.timelineStore = createStore(timelineReducers);
 	}
 
 	private async fetchPlayer(): Promise<void> {
@@ -167,7 +173,6 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 			<Paper
 				color="paper"
 				style={{
-					// backgroundColor: '#3b414d',
 					display: 'flex',
 					flexDirection: 'column',
 					position: 'absolute',
@@ -260,7 +265,11 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 			case AppId.Messenger:
 				return <Messenger />;
 			case AppId.Timeline:
-				return <Timeline />;
+				return (
+					<Provider store={this.timelineStore}>
+						<Timeline />
+					</Provider>
+				);
 			default:
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}
