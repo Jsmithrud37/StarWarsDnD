@@ -228,12 +228,8 @@ export class Date {
 			minimumIntegerDigits: 2,
 		});
 
-		const yearString = year.toLocaleString('en', {
-			minimumIntegerDigits: 4,
-		});
-
-		this.shortRepresentation = `${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${yearString}`; // TODO: festival week shorthand
-		this.longRepresentation = `${this.weekday}, ${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${yearString}`;
+		this.shortRepresentation = `${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`; // TODO: festival week shorthand
+		this.longRepresentation = `${this.weekday}, ${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`;
 	}
 
 	public compareWith(other: Date): number {
