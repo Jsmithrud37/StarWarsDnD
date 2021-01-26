@@ -44,8 +44,8 @@ export interface ImageOptions {
 }
 
 /**
- * Renders the contact image for the specified contact if one exists. Otherwise displays
- * the `missing contact` image.
+ * Renders the faction image for the specified faction.
+ * Assumes that one exists, if it doesn't, this will fail to converge.
  */
 export function renderFactionEmblem(factionName: string, options: ImageOptions): React.ReactNode {
 	const cleanedName = cleanName(factionName);
@@ -55,8 +55,8 @@ export function renderFactionEmblem(factionName: string, options: ImageOptions):
 
 // TODO: timeout on load attempt.
 /**
- * Renders the faction image for the specified faction.
- * Assumes that one exists, if it doesn't, this will fail to converge.
+ * Renders the contact image for the specified contact if one exists. Otherwise displays
+ * the `missing contact` image.
  */
 export function renderContactImage(contactName: string, options: ImageOptions): React.ReactNode {
 	const cleanedName = cleanName(contactName);
