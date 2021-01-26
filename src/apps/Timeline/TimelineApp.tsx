@@ -332,7 +332,7 @@ class TimelineAppComponent extends ViewPortAwareComponent<Props, LocalState> {
 
 	private renderDate(timelineEvent: TimelineEvent): React.ReactNode {
 		const date = getDate(timelineEvent);
-		return this.renderEventData(date.longRepresentation, 'Date');
+		return this.renderEventData(`${date.longRepresentation} BBY`, 'Date');
 	}
 
 	private renderEventData(data: string, label?: string): React.ReactNode {
