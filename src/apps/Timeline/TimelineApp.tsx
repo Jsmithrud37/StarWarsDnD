@@ -21,6 +21,10 @@ import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import { Card, Collapse, CardContent } from '@material-ui/core';
 import { Id } from '../../utilities/DatabaseUtilities';
 import { Date } from './Calendar';
+import {
+	ViewPortAwareComponent,
+	ViewPortAwareState,
+} from '../../shared-components/ViewPortAwareComponent';
 
 /**
  * State parameters used by the Datapad app component.
@@ -32,46 +36,20 @@ type Parameters = AppState;
  */
 type Props = Actions & Parameters;
 
-interface LocalState {
+interface LocalState extends ViewPortAwareState {
 	sortAscending: boolean;
 	selectedEvent?: Id;
-
-	/**
-	 * Width of the viewport. Updated on window resize events.
-	 * Used to lay out timeline view differently in narrow views.
-	 */
-	viewPortWidthInPixels: number;
 }
 
-class TimelineAppComponent extends React.Component<Props, LocalState> {
+class TimelineAppComponent extends ViewPortAwareComponent<Props, LocalState> {
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
 			sortAscending: true,
 			selectedEvent: undefined,
-			viewPortWidthInPixels: window.innerWidth,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
 		};
-	}
-
-	private updateViewPortWidth(): void {
-		this.setState({
-			...this.state,
-			viewPortWidthInPixels: window.innerWidth,
-		});
-	}
-
-	/**
-	 * {@inheritdoc React.Component.componentDidMount}
-	 */
-	public componentDidMount(): void {
-		window.addEventListener('resize', this.updateViewPortWidth.bind(this));
-	}
-
-	/**
-	 * {@inheritdoc React.Component.componentWillUnmount}
-	 */
-	public componentWillUnmount(): void {
-		window.removeEventListener('resize', this.updateViewPortWidth.bind(this));
 	}
 
 	private async fetchEvents(): Promise<void> {
@@ -116,7 +94,7 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 	}
 
 	public render(): React.ReactNode {
-		const useNarrowView = this.state.viewPortWidthInPixels < 540;
+		const useNarrowView = this.state.viewportWidthInPixels < 540;
 
 		let view;
 		if (this.props.events === undefined) {
