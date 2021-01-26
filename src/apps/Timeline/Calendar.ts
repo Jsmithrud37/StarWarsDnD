@@ -232,8 +232,8 @@ export class Date {
 			minimumIntegerDigits: 4,
 		});
 
-		this.shortRepresentation = `${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`; // TODO: festival week shorthand
-		this.longRepresentation = `${this.weekday}, ${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${year}`;
+		this.shortRepresentation = `${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${yearString}`; // TODO: festival week shorthand
+		this.longRepresentation = `${this.weekday}, ${monthOrFestivalWeekString}/${dayOfMonthOrWeekString}/${yearString}`;
 	}
 
 	public compareWith(other: Date): number {
