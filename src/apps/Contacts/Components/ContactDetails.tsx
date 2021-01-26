@@ -1,4 +1,4 @@
-import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow, Modal } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -11,9 +11,10 @@ import {
 	renderContactImage,
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
-import { Contact, getContactCardColor, isDroid } from '../Contact';
+import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createContentColorForLevel } from '../../../Theming';
+import { isDroid } from '../../../characters';
 
 /**
  * Tabs in the contact card view
@@ -46,7 +47,27 @@ export interface ContactCardProps {
 }
 
 interface State {
+	/**
+	 * Selected tab in the contact details tab view
+	 */
 	selectedTab: DetailsTab;
+
+	/**
+	 * Whether or not the image modal should be displayed
+	 */
+	imageModal: boolean;
+
+	/**
+	 * Width of the viewport in pixels.
+	 * Used for image modal display.
+	 */
+	viewportWidthInPixels: number;
+
+	/**
+	 * Width of the viewport in pixels.
+	 * Used for image modal display.
+	 */
+	viewportHeightInPixels: number;
 }
 
 export class ContactDetails extends React.Component<ContactCardProps, State> {
@@ -54,7 +75,34 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		super(props);
 		this.state = {
 			selectedTab: DetailsTab.GeneralInfo,
+			imageModal: false,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
 		};
+	}
+
+	public componentDidMount(): void {
+		this.updateWindowDimensions();
+		window.addEventListener('resize', () => this.updateWindowDimensions());
+	}
+
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', () => this.updateWindowDimensions());
+	}
+
+	private updateWindowDimensions(): void {
+		this.setState({
+			...this.state,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
+		});
+	}
+
+	toggleImageModal(shouldDisplay: boolean): void {
+		this.setState({
+			...this.state,
+			imageModal: shouldDisplay,
+		});
 	}
 
 	onTabSelection(newSelection: DetailsTab): void {
@@ -70,7 +118,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		const hasBio: boolean = contact.bio !== undefined;
 
 		const basicsTab = this.renderBasicsTab(contact);
-		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations as string[]);
+		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations);
 		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
 
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
@@ -105,7 +153,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					{bioTab}
 				</TabPanel>
 			) : (
-				<div style={tabPanelStyle} />
+				<div style={tabPanelStyle} key={DetailsTab.Bio} />
 			),
 		];
 		return (
@@ -114,6 +162,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					maxHeight: `${this.props.heightInPixels}px`,
 				}}
 			>
+				{this.renderContactModal()}
 				<TabContext value={stringFromTabType(this.state.selectedTab)}>
 					<AppBar
 						position="static"
@@ -130,6 +179,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 							indicatorColor="primary"
 							variant="fullWidth"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
+							value={this.state.selectedTab}
 						>
 							<Tab
 								label={<PersonIcon />}
@@ -162,8 +212,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderBasicsTab(contact: Contact): React.ReactNode {
+		const maxImageDimensionInPixels = 150;
 		const contactImage = renderContactImage(contact.name, {
-			displayHeightInPixels: 150,
+			maxWidthInPixels: maxImageDimensionInPixels,
+			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
@@ -174,7 +226,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<div style={divStyle}>{contactImage}</div>
+				<div style={divStyle} onClick={() => this.toggleImageModal(true)}>
+					{contactImage}
+				</div>
 				<Table>
 					<TableBody>
 						{this.renderSpecies(contact)}
@@ -187,13 +241,13 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private renderAffiliationsTab(affiliations: string[]): React.ReactNode {
+	private renderAffiliationsTab(affiliations: string[] | undefined): React.ReactNode {
 		const divStyle = {
 			width: '100%',
 			padding: '10px',
 		};
 
-		if (affiliations.length === 0) {
+		if (!affiliations || affiliations.length === 0) {
 			return (
 				<div style={divStyle}>
 					<p>No known affiliations</p>
@@ -240,7 +294,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderSpecies(contact: Contact): React.ReactNode {
-		const speciesLink = this.getSpeciesLinkUrl(contact.species);
+		const speciesLink = this.getSpeciesLinkUrl(contact);
 		return (
 			<TableRow>
 				<TableCell>
@@ -275,7 +329,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderHomeworld(contact: Contact): React.ReactNode {
-		const homeworldLink = this.getPlanetLinkUrl(contact.homeworld);
+		const homeworldLink = this.getPlanetLinkUrl(contact);
 		return (
 			<TableRow>
 				<TableCell>
@@ -305,14 +359,19 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private getSpeciesLinkUrl(species: string | undefined): string | undefined {
-		return species
-			? `https://starwars.fandom.com/wiki/${species.replace(' ', '_')}`
+	private getSpeciesLinkUrl(contact: Contact): string | undefined {
+		if (contact.speciesUrl) {
+			return contact.speciesUrl;
+		}
+		return contact.species
+			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}`
 			: undefined;
 	}
 
-	private getPlanetLinkUrl(planet: string | undefined): string | undefined {
-		return planet ? `https://starwars.fandom.com/wiki/${planet.replace(' ', '_')}` : undefined;
+	private getPlanetLinkUrl(contact: Contact): string | undefined {
+		return contact.homeworld
+			? `https://starwars.fandom.com/wiki/${contact.homeworld.replace(' ', '_')}`
+			: undefined;
 	}
 
 	private stringOrUnknown(value: string | undefined): string {
@@ -321,11 +380,36 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderFactionImage(
 		factionName: string,
-		displayHeightInPixels: number,
+		maxDisplayDimentionInPixels: number,
 	): React.ReactNode {
 		return renderFactionEmblem(factionName, {
-			displayHeightInPixels,
+			maxWidthInPixels: maxDisplayDimentionInPixels,
+			maxHeightInPixels: maxDisplayDimentionInPixels,
 			containerShape: ImageContainerShape.Rectangle,
 		});
+	}
+
+	private renderContactModal(): React.ReactNode {
+		const scalar = 0.85;
+		const maxWidth = scalar * this.state.viewportWidthInPixels;
+		const maxHeight = scalar * this.state.viewportHeightInPixels;
+		return (
+			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
+				<div
+					style={{
+						position: 'absolute',
+						left: '50%',
+						top: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				>
+					{renderContactImage(this.props.contact.name, {
+						maxWidthInPixels: maxWidth,
+						maxHeightInPixels: maxHeight,
+						containerShape: ImageContainerShape.RoundedRectangle,
+					})}
+				</div>
+			</Modal>
+		);
 	}
 }

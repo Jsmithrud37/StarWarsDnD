@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -6,7 +7,7 @@ import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
 import ShopsApp, { reducers as shopReducers } from '../Shop';
 import Timeline, { reducers as timelineReducers } from '../Timeline';
-import { Actions, changeApp, collapseMenu, expandMenu } from './Actions';
+import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from './Actions';
 import AppId from './AppId';
 import { AppState } from './State';
 import {
@@ -27,6 +28,9 @@ import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { background1 } from '../../Theming';
+import { Player, PlayerKind } from './Player';
+import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
+import LoadingScreen from '../../shared-components/LoadingScreen';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -35,7 +39,17 @@ const menuId = 'datapad-menu';
 /**
  * Determines which apps in the Datapad are enabled. Set by the consumer.
  */
-interface EnabledApps {
+interface InputProps {
+	/**
+	 * Name of the signed-in user.
+	 */
+	userName: string;
+
+	/**
+	 * Function for signing the user out of the application.
+	 */
+	logoutFunction: () => void;
+
 	/**
 	 * Galaxy Map app will be enabled iff true or undefined.
 	 */
@@ -65,7 +79,7 @@ interface EnabledApps {
 /**
  * State parameters used by the Datapad app component.
  */
-type Parameters = AppState & EnabledApps;
+type Parameters = AppState & InputProps;
 
 /**
  * Datapad {@link https://reactjs.org/docs/render-props.html | Render Props}
@@ -85,7 +99,7 @@ interface PrivateState {
 /**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-class DatapadComponent extends React.Component<Props, PrivateState> {
+export class DatapadComponent extends React.Component<Props, PrivateState> {
 	/**
 	 * Redux data store for the Shop app.
 	 */
@@ -118,7 +132,40 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 		});
 	}
 
+	private async fetchPlayer(): Promise<void> {
+		interface FetchPlayerResult {
+			player: Player;
+		}
+
+		const getPlayerFunction = 'GetPlayer';
+		const getPlayerParameters = [
+			{
+				name: 'userName',
+				value: this.props.userName.toLocaleLowerCase(),
+			},
+		];
+		const response = await executeBackendFunction<FetchPlayerResult>(
+			getPlayerFunction,
+			getPlayerParameters,
+		);
+		if (response) {
+			// TODO: is this check needed?
+			const player = response.player;
+			this.props.setPlayer(player);
+		} else {
+			throw new Error(
+				`Player associated with user "${this.props.userName}" not found. Talk to your DM 😉`,
+			);
+		}
+	}
+
 	public render(): ReactNode {
+		if (!this.props.signedInPlayer) {
+			// If we have not found the player data for
+			this.fetchPlayer();
+			return <LoadingScreen text={`Loading player data...`} />;
+		}
+
 		const appView: ReactNode = (
 			<div
 				id={viewId}
@@ -131,7 +178,9 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				{this.renderApp()}
 			</div>
 		);
+
 		const menu = this.renderMenu();
+
 		return (
 			<Paper
 				color="paper"
@@ -155,8 +204,8 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 						overflow: 'clip',
 					}}
 				>
-					{menu}
 					{appView}
+					{menu}
 				</div>
 			</Paper>
 		);
@@ -219,6 +268,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	 * Renders the application view
 	 */
 	private renderApp(): ReactNode {
+		if (!this.props.signedInPlayer) {
+			throw new Error("Player data has not been loaded yet. Can't render app without it.");
+		}
+
 		const selection = this.props.appSelection;
 		switch (selection) {
 			case AppId.GalaxyMap:
@@ -226,7 +279,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 			case AppId.Contacts:
 				return (
 					<Provider store={this.contactsStore}>
-						<ContactsApp />
+						<ContactsApp player={this.props.signedInPlayer} />
 					</Provider>
 				);
 			case AppId.Shops:
@@ -247,6 +300,14 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 				throw new Error(`Unrecognized app selection: ${selection}`);
 		}
 	}
+
+	menuTextContainerStyle: React.CSSProperties = {
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		paddingLeft: '10px',
+		paddingTop: '5px',
+	};
 
 	/**
 	 * Renders the Datapad main menu
@@ -270,9 +331,17 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 					}}
 				>
 					{this.renderWelcome()}
+					{this.renderUserRole()}
+					{this.renderCharacters()}
+					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					{this.renderAppsList()}
+					<Divider orientation="horizontal" />
+					<Divider orientation="horizontal" />
+					<Divider orientation="horizontal" />
+					{this.renderMenuMisc()}
+					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					<Divider orientation="horizontal" />
 					{this.renderMenuFooter()}
@@ -282,28 +351,77 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	}
 
 	private renderWelcome(): React.ReactNode {
+		const userName: string = this.props.userName;
+
 		return (
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-					alignItems: 'space-around',
-				}}
-			>
+			<ListItem>
 				<div
 					style={{
 						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-						paddingLeft: '10px',
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+						alignItems: 'space-around',
 					}}
 				>
-					<h4>Welcome!</h4>
+					<div style={this.menuTextContainerStyle}>
+						<h5>{`Welcome ${userName}!`}</h5>
+					</div>
+					<div>
+						<IconButton onClick={() => this.props.collapseMenu()}>
+							<CloseIcon />
+						</IconButton>
+					</div>
 				</div>
-				<IconButton onClick={() => this.props.collapseMenu()}>
-					<CloseIcon />
-				</IconButton>
+			</ListItem>
+		);
+	}
+
+	private renderUserRole(): React.ReactNode {
+		const player = this.props.signedInPlayer;
+
+		if (!player) {
+			throw new Error('No player set. Cannot render datapad menu.');
+		}
+
+		return (
+			<div style={this.menuTextContainerStyle}>
+				<h6>
+					<b>Role: </b>
+					{player.playerKind}
+				</h6>
+			</div>
+		);
+	}
+
+	private renderCharacters(): React.ReactNode {
+		const player = this.props.signedInPlayer;
+
+		if (!player) {
+			throw new Error('No player set. Cannot render datapad menu.');
+		}
+
+		const userIsDungeonMaster = player.playerKind === PlayerKind.DungeonMaster;
+
+		const playerCharactersListRender = (
+			<ul>
+				<li>
+					{userIsDungeonMaster ? (
+						<b>all</b>
+					) : (
+						player.characters?.map((character) => {
+							return <li key={character}>{character}</li>;
+						})
+					)}
+				</li>
+			</ul>
+		);
+
+		return (
+			<div style={this.menuTextContainerStyle}>
+				<h6>
+					<b>Characters:</b>
+				</h6>
+				{playerCharactersListRender}
 			</div>
 		);
 	}
@@ -311,6 +429,9 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 	private renderAppsList(): React.ReactNode {
 		return (
 			<div>
+				<div style={this.menuTextContainerStyle}>
+					<h5>Applications:</h5>
+				</div>
 				{/* TODO: user details */}
 				{/* <Divider orientation="horizontal"></Divider> */}
 				{this.createMenuItem(
@@ -347,7 +468,7 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 		);
 	}
 
-	private renderMenuFooter(): React.ReactNode {
+	private renderMenuMisc(): React.ReactNode {
 		return (
 			<div
 				style={{
@@ -376,6 +497,26 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 		);
 	}
 
+	private renderMenuFooter(): React.ReactNode {
+		return (
+			<ListItem>
+				<div
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'start',
+						padding: '10px',
+					}}
+				>
+					<Button variant="contained" onClick={() => this.props.logoutFunction()}>
+						Log Out
+					</Button>
+				</div>
+			</ListItem>
+		);
+	}
+
 	private createMenuItem(
 		text: string,
 		icon: React.ReactElement,
@@ -400,14 +541,10 @@ class DatapadComponent extends React.Component<Props, PrivateState> {
 /**
  * {@inheritdoc react-redux/MapStateToPropsParam}
  */
-function mapStateToProps(state: AppState, externalProps: EnabledApps): Parameters {
+function mapStateToProps(state: AppState, externalProps: InputProps): Parameters {
 	return {
-		appSelection: state.appSelection,
-		isMenuCollapsed: state.isMenuCollapsed,
-		galaxyMapEnabled: externalProps.galaxyMapEnabled,
-		shopsEnabled: externalProps.shopsEnabled,
-		contactsEnabled: externalProps.contactsEnabled,
-		messengerEnabled: externalProps.messengerEnabled,
+		...state,
+		...externalProps,
 	};
 }
 
@@ -419,6 +556,7 @@ const Datapad = connect(mapStateToProps, {
 	changeApp,
 	collapseMenu,
 	expandMenu,
+	setPlayer,
 })(DatapadComponent);
 
 export default Datapad;

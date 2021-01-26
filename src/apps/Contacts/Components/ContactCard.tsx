@@ -4,7 +4,13 @@ import { HamburgerSqueeze } from 'react-animated-burgers';
 import { createContentColorForLevel } from '../../../Theming';
 import { Contact, getContactCardColor } from '../Contact';
 import { ContactDetails } from './ContactDetails';
-import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import {
+	ImageContainerShape,
+	ImageOptions,
+	renderContactImage,
+	renderFactionEmblem,
+} from '../../../utilities/ImageUtilities';
+import { getMaybeFirstFactionAffiliation } from '../../../characters';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
@@ -57,14 +63,27 @@ export class ContactCard extends React.Component<ContactCardProps> {
 	}
 
 	private renderContactCardHeader(): React.ReactNode {
-		const name = this.renderName();
-		const imageHeightInPixels = 60;
+		const name = this.renderNameAndTitle();
+		const maxImageDimensionInPixels = 75;
+
+		const imageOptions: ImageOptions = {
+			maxWidthInPixels: maxImageDimensionInPixels,
+			maxHeightInPixels: maxImageDimensionInPixels,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		};
+
+		// TODO: When attempting to render faction, it gets spinner indefinitely until
+		// retrying to render the same emblem again...
 
 		// Only display the contact image when the card is not expanded
-		const contactImage = renderContactImage(this.props.contact.name, {
-			displayHeightInPixels: imageHeightInPixels,
-			containerShape: ImageContainerShape.RoundedRectangle,
-		});
+		const contactImageRender = renderContactImage(this.props.contact.name, imageOptions);
+
+		const maybeFaction = getMaybeFirstFactionAffiliation(this.props.contact);
+		const maybeFactionRender: React.ReactNode = maybeFaction
+			? renderFactionEmblem(maybeFaction, imageOptions)
+			: React.Fragment;
+
+		const maybeAvatarImage = this.props.selected ? maybeFactionRender : contactImageRender;
 
 		const burgerButton = (
 			<HamburgerSqueeze
@@ -84,9 +103,14 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		return (
 			<CardHeader
 				avatar={
-					<Collapse in={!this.props.selected} timeout={150}>
-						{contactImage}
-					</Collapse>
+					<div
+						style={{
+							height: maxImageDimensionInPixels,
+							width: maxImageDimensionInPixels,
+						}}
+					>
+						{maybeAvatarImage}
+					</div>
 				}
 				title={name}
 				action={burgerButton}
@@ -97,15 +121,52 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		);
 	}
 
+	private renderNameAndTitle(): React.ReactNode {
+		return (
+			<div
+				style={{
+					minWidth: 100,
+					whiteSpace: 'normal',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+				}}
+			>
+				{this.renderName()}
+				{this.renderTitle()}
+			</div>
+		);
+	}
+
 	private renderName(): React.ReactNode {
+		const nameToRender = this.props.contact.shortName ?? this.props.contact.name;
 		return (
 			<h5
 				style={{
-					minWidth: 100,
+					whiteSpace: 'normal',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
 				}}
 			>
-				{this.props.contact.name}
+				{nameToRender}
 			</h5>
 		);
+	}
+
+	private renderTitle(): React.ReactNode {
+		const titles = this.props.contact.titles;
+		if (titles && titles.length != 0) {
+			return (
+				<h6
+					style={{
+						whiteSpace: 'normal',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+					}}
+				>
+					{titles[0]}
+				</h6>
+			);
+		}
+		return React.Fragment;
 	}
 }

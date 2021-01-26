@@ -1,34 +1,29 @@
+import { Auth0Provider } from '@auth0/auth0-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import Datapad, { reducers } from './apps/Datapad';
+import App from './App';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { MuiThemeProvider } from '@material-ui/core';
-import { appTheme } from './Theming';
-
-const dataStore = createStore(reducers);
-
-const galaxyMapEnabled = true;
-const shopsEnabled = true;
-const contactsEnabled = true;
-const messengerEnabled = true;
-const timelineEnabled = process.env.NODE_ENV !== 'production';
+import { background1 } from './Theming';
 
 ReactDOM.render(
-	<Provider store={dataStore}>
-		<MuiThemeProvider theme={appTheme}>
-			<Datapad
-				galaxyMapEnabled={galaxyMapEnabled}
-				shopsEnabled={shopsEnabled}
-				contactsEnabled={contactsEnabled}
-				messengerEnabled={messengerEnabled}
-				timelineEnabled={timelineEnabled}
-			/>
-		</MuiThemeProvider>
-	</Provider>,
+	<div
+		style={{
+			width: '100%',
+			height: '100vh',
+			backgroundColor: background1,
+			color: 'white',
+		}}
+	>
+		<Auth0Provider
+			domain="datapad.us.auth0.com"
+			clientId="U0kkfC5BuX8bn9b0TEAh6DOWclZmYyv4"
+			redirectUri={window.location.origin}
+		>
+			<App />
+		</Auth0Provider>
+	</div>,
 	document.getElementById('root'),
 );
 

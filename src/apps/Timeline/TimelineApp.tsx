@@ -188,7 +188,8 @@ class TimelineAppComponent extends React.Component<Props, LocalState> {
 		const hasInvolvedFactions = (timelineEvent.involvedFactions?.length ?? 0) !== 0;
 		const factionImage = hasInvolvedFactions
 			? renderFactionEmblem((timelineEvent.involvedFactions as string[])[0], {
-					displayHeightInPixels: iconSizeInPixels,
+					maxHeightInPixels: iconSizeInPixels,
+					maxWidthInPixels: iconSizeInPixels,
 					containerShape: ImageContainerShape.RoundedRectangle,
 			  })
 			: React.Fragment;
