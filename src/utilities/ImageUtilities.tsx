@@ -20,9 +20,8 @@ export enum ImageContainerShape {
  * Image size options. Correspond to hosted image variants.
  */
 export enum ImageSize {
-	Small = 'small',
-	Medium = 'medium',
-	Large = 'large',
+	Small = 'small', // TODO: "thumbnail"
+	Large = 'large', // TODO: "full"
 }
 
 /**
@@ -112,13 +111,10 @@ export function cleanName(value: string): string {
  */
 function getImageSizes(options: ImageOptions): ImageSize[] {
 	const maxImageDimensionInPixels = getMaxImageDimensionInPixels(options);
-	if (maxImageDimensionInPixels > 500) {
-		return [ImageSize.Large, ImageSize.Medium, ImageSize.Small];
+	if (maxImageDimensionInPixels > 100) {
+		return [ImageSize.Large, ImageSize.Small];
 	}
-	if (maxImageDimensionInPixels > 250) {
-		return [ImageSize.Medium, ImageSize.Large, ImageSize.Small];
-	}
-	return [ImageSize.Small, ImageSize.Medium, ImageSize.Large];
+	return [ImageSize.Small, ImageSize.Large];
 }
 
 /**
