@@ -111,7 +111,7 @@ export function cleanName(value: string): string {
  */
 function getImageSizes(options: ImageOptions): ImageSize[] {
 	const maxImageDimensionInPixels = getMaxImageDimensionInPixels(options);
-	if (maxImageDimensionInPixels > 100) {
+	if (maxImageDimensionInPixels > 250) {
 		return [ImageSize.Large, ImageSize.Small];
 	}
 	return [ImageSize.Small, ImageSize.Large];
