@@ -9,8 +9,7 @@ interface Props {
 }
 
 /**
- * Messenger app for the datapad.
- * Simple wrapper around the Discord server.
+ * Simple loading screen component
  */
 class LoadingScreen extends React.Component<Props> {
 	public constructor(props: Props) {

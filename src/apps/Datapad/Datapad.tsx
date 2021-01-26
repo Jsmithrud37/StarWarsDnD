@@ -31,6 +31,10 @@ import { background1 } from '../../Theming';
 import { Player, PlayerKind } from './Player';
 import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
 import LoadingScreen from '../../shared-components/LoadingScreen';
+import {
+	ViewPortAwareComponent,
+	ViewPortAwareState,
+} from '../../shared-components/ViewPortAwareComponent';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -87,19 +91,9 @@ type Parameters = AppState & InputProps;
 type Props = Actions & Parameters;
 
 /**
- * Private Datapad Component state. Not managed by Redux.
- */
-interface PrivateState {
-	/**
-	 * Width of the viewport. Used to position items.
-	 */
-	viewPortWidthInPixels: number;
-}
-
-/**
  *Datapad main entry-point. Appears below header in app. Contains side-bar UI for navigating options.
  */
-export class DatapadComponent extends React.Component<Props, PrivateState> {
+export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwareState> {
 	/**
 	 * Redux data store for the Shop app.
 	 */
@@ -118,18 +112,12 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 	public constructor(props: Props) {
 		super(props);
 		this.state = {
-			viewPortWidthInPixels: window.innerWidth,
+			viewportWidthInPixels: window.innerWidth,
+			viewportHeightInPixels: window.innerHeight,
 		};
 		this.shopStore = createStore(shopReducers);
 		this.contactsStore = createStore(contactsReducers);
 		this.timelineStore = createStore(timelineReducers);
-	}
-
-	private updateViewPortWidth(): void {
-		this.setState({
-			...this.state,
-			viewPortWidthInPixels: window.innerWidth,
-		});
 	}
 
 	private async fetchPlayer(): Promise<void> {
@@ -209,20 +197,6 @@ export class DatapadComponent extends React.Component<Props, PrivateState> {
 				</div>
 			</Paper>
 		);
-	}
-
-	/**
-	 * {@inheritdoc React.Component.componentDidMount}
-	 */
-	public componentDidMount(): void {
-		window.addEventListener('resize', this.updateViewPortWidth.bind(this));
-	}
-
-	/**
-	 * {@inheritdoc React.Component.componentWillUnmount}
-	 */
-	public componentWillUnmount(): void {
-		window.removeEventListener('resize', this.updateViewPortWidth.bind(this));
 	}
 
 	/**

@@ -56,18 +56,6 @@ interface State {
 	 * Whether or not the image modal should be displayed
 	 */
 	imageModal: boolean;
-
-	/**
-	 * Width of the viewport in pixels.
-	 * Used for image modal display.
-	 */
-	viewportWidthInPixels: number;
-
-	/**
-	 * Width of the viewport in pixels.
-	 * Used for image modal display.
-	 */
-	viewportHeightInPixels: number;
 }
 
 export class ContactDetails extends React.Component<ContactCardProps, State> {
@@ -76,26 +64,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		this.state = {
 			selectedTab: DetailsTab.GeneralInfo,
 			imageModal: false,
-			viewportWidthInPixels: window.innerWidth,
-			viewportHeightInPixels: window.innerHeight,
 		};
-	}
-
-	public componentDidMount(): void {
-		this.updateWindowDimensions();
-		window.addEventListener('resize', () => this.updateWindowDimensions());
-	}
-
-	public componentWillUnmount(): void {
-		window.removeEventListener('resize', () => this.updateWindowDimensions());
-	}
-
-	private updateWindowDimensions(): void {
-		this.setState({
-			...this.state,
-			viewportWidthInPixels: window.innerWidth,
-			viewportHeightInPixels: window.innerHeight,
-		});
 	}
 
 	toggleImageModal(shouldDisplay: boolean): void {
@@ -391,8 +360,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderContactModal(): React.ReactNode {
 		const scalar = 0.85;
-		const maxWidth = scalar * this.state.viewportWidthInPixels;
-		const maxHeight = scalar * this.state.viewportHeightInPixels;
+		const maxWidth = scalar * window.innerWidth;
+		const maxHeight = scalar * window.innerHeight;
 		return (
 			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
 				<div
