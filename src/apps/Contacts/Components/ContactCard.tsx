@@ -63,6 +63,8 @@ export class ContactCard extends React.Component<ContactCardProps> {
 	}
 
 	private renderContactCardHeader(): React.ReactNode {
+		const isSelected = this.props.selected;
+
 		const name = this.renderNameAndTitle();
 		const maxImageDimensionInPixels = 75;
 
@@ -75,21 +77,20 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		// TODO: When attempting to render faction, it gets spinner indefinitely until
 		// retrying to render the same emblem again...
 
-		// Only display the contact image when the card is not expanded
-		const contactImageRender = renderContactImage(this.props.contact.name, imageOptions);
-
 		const maybeFaction = getMaybeFirstFactionAffiliation(this.props.contact);
-		const maybeFactionRender: React.ReactNode = maybeFaction
-			? renderFactionEmblem(maybeFaction, imageOptions)
-			: React.Fragment;
 
-		const maybeAvatarImage = this.props.selected ? maybeFactionRender : contactImageRender;
+		// Display the contact image when not selected, the faction emblem when selected
+		const maybeAvatarImage = isSelected
+			? maybeFaction
+				? renderFactionEmblem(maybeFaction, imageOptions)
+				: React.Fragment
+			: renderContactImage(this.props.contact.name, imageOptions);
 
 		const burgerButton = (
 			<HamburgerSqueeze
 				barColor="white"
 				buttonWidth={30}
-				isActive={this.props.selected}
+				isActive={isSelected}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				toggleButton={(event: any) => {
 					// Ensures that deselect event capture on container
