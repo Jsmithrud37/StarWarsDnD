@@ -14,7 +14,7 @@ const galaxyMapEnabled = true;
 const shopsEnabled = true;
 const contactsEnabled = true;
 const messengerEnabled = true;
-const timelineEnabled = process.env.NODE_ENV !== 'production';
+const timelineEnabled = true;
 
 class AppComponent extends React.Component<WithAuth0Props> {
 	public constructor(props: WithAuth0Props) {
