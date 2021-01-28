@@ -2,6 +2,7 @@ import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
+import ProfileApp, { reducers as profileReducers } from '../Profile';
 import ContactsApp, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
 import Messenger from '../Messenger';
@@ -23,6 +24,7 @@ import {
 import MapIcon from '@material-ui/icons/Map';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PeopleIcon from '@material-ui/icons/People';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -53,6 +55,11 @@ interface InputProps {
 	 * Function for signing the user out of the application.
 	 */
 	logoutFunction: () => void;
+
+	/**
+	 * Profile app will be enabled iff true or undefined.
+	 */
+	profileEnabled?: boolean;
 
 	/**
 	 * Galaxy Map app will be enabled iff true or undefined.
@@ -95,6 +102,11 @@ type Props = Actions & Parameters;
  */
 export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwareState> {
 	/**
+	 * Redux data store for the Profile app.
+	 */
+	private readonly profileStore: never;
+
+	/**
 	 * Redux data store for the Shop app.
 	 */
 	private readonly shopStore: never;
@@ -115,6 +127,7 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 			viewportWidthInPixels: window.innerWidth,
 			viewportHeightInPixels: window.innerHeight,
 		};
+		this.profileStore = createStore(profileReducers);
 		this.shopStore = createStore(shopReducers);
 		this.contactsStore = createStore(contactsReducers);
 		this.timelineStore = createStore(timelineReducers);
@@ -248,6 +261,12 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 
 		const selection = this.props.appSelection;
 		switch (selection) {
+			case AppId.Profile:
+				return (
+					<Provider store={this.profileStore}>
+						<ProfileApp player={this.props.signedInPlayer} />
+					</Provider>
+				);
 			case AppId.GalaxyMap:
 				return <GalaxyMap />;
 			case AppId.Contacts:
@@ -408,6 +427,12 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 				</div>
 				{/* TODO: user details */}
 				{/* <Divider orientation="horizontal"></Divider> */}
+				{this.createMenuItem(
+					'My Profiles',
+					<AccountCircleIcon />,
+					AppId.Profile,
+					this.props.profileEnabled ?? true,
+				)}
 				{this.createMenuItem(
 					'Galaxy Map',
 					<MapIcon />,

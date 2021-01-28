@@ -10,6 +10,7 @@ import LoadingScreen from './shared-components/LoadingScreen';
 
 const dataStore = createStore(reducers);
 
+const profileEnabled = true;
 const galaxyMapEnabled = true;
 const shopsEnabled = true;
 const contactsEnabled = true;
@@ -46,6 +47,7 @@ class AppComponent extends React.Component<WithAuth0Props> {
 						<Datapad
 							userName={userName}
 							logoutFunction={() => this.props.auth0.logout()}
+							profileEnabled={profileEnabled}
 							galaxyMapEnabled={galaxyMapEnabled}
 							shopsEnabled={shopsEnabled}
 							contactsEnabled={contactsEnabled}

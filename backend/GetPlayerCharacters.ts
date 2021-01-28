@@ -2,16 +2,11 @@
 
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { Connection } from 'mongoose';
-import { PlayerCharacter } from './characters/PlayerCharacterSchema';
-import { playerSchema, databaseName } from './players';
+import { databaseName, PlayerCharacter, playerCharacterSchema } from './characters';
 import { withDbConnection } from './utilities/DbConnect';
 import { errorResponse, successResponse } from './utilities/Responses';
 
 const collectionName = 'player-characters';
-
-/*
-TODO: split out query logic from handler so it can be re-used
-*/
 
 /**
  * Gets the player characters associated with the provided user name.
@@ -41,13 +36,13 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 /**
  * Queries the database for all characters belonging to the specified user.
  */
-export async function getPlayerCharacters(userName: string): Promise<PlayerCharacter> {
+export async function getPlayerCharacters(userName: string): Promise<PlayerCharacter[]> {
 	const playerCharacters = await withDbConnection(databaseName, async (db: Connection) => {
-		const model = db.model('PlayerCharacter', playerSchema, collectionName);
+		const model = db.model('PlayerCharacter', playerCharacterSchema, collectionName);
 
 		console.log('Retrieved players collection.');
 		console.log('Querying for results...');
-		const playerCharacters = await model
+		const playerCharacters: PlayerCharacter[] = await model
 			.find({
 				player: userName,
 			})
