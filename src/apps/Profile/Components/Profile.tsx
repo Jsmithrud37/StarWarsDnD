@@ -147,7 +147,7 @@ export class Profile extends React.Component<Props> {
 				position="static"
 				style={{
 					backgroundColor: background3,
-					padding: '3px',
+					padding: '6px',
 				}}
 			>
 				<div
