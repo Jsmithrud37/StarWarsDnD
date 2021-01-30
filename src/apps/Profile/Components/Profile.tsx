@@ -2,11 +2,16 @@ import React from 'react';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { AppState } from '../State';
-import { AppBar, Select, MenuItem, InputLabel, FormControl } from '@material-ui/core';
-import { background2, background3 } from '../../../Theming';
+import { AppBar, Select, MenuItem, InputLabel, FormControl, Grid, Paper } from '@material-ui/core';
+import { background2, background3, createBackgroundColorAtLevel } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { PlayerCharacter } from '../../../characters';
+import Scrollbars from 'react-custom-scrollbars';
+import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
+import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
+import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
 
 /**
  * Externally specified props
@@ -27,6 +32,10 @@ type Parameters = AppState & InputProps;
  * Profile {@link https://reactjs.org/docs/render-props.html | Render Props}
  */
 type Props = Actions & Parameters;
+
+const gridItemStyle = {
+	minWidth: '400px',
+};
 
 export class Profile extends React.Component<Props> {
 	public constructor(props: Props) {
@@ -132,11 +141,102 @@ export class Profile extends React.Component<Props> {
 	private renderProfile(): React.ReactNode {
 		const selectedCharacter = this.getSelectedCharacter();
 		return (
-			<div>
-				TODO: Profile View
-				<br />
-				Selection: {selectedCharacter.name}
-			</div>
+			<Scrollbars
+				style={{
+					float: 'right',
+					flex: 1,
+				}}
+				autoHide={true}
+				autoHeight={false}
+			>
+				<div
+					style={{
+						width: '100%',
+						height: '100%',
+						padding: '10px',
+					}}
+				>
+					<Grid container justify="space-around" alignItems="flex-start" spacing={2}>
+						{this.renderImage(selectedCharacter)}
+						{this.renderBasics(selectedCharacter)}
+						{this.renderAffiliations(selectedCharacter)}
+						{this.renderBio(selectedCharacter)}
+					</Grid>
+				</div>
+			</Scrollbars>
+		);
+	}
+
+	private renderBasics(character: PlayerCharacter): React.ReactNode {
+		return (
+			<Grid item style={gridItemStyle}>
+				<Paper
+					elevation={3}
+					style={{
+						backgroundColor: createBackgroundColorAtLevel(1),
+						padding: '10px',
+					}}
+				>
+					<b>The Basics</b>
+					<CharacterBasics character={character} />
+				</Paper>
+			</Grid>
+		);
+	}
+
+	private renderAffiliations(character: PlayerCharacter): React.ReactNode {
+		return (
+			<Grid item style={gridItemStyle}>
+				<Paper
+					elevation={3}
+					style={{
+						backgroundColor: createBackgroundColorAtLevel(1),
+						padding: '10px',
+					}}
+				>
+					<b>Affiliations</b>
+					<CharacterAffiliations character={character} />
+				</Paper>
+			</Grid>
+		);
+	}
+
+	// TODO: size image dynamically
+	private renderImage(character: PlayerCharacter): React.ReactNode {
+		const image = renderContactImage(character.name, {
+			maxWidthInPixels: 400,
+			maxHeightInPixels: 400,
+			containerShape: ImageContainerShape.RoundedRectangle,
+		});
+		return (
+			<Grid item style={gridItemStyle}>
+				<Paper
+					elevation={3}
+					style={{
+						backgroundColor: createBackgroundColorAtLevel(1),
+						padding: '10px',
+					}}
+				>
+					{image}
+				</Paper>
+			</Grid>
+		);
+	}
+
+	private renderBio(character: PlayerCharacter): React.ReactNode {
+		return (
+			<Grid item style={gridItemStyle}>
+				<Paper
+					elevation={3}
+					style={{
+						backgroundColor: createBackgroundColorAtLevel(1),
+						padding: '10px',
+					}}
+				>
+					<b>Bio</b>
+					<CharacterBio character={character} />
+				</Paper>
+			</Grid>
 		);
 	}
 

@@ -1,20 +1,17 @@
-import { AppBar, Tab, Tabs, Table, TableBody, TableCell, TableRow, Modal } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Modal } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
 import PeopleIcon from '@material-ui/icons/People';
-import ReactMarkdown from 'react-markdown';
 import SwipeableViews from 'react-swipeable-views';
 import React from 'react';
-import {
-	ImageContainerShape,
-	renderContactImage,
-	renderFactionEmblem,
-} from '../../../utilities/ImageUtilities';
+import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
 import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createContentColorForLevel } from '../../../Theming';
-import { isDroid } from '../../../characters';
+import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
+import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
+import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
 
 /**
  * Tabs in the contact card view
@@ -24,6 +21,11 @@ enum DetailsTab {
 	Affiliations,
 	Bio,
 }
+
+const tabDivStyle = {
+	width: '100%',
+	padding: '10px',
+};
 
 /**
  * Gets the string representation of the provided tab type
@@ -86,9 +88,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 		const hasBio: boolean = contact.bio !== undefined;
 
-		const basicsTab = this.renderBasicsTab(contact);
-		const affiliationsTab = this.renderAffiliationsTab(contact.affiliations);
-		const bioTab = hasBio ? this.renderBioTab(contact.bio as string) : <></>;
+		const basicsTab = this.renderBasicsTab();
+		const affiliationsTab = this.renderAffiliationsTab();
+		const bioTab = hasBio ? this.renderBioTab() : <></>;
 
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
 		const bodyHeightInPixels = this.props.heightInPixels - headerHeightInPixels;
@@ -180,182 +182,43 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 		);
 	}
 
-	private renderBasicsTab(contact: Contact): React.ReactNode {
+	private renderBasicsTab(): React.ReactNode {
 		const maxImageDimensionInPixels = 150;
-		const contactImage = renderContactImage(contact.name, {
+		const contactImage = renderContactImage(this.props.contact.name, {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
 
-		const divStyle = {
-			width: '100%',
-			padding: '10px',
-		};
-
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<div style={divStyle} onClick={() => this.toggleImageModal(true)}>
+				<div style={tabDivStyle} onClick={() => this.toggleImageModal(true)}>
 					{contactImage}
 				</div>
-				<Table>
-					<TableBody>
-						{this.renderSpecies(contact)}
-						{this.renderGender(contact)}
-						{this.renderHomeworld(contact)}
-						{this.renderStatus(contact)}
-					</TableBody>
-				</Table>
+				<CharacterBasics character={this.props.contact} />
 			</Scrollbars>
 		);
 	}
 
-	private renderAffiliationsTab(affiliations: string[] | undefined): React.ReactNode {
-		const divStyle = {
-			width: '100%',
-			padding: '10px',
-		};
-
-		if (!affiliations || affiliations.length === 0) {
-			return (
-				<div style={divStyle}>
-					<p>No known affiliations</p>
-				</div>
-			);
-		}
-
-		const affiliationEntries = affiliations.map((affiliation) => {
-			const affilliationImage = this.renderFactionImage(affiliation, 30);
-			return (
-				<TableRow key={affiliation}>
-					<TableCell align="left">{affiliation}</TableCell>
-					<TableCell align="center">{affilliationImage}</TableCell>
-				</TableRow>
-			);
-		});
-
+	private renderAffiliationsTab(): React.ReactNode {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<div style={divStyle}>
-					<div style={divStyle}>
+				<div style={tabDivStyle}>
+					<div style={tabDivStyle}>
 						<b>Known Affiliations</b>
 					</div>
-					<Table>
-						<TableBody>{affiliationEntries}</TableBody>
-					</Table>
+					<CharacterAffiliations character={this.props.contact} />
 				</div>
 			</Scrollbars>
 		);
 	}
 
-	private renderBioTab(bio: string): React.ReactNode {
+	private renderBioTab(): React.ReactNode {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<div
-					style={{
-						textAlign: 'left',
-					}}
-				>
-					<ReactMarkdown source={bio} linkTarget="_blank" escapeHtml={false} />
-				</div>
+				<CharacterBio character={this.props.contact} />
 			</Scrollbars>
 		);
-	}
-
-	private renderSpecies(contact: Contact): React.ReactNode {
-		const speciesLink = this.getSpeciesLinkUrl(contact);
-		return (
-			<TableRow>
-				<TableCell>
-					<b>Species: </b>
-				</TableCell>
-				<TableCell>
-					{contact.species ? (
-						<a href={speciesLink} target="_blank" rel="noopener noreferrer">
-							{contact.species}
-						</a>
-					) : (
-						'Unkown'
-					)}
-				</TableCell>
-			</TableRow>
-		);
-	}
-
-	private renderGender(contact: Contact): React.ReactNode {
-		// If the contact is a droid, then it does not display gender information
-		if (isDroid(contact)) {
-			return <></>;
-		}
-		return (
-			<TableRow>
-				<TableCell>
-					<b>Gender: </b>
-				</TableCell>
-				<TableCell>{this.stringOrUnknown(contact.gender)}</TableCell>
-			</TableRow>
-		);
-	}
-
-	private renderHomeworld(contact: Contact): React.ReactNode {
-		const homeworldLink = this.getPlanetLinkUrl(contact);
-		return (
-			<TableRow>
-				<TableCell>
-					<b>Homeworld: </b>
-				</TableCell>
-				<TableCell>
-					{contact.homeworld ? (
-						<a href={homeworldLink} target="_blank" rel="noopener noreferrer">
-							{contact.homeworld}
-						</a>
-					) : (
-						'Unkown'
-					)}
-				</TableCell>
-			</TableRow>
-		);
-	}
-
-	private renderStatus(contact: Contact): React.ReactNode {
-		return (
-			<TableRow>
-				<TableCell>
-					<b>Status: </b>
-				</TableCell>
-				<TableCell>{this.stringOrUnknown(contact.status)}</TableCell>
-			</TableRow>
-		);
-	}
-
-	private getSpeciesLinkUrl(contact: Contact): string | undefined {
-		if (contact.speciesUrl) {
-			return contact.speciesUrl;
-		}
-		return contact.species
-			? `https://starwars.fandom.com/wiki/${contact.species.replace(' ', '_')}`
-			: undefined;
-	}
-
-	private getPlanetLinkUrl(contact: Contact): string | undefined {
-		return contact.homeworld
-			? `https://starwars.fandom.com/wiki/${contact.homeworld.replace(' ', '_')}`
-			: undefined;
-	}
-
-	private stringOrUnknown(value: string | undefined): string {
-		return value ?? 'Unkown';
-	}
-
-	private renderFactionImage(
-		factionName: string,
-		maxDisplayDimentionInPixels: number,
-	): React.ReactNode {
-		return renderFactionEmblem(factionName, {
-			maxWidthInPixels: maxDisplayDimentionInPixels,
-			maxHeightInPixels: maxDisplayDimentionInPixels,
-			containerShape: ImageContainerShape.Rectangle,
-		});
 	}
 
 	private renderContactModal(): React.ReactNode {

@@ -48,22 +48,26 @@ function saturationForColor(color: ThemeColor): string {
 /**
  * Creates a content theming color for a given "level" in the application.
  */
-export function createContentColorForLevel(colorBase: ThemeColor, level: number): string {
-	return createHslaColorAtLevel(colorBase, saturationForColor(colorBase), level);
+export function createContentColorForLevel(
+	colorBase: ThemeColor,
+	level: number,
+	alpha = 1,
+): string {
+	return createHslaColorAtLevel(colorBase, saturationForColor(colorBase), level, alpha);
 }
 
 /**
  * Creates a background theming color for a given "level" in the application.
  */
-function createBackgroundColorAtLevel(level: number): string {
-	return createHslaColorAtLevel('220', '15%', level);
+export function createBackgroundColorAtLevel(level: number, alpha = 1): string {
+	return createHslaColorAtLevel('220', '15%', level, alpha);
 }
 
 /**
  * Creates an HSLA color at a given "level" in the application.
  */
-function createHslaColorAtLevel(hue: string, saturation: string, level: number): string {
+function createHslaColorAtLevel(hue: string, saturation: string, level: number, alpha = 1): string {
 	const baseLightPercent = 10;
 	const lightDelta = 3;
-	return `hsla(${hue}, ${saturation}, ${baseLightPercent + level * lightDelta}%, 1)`;
+	return `hsla(${hue}, ${saturation}, ${baseLightPercent + level * lightDelta}%, ${alpha})`;
 }

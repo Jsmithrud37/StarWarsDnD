@@ -87,13 +87,33 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	return (
 		<ReactImage
 			src={imageUrls}
-			loader={<CircularProgress color="primary"></CircularProgress>}
+			loader={renderLoadingPlaceholder(options)}
 			style={{
 				borderRadius,
 				maxHeight: options.maxHeightInPixels,
 				maxWidth: options.maxWidthInPixels,
 			}}
 		></ReactImage>
+	);
+}
+
+/**
+ * Renders the spinner, spaced for the image being loaded
+ */
+function renderLoadingPlaceholder(options: ImageOptions): React.ReactElement {
+	return (
+		<div
+			style={{
+				minWidth: options.maxWidthInPixels,
+				minHeight: options.maxHeightInPixels,
+				display: 'flex',
+				justifyContent: 'center',
+				alignContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<CircularProgress color="primary"></CircularProgress>
+		</div>
 	);
 }
 
