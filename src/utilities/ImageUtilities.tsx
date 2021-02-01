@@ -54,7 +54,7 @@ export function renderFactionEmblem(
 ): React.ReactElement {
 	const cleanedName = cleanName(factionName);
 	const factionImageUrls = getSizedUrls(`${baseImageUrl}/factions/${cleanedName}`, options);
-	return loadAndRenderImage(factionImageUrls, options);
+	return loadAndRenderImage(factionImageUrls, options, `${cleanedName}-image`);
 }
 
 // TODO: timeout on load attempt.
@@ -67,7 +67,7 @@ export function renderContactImage(contactName: string, options: ImageOptions): 
 	const contactImageUrls = getSizedUrls(`${baseImageUrl}/contacts/${cleanedName}`, options);
 	const missingContactImage = 'images/Missing-Contact-Image.png';
 	const urls = [...contactImageUrls, missingContactImage];
-	return loadAndRenderImage(urls, options);
+	return loadAndRenderImage(urls, options, `${cleanedName}-image`);
 }
 
 // TODO: timeout after some provided time. Stop spinner and display error.
@@ -76,7 +76,11 @@ export function renderContactImage(contactName: string, options: ImageOptions): 
  * handle the case where the requested image does not exists, or 404s or what-have-you.
  * Displays a spinner while the image is being loaded.
  */
-export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): React.ReactElement {
+export function loadAndRenderImage(
+	imageUrls: string[],
+	options: ImageOptions,
+	key: string, // Required. Without it, the component gets confused and will fail to load the image
+): React.ReactElement {
 	let borderRadius = 0;
 	switch (options.containerShape) {
 		case ImageContainerShape.RoundedRectangle:
@@ -92,6 +96,7 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	return (
 		<ReactImage
 			src={imageUrls}
+			key={key}
 			loader={renderLoadingPlaceholder(options)}
 			style={{
 				borderRadius,
