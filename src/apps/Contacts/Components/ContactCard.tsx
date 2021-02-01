@@ -40,8 +40,6 @@ export class ContactCard extends React.Component<ContactCardProps> {
 				}}
 				raised={this.props.selected}
 				style={{
-					minWidth: 360,
-					maxWidth: 500,
 					overflow: 'hidden',
 					backgroundColor: createContentColorForLevel(
 						getContactCardColor(this.props.contact),

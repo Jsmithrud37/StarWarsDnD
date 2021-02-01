@@ -456,17 +456,17 @@ export class Contacts extends React.Component<Props, State> {
 			>
 				<Grid
 					container
-					spacing={2}
+					spacing={5}
 					direction="row"
 					justify="space-evenly"
 					style={{
-						padding: 10,
+						padding: 25,
 					}}
 				>
 					{filteredContacts.map((contact) => {
 						const isSelected = this.isSelected(contact);
 						return (
-							<Grid item key={contact.name}>
+							<Grid item key={contact.name} xs={12} sm={9} md={6} lg={4} xl={4}>
 								<ContactCard
 									contact={contact}
 									selected={isSelected}
