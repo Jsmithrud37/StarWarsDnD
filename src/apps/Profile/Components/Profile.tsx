@@ -2,8 +2,17 @@ import React from 'react';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { AppState } from '../State';
-import { AppBar, Select, MenuItem, InputLabel, FormControl, Grid, Paper } from '@material-ui/core';
-import { background2, background3, createBackgroundColorAtLevel } from '../../../Theming';
+import {
+	AppBar,
+	Select,
+	MenuItem,
+	InputLabel,
+	FormControl,
+	Grid,
+	Container,
+	Divider,
+} from '@material-ui/core';
+import { background2, background3 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { PlayerCharacter } from '../../../characters';
@@ -33,9 +42,7 @@ type Parameters = AppState & InputProps;
  */
 type Props = Actions & Parameters;
 
-const gridItemStyle = {
-	minWidth: '400px',
-};
+const tileHeightInPixels = 350;
 
 export class Profile extends React.Component<Props> {
 	public constructor(props: Props) {
@@ -156,7 +163,7 @@ export class Profile extends React.Component<Props> {
 						padding: '10px',
 					}}
 				>
-					<Grid container justify="space-around" alignItems="flex-start" spacing={2}>
+					<Grid container justify="space-around" alignItems="flex-start" spacing={3}>
 						{this.renderImage(selectedCharacter)}
 						{this.renderBasics(selectedCharacter)}
 						{this.renderAffiliations(selectedCharacter)}
@@ -167,80 +174,64 @@ export class Profile extends React.Component<Props> {
 		);
 	}
 
-	private renderBasics(character: PlayerCharacter): React.ReactNode {
-		return (
-			<Grid item style={gridItemStyle}>
-				<Paper
-					elevation={3}
-					style={{
-						backgroundColor: createBackgroundColorAtLevel(1),
-						padding: '10px',
-					}}
-				>
-					<b>The Basics</b>
-					<CharacterBasics character={character} />
-				</Paper>
-			</Grid>
-		);
-	}
-
-	private renderAffiliations(character: PlayerCharacter): React.ReactNode {
-		return (
-			<Grid item style={gridItemStyle}>
-				<Paper
-					elevation={3}
-					style={{
-						backgroundColor: createBackgroundColorAtLevel(1),
-						padding: '10px',
-					}}
-				>
-					<b>Affiliations</b>
-					<CharacterAffiliations character={character} />
-				</Paper>
-			</Grid>
-		);
-	}
-
 	// TODO: size image dynamically
-	private renderImage(character: PlayerCharacter): React.ReactNode {
+	private renderImage(character: PlayerCharacter): React.ReactElement {
 		const image = renderContactImage(character.name, {
-			maxWidthInPixels: 400,
-			maxHeightInPixels: 400,
+			maxHeightInPixels: tileHeightInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 		});
+		return this.renderGridItem(image);
+	}
+
+	private renderBasics(character: PlayerCharacter): React.ReactElement {
+		return this.renderGridItem(
+			this.renderElementWithHeader(<CharacterBasics character={character} />, 'The Basics'),
+		);
+	}
+
+	private renderAffiliations(character: PlayerCharacter): React.ReactElement {
+		return this.renderGridItem(
+			this.renderElementWithHeader(
+				<CharacterAffiliations character={character} />,
+				'Affiliations',
+			),
+		);
+	}
+
+	private renderBio(character: PlayerCharacter): React.ReactElement {
+		return this.renderGridItem(
+			this.renderElementWithHeader(
+				<CharacterBio character={character} heightInPixels={tileHeightInPixels} />,
+				'Bio',
+			),
+		);
+	}
+
+	private renderElementWithHeader(child: React.ReactElement, header: string): React.ReactElement {
 		return (
-			<Grid item style={gridItemStyle}>
-				<Paper
-					elevation={3}
+			<Container>
+				<h5
 					style={{
-						backgroundColor: createBackgroundColorAtLevel(1),
-						padding: '10px',
+						paddingTop: '25px',
 					}}
 				>
-					{image}
-				</Paper>
+					{header}
+				</h5>
+				<Divider variant="middle" orientation="horizontal" light />
+				{child}
+			</Container>
+		);
+	}
+
+	private renderGridItem(child: React.ReactElement): React.ReactElement {
+		return (
+			<Grid item style={{ maxHeight: `${tileHeightInPixels}px` }} xs={12} md={6} xl={4}>
+				{child}
 			</Grid>
 		);
 	}
 
-	private renderBio(character: PlayerCharacter): React.ReactNode {
-		return (
-			<Grid item style={gridItemStyle}>
-				<Paper
-					elevation={3}
-					style={{
-						backgroundColor: createBackgroundColorAtLevel(1),
-						padding: '10px',
-					}}
-				>
-					<b>Bio</b>
-					<CharacterBio character={character} />
-				</Paper>
-			</Grid>
-		);
-	}
-
-	private renderToolbar(): React.ReactNode {
+	private renderToolbar(): React.ReactElement {
 		return (
 			<AppBar
 				id="profile-toolbar"
@@ -326,3 +317,5 @@ export class Profile extends React.Component<Props> {
 interface FetchCharactersQueryResult {
 	characters: PlayerCharacter[];
 }
+
+export default Profile;

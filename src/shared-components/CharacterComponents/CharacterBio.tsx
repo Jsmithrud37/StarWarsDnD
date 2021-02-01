@@ -5,6 +5,7 @@ import { Character } from '../../characters';
 
 export interface CharacterBioProps {
 	character: Character;
+	heightInPixels: number;
 }
 
 export class CharacterBio extends React.Component<CharacterBioProps> {
@@ -24,13 +25,18 @@ export class CharacterBio extends React.Component<CharacterBioProps> {
 		return (
 			<div
 				style={{
-					height: '300px',
+					height: this.props.heightInPixels,
+					borderWidth: '1px',
+					borderStyle: 'solid',
+					borderRadius: '5px',
+					borderColor: 'rgba(255, 255, 255, 0.08)',
 				}}
 			>
 				<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
 					<div
 						style={{
 							textAlign: 'left',
+							padding: '15px',
 						}}
 					>
 						<ReactMarkdown source={bio} linkTarget="_blank" escapeHtml={false} />

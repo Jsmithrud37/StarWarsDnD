@@ -216,7 +216,13 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	private renderBioTab(): React.ReactNode {
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
-				<CharacterBio character={this.props.contact} />
+				<div style={tabDivStyle}>
+					<b>Bio</b>
+				</div>
+				<CharacterBio
+					character={this.props.contact}
+					heightInPixels={this.props.heightInPixels - 105}
+				/>
 			</Scrollbars>
 		);
 	}

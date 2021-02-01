@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { loadCharacters, selectCharacter } from './Actions';
 import { AppState } from './State';
-import { Profile } from './Components/Profile';
+import Profile from './Components/Profile';
 
 /**
  * {@inheritdoc react-redux/MapStateToPropsParam}
