@@ -1,12 +1,12 @@
 import React, { ReactNode, ChangeEvent } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import RefreshIcon from '@material-ui/icons/Refresh';
+// import RefreshIcon from '@material-ui/icons/Refresh';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { AppState } from '../State';
 import {
 	Grid,
-	IconButton,
+	// IconButton,
 	TextField,
 	AppBar,
 	Select,
@@ -184,14 +184,14 @@ export class Contacts extends React.Component<Props, State> {
 		]);
 	}
 
-	private refreshContacts(): void {
-		// Refresh filters
-		this.setState(initialState);
+	// private refreshContacts(): void {
+	// 	// Refresh filters
+	// 	this.setState(initialState);
 
-		// Unload all contacts, will result in this component attempting to reload them from
-		// the server.
-		this.props.unloadContacts();
-	}
+	// 	// Unload all contacts, will result in this component attempting to reload them from
+	// 	// the server.
+	// 	this.props.unloadContacts();
+	// }
 
 	private updateNameFilter(newValue?: string): void {
 		this.setState({
@@ -289,13 +289,13 @@ export class Contacts extends React.Component<Props, State> {
 						{this.renderKnownByFilterDropDown()}
 						{this.renderFactionFilterDropDown()}
 					</div>
-					<IconButton
+					{/* <IconButton
 						id="refresh-contacts"
 						onClick={() => this.refreshContacts()}
 						disabled={this.props.contacts === undefined}
 					>
 						<RefreshIcon />
-					</IconButton>
+					</IconButton> */}
 				</div>
 			</AppBar>
 		);
