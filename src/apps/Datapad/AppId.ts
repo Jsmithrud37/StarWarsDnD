@@ -6,7 +6,6 @@ enum AppId {
 	GalaxyMap,
 	Shops,
 	Contacts,
-	Messenger,
 	Timeline,
 }
 

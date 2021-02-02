@@ -47,14 +47,7 @@ function renderApp(): ReactNode {
 test('Menu contains expected buttons', () => {
 	const { getByText } = render(<>{renderApp()}</>);
 
-	const expectedTextElement = [
-		/Profile/,
-		/Galaxy Map/,
-		/Shops/,
-		/Contacts/,
-		/Messenger/,
-		/Timeline/,
-	];
+	const expectedTextElement = [/Profile/, /Galaxy Map/, /Shops/, /Contacts/, /Timeline/];
 
 	for (const query of expectedTextElement) {
 		const element = getByText(query);

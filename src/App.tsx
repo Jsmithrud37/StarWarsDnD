@@ -14,7 +14,6 @@ const profileEnabled = true;
 const galaxyMapEnabled = true;
 const shopsEnabled = true;
 const contactsEnabled = true;
-const messengerEnabled = true;
 const timelineEnabled = true;
 
 class AppComponent extends React.Component<WithAuth0Props> {
@@ -51,7 +50,6 @@ class AppComponent extends React.Component<WithAuth0Props> {
 							galaxyMapEnabled={galaxyMapEnabled}
 							shopsEnabled={shopsEnabled}
 							contactsEnabled={contactsEnabled}
-							messengerEnabled={messengerEnabled}
 							timelineEnabled={timelineEnabled}
 						/>
 					</MuiThemeProvider>

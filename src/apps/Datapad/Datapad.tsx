@@ -5,7 +5,6 @@ import { createStore } from 'redux';
 import ProfileApp, { reducers as profileReducers } from '../Profile';
 import ContactsApp, { reducers as contactsReducers } from '../Contacts';
 import GalaxyMap from '../GalaxyMap';
-import Messenger from '../Messenger';
 import ShopsApp, { reducers as shopReducers } from '../Shop';
 import Timeline, { reducers as timelineReducers } from '../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from './Actions';
@@ -26,7 +25,6 @@ import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PeopleIcon from '@material-ui/icons/People';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import TimelineIcon from '@material-ui/icons/Timeline';
-import MessageIcon from '@material-ui/icons/Message';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { background1 } from '../../Theming';
@@ -75,11 +73,6 @@ interface InputProps {
 	 * Contacts app will be enabled iff true or undefined.
 	 */
 	contactsEnabled?: boolean;
-
-	/**
-	 * Messenger app will be enabled iff true or undefined.
-	 */
-	messengerEnabled?: boolean;
 
 	/**
 	 * Timeline app will be enabled iff true or undefined.
@@ -281,8 +274,6 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 						<ShopsApp />
 					</Provider>
 				);
-			case AppId.Messenger:
-				return <Messenger />;
 			case AppId.Timeline:
 				return (
 					<Provider store={this.timelineStore}>
@@ -456,12 +447,6 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 					<TimelineIcon />,
 					AppId.Timeline,
 					this.props.timelineEnabled ?? true,
-				)}
-				{this.createMenuItem(
-					'Messenger',
-					<MessageIcon />,
-					AppId.Messenger,
-					this.props.messengerEnabled ?? true,
 				)}
 			</div>
 		);
