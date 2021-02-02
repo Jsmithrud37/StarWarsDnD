@@ -29,7 +29,7 @@ export interface AppState {
  */
 export const initialState: AppState = {
 	signedInPlayer: undefined,
-	appSelection: AppId.GalaxyMap,
+	appSelection: AppId.Profile,
 	isMenuCollapsed: false,
 };
 

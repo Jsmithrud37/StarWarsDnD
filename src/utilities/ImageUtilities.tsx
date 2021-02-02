@@ -28,14 +28,15 @@ export enum ImageSize {
  * Options for image rendering.
  */
 export interface ImageOptions {
+	// TODO: use Size instead of separate numbers.
 	/**
 	 * Max image width
 	 */
-	maxWidthInPixels: number;
+	maxWidthInPixels?: number;
 	/**
 	 * Max image height
 	 */
-	maxHeightInPixels: number;
+	maxHeightInPixels?: number;
 
 	/**
 	 * Shape of the image container
@@ -47,10 +48,13 @@ export interface ImageOptions {
  * Renders the faction image for the specified faction.
  * Assumes that one exists, if it doesn't, this will fail to converge.
  */
-export function renderFactionEmblem(factionName: string, options: ImageOptions): React.ReactNode {
+export function renderFactionEmblem(
+	factionName: string,
+	options: ImageOptions,
+): React.ReactElement {
 	const cleanedName = cleanName(factionName);
 	const factionImageUrls = getSizedUrls(`${baseImageUrl}/factions/${cleanedName}`, options);
-	return loadAndRenderImage(factionImageUrls, options);
+	return loadAndRenderImage(factionImageUrls, options, `${cleanedName}-image`);
 }
 
 // TODO: timeout on load attempt.
@@ -58,12 +62,12 @@ export function renderFactionEmblem(factionName: string, options: ImageOptions):
  * Renders the contact image for the specified contact if one exists. Otherwise displays
  * the `missing contact` image.
  */
-export function renderContactImage(contactName: string, options: ImageOptions): React.ReactNode {
+export function renderContactImage(contactName: string, options: ImageOptions): React.ReactElement {
 	const cleanedName = cleanName(contactName);
 	const contactImageUrls = getSizedUrls(`${baseImageUrl}/contacts/${cleanedName}`, options);
 	const missingContactImage = 'images/Missing-Contact-Image.png';
 	const urls = [...contactImageUrls, missingContactImage];
-	return loadAndRenderImage(urls, options);
+	return loadAndRenderImage(urls, options, `${cleanedName}-image`);
 }
 
 // TODO: timeout after some provided time. Stop spinner and display error.
@@ -72,12 +76,17 @@ export function renderContactImage(contactName: string, options: ImageOptions): 
  * handle the case where the requested image does not exists, or 404s or what-have-you.
  * Displays a spinner while the image is being loaded.
  */
-export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): React.ReactNode {
+export function loadAndRenderImage(
+	imageUrls: string[],
+	options: ImageOptions,
+	key: string, // Required. Without it, the component gets confused and will fail to load the image
+): React.ReactElement {
 	let borderRadius = 0;
 	switch (options.containerShape) {
 		case ImageContainerShape.RoundedRectangle:
 			const minImageDimensionInPixels = getMinImageDimensionInPixels(options);
-			borderRadius = minImageDimensionInPixels / 20;
+			borderRadius =
+				minImageDimensionInPixels === undefined ? 10 : minImageDimensionInPixels / 20;
 			break;
 		default:
 			break;
@@ -87,13 +96,34 @@ export function loadAndRenderImage(imageUrls: string[], options: ImageOptions): 
 	return (
 		<ReactImage
 			src={imageUrls}
-			loader={<CircularProgress color="primary"></CircularProgress>}
+			key={key}
+			loader={renderLoadingPlaceholder(options)}
 			style={{
 				borderRadius,
-				maxHeight: options.maxHeightInPixels,
-				maxWidth: options.maxWidthInPixels,
+				maxHeight: options.maxHeightInPixels ?? '100%',
+				maxWidth: options.maxWidthInPixels ?? '100%',
 			}}
 		></ReactImage>
+	);
+}
+
+/**
+ * Renders the spinner, spaced for the image being loaded
+ */
+function renderLoadingPlaceholder(options: ImageOptions): React.ReactElement {
+	return (
+		<div
+			style={{
+				minWidth: options.maxWidthInPixels,
+				minHeight: options.maxHeightInPixels,
+				display: 'flex',
+				justifyContent: 'center',
+				alignContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<CircularProgress color="primary"></CircularProgress>
+		</div>
 	);
 }
 
@@ -111,7 +141,7 @@ export function cleanName(value: string): string {
  */
 function getImageSizes(options: ImageOptions): ImageSize[] {
 	const maxImageDimensionInPixels = getMaxImageDimensionInPixels(options);
-	if (maxImageDimensionInPixels > 250) {
+	if (maxImageDimensionInPixels === undefined || maxImageDimensionInPixels > 250) {
 		return [ImageSize.Large, ImageSize.Small];
 	}
 	return [ImageSize.Small, ImageSize.Large];
@@ -128,13 +158,37 @@ function getSizedUrls(urlBase: string, options: ImageOptions): string[] {
 /**
  * Gets minimum between the width and height
  */
-function getMinImageDimensionInPixels(options: ImageOptions): number {
+function getMinImageDimensionInPixels(options: ImageOptions): number | undefined {
+	if (options.maxHeightInPixels === undefined && options.maxWidthInPixels === undefined) {
+		return undefined;
+	}
+
+	if (options.maxHeightInPixels === undefined) {
+		return options.maxWidthInPixels;
+	}
+
+	if (options.maxWidthInPixels === undefined) {
+		return options.maxHeightInPixels;
+	}
+
 	return Math.min(options.maxHeightInPixels, options.maxWidthInPixels);
 }
 
 /**
  * Gets maximum between the width and height
  */
-function getMaxImageDimensionInPixels(options: ImageOptions): number {
-	return Math.min(options.maxHeightInPixels, options.maxWidthInPixels);
+function getMaxImageDimensionInPixels(options: ImageOptions): number | undefined {
+	if (options.maxHeightInPixels === undefined && options.maxWidthInPixels === undefined) {
+		return undefined;
+	}
+
+	if (options.maxHeightInPixels === undefined) {
+		return options.maxWidthInPixels;
+	}
+
+	if (options.maxWidthInPixels === undefined) {
+		return options.maxHeightInPixels;
+	}
+
+	return Math.max(options.maxHeightInPixels, options.maxWidthInPixels);
 }
