@@ -75,7 +75,12 @@ export class Profile extends React.Component<Props> {
 			: await this.fetchOwnedPlayerCharacters();
 
 		if (results) {
-			this.props.loadCharacters(results.characters);
+			this.props.loadCharacters(
+				results.characters,
+				// Set the character selection to the first in the player's list
+				// This is generally their active character
+				this.props.player.characters ? this.props.player.characters[0] : undefined,
+			);
 		} else {
 			throw new Error('Failed to load characters from the server.');
 		}

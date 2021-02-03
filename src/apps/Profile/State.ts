@@ -38,10 +38,22 @@ export const reducer: Reducer<AppState, ContactsActionTypes> = (
 	}
 	switch (action.type) {
 		case LOAD_CHARACTERS:
+			const characters = action.characters;
+			const maybeSelectedCharacter = action.initialCharacterSelection;
+
+			let characterSelection = characters ? characters[0]._id : undefined;
+			if (maybeSelectedCharacter && characters) {
+				for (const character of characters) {
+					if (character.name === maybeSelectedCharacter) {
+						characterSelection = character._id;
+						break;
+					}
+				}
+			}
 			return {
 				...currentState,
-				characters: action.characters,
-				characterSelection: action.characters ? action.characters[0]._id : undefined,
+				characters,
+				characterSelection,
 			};
 		case SELECT_CHARACTER:
 			return {

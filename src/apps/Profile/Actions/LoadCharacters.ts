@@ -16,19 +16,24 @@ export type LOAD_CHARACTERS = typeof LOAD_CHARACTERS;
 export interface LoadCharacters {
 	type: LOAD_CHARACTERS;
 	characters?: PlayerCharacter[];
+	initialCharacterSelection?: string;
 }
 
 /**
  * {@link LoadCharacters} {@link https://redux.js.org/basics/actions#action-creators | Action Creator}
  */
-export function loadCharacters(characters?: PlayerCharacter[]): LoadCharacters {
+export function loadCharacters(
+	characters?: PlayerCharacter[],
+	initialCharacterSelection?: string,
+): LoadCharacters {
 	return {
 		type: LOAD_CHARACTERS,
-		characters: characters,
+		characters,
+		initialCharacterSelection,
 	};
 }
 
 /**
  * Loads all player characters into the data store.
  */
-export type LoadCharactersFunction = (characters?: PlayerCharacter[]) => void;
+export type LoadCharactersFunction = typeof loadCharacters;
