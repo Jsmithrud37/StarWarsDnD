@@ -1,6 +1,19 @@
 import { Id } from '../utilities/DatabaseUtilities';
 
 // TODO: get from schema
+export interface PhysicalAttribute {
+	/**
+	 * Name of the attribute
+	 */
+	name: string;
+
+	/**
+	 * Value of the attribute
+	 */
+	value: string;
+}
+
+// TODO: get from schema
 export interface Character {
 	_id: Id;
 	name: string;
@@ -14,6 +27,7 @@ export interface Character {
 	bio?: string; // undefined === no bio
 	knownBy?: string[]; // undefined === known by everyone. Empty === known by no one.
 	titles?: string[]; // undefined === no titles
+	physicalAttributes?: PhysicalAttribute[]; // undefined === no attributes
 }
 
 // TODO: get from schema
