@@ -315,6 +315,12 @@ function renderDropDown(
 	allOptionString: string,
 	keyPreamble: string,
 ): React.ReactElement {
+	if (currentSelection && !options.includes(currentSelection)) {
+		throw new Error(
+			`Selected option "${currentSelection}" is not one of the specified options for dropdown "${label}".`,
+		);
+	}
+
 	const filterOptions: React.ReactNodeArray = [
 		<MenuItem key={`${keyPreamble}-option-none`} value={undefined}>
 			<em>{allOptionString}</em>
