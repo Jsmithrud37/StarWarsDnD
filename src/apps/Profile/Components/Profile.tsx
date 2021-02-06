@@ -21,6 +21,7 @@ import { ImageContainerShape, renderContactImage } from '../../../utilities/Imag
 import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
 import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
 import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
+import { CharacterPhysicalAttributes } from '../../../shared-components/CharacterComponents/CharacterPhysicalAttributes';
 
 /**
  * Externally specified props
@@ -173,6 +174,7 @@ export class Profile extends React.Component<Props> {
 						{this.renderBasics(selectedCharacter)}
 						{this.renderAffiliations(selectedCharacter)}
 						{this.renderBio(selectedCharacter)}
+						{this.renderPhysicalAttributes(selectedCharacter)}
 					</Grid>
 				</div>
 			</Scrollbars>
@@ -212,6 +214,15 @@ export class Profile extends React.Component<Props> {
 		);
 	}
 
+	private renderPhysicalAttributes(character: PlayerCharacter): React.ReactElement {
+		return this.renderGridItem(
+			this.renderElementWithHeader(
+				<CharacterPhysicalAttributes character={character} />,
+				'Physical Attributes',
+			),
+		);
+	}
+
 	private renderElementWithHeader(child: React.ReactElement, header: string): React.ReactElement {
 		return (
 			<Container>
@@ -230,7 +241,7 @@ export class Profile extends React.Component<Props> {
 
 	private renderGridItem(child: React.ReactElement): React.ReactElement {
 		return (
-			<Grid item style={{ maxHeight: `${tileHeightInPixels}px` }} xs={12} md={6} xl={4}>
+			<Grid item xs={12} md={6} xl={4}>
 				{child}
 			</Grid>
 		);

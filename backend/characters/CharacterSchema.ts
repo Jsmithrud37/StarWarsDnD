@@ -4,6 +4,16 @@ export const schemaOptions: SchemaOptions = {
 	timestamps: true,
 };
 
+export const physicalAttributeSchema = new Schema({
+	name: { type: String, unique: true },
+	value: { type: String, required: true },
+});
+
+export interface PhysicalAttribute {
+	name: string;
+	value: string;
+}
+
 export const characterBaseSchemaInnards = {
 	name: { type: String, unique: true },
 	shortName: { type: String, required: false },
@@ -17,6 +27,7 @@ export const characterBaseSchemaInnards = {
 	bio: { type: String, required: false },
 	knownBy: { type: [String], required: false },
 	titles: { type: [String], required: false },
+	physicalAttributes: { type: [physicalAttributeSchema], required: false },
 };
 
 /**
@@ -40,4 +51,5 @@ export interface CharacterBase {
 	bio?: string;
 	knownBy?: string[];
 	titles?: string[];
+	physicalAttributes?: PhysicalAttribute[];
 }
