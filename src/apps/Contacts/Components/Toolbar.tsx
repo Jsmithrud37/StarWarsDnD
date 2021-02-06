@@ -91,7 +91,7 @@ class WideToolbar extends React.Component<Props> {
 					{renderFactionFilterDropDown(
 						this.props.currentFactionSelection,
 						this.props.factionOptions,
-						this.props.onUpdateKnownBySelection,
+						this.props.onUpdateFactionSelection,
 					)}
 				</div>
 				<IconButton onClick={() => this.props.onClearAllFilters()}>
