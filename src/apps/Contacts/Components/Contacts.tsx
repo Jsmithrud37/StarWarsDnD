@@ -20,6 +20,7 @@ import { ContactCard } from './ContactCard';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { Contact, getPlayerCharacters } from '../Contact';
 import { NonPlayerCharacter, PlayerCharacter } from '../../../characters';
+import Toolbar from './Toolbar';
 
 /**
  * Externally specified props
@@ -50,7 +51,7 @@ interface State {
 	 * This filter is based on sub-string matching, as it is backed by a text entry field.
 	 * Any contact name including this string will be matched.
 	 */
-	nameFilter?: string;
+	nameFilter: string;
 
 	/**
 	 * Filter to faction.
@@ -69,7 +70,7 @@ interface State {
 }
 
 const initialState: State = {
-	nameFilter: undefined,
+	nameFilter: '',
 	factionFilter: undefined,
 	knownByFilter: undefined,
 };
@@ -184,23 +185,14 @@ export class Contacts extends React.Component<Props, State> {
 		]);
 	}
 
-	// private refreshContacts(): void {
-	// 	// Refresh filters
-	// 	this.setState(initialState);
-
-	// 	// Unload all contacts, will result in this component attempting to reload them from
-	// 	// the server.
-	// 	this.props.unloadContacts();
-	// }
-
-	private updateNameFilter(newValue?: string): void {
+	private updateNameFilter(newValue: string): void {
 		this.setState({
 			...this.state,
 			nameFilter: newValue,
 		});
 	}
 
-	private setFactionFilter(newValue?: string): void {
+	private updateFactionFilter(newValue?: string): void {
 		console.log(`Faction filter updated to: ${newValue}`);
 		this.setState({
 			...this.state,
@@ -208,7 +200,7 @@ export class Contacts extends React.Component<Props, State> {
 		});
 	}
 
-	private setKnownByFilter(newValue?: string): void {
+	private updateKnownByFilter(newValue?: string): void {
 		console.log(`Known-by filter updated to: ${newValue}`);
 		this.setState({
 			...this.state,
@@ -216,16 +208,39 @@ export class Contacts extends React.Component<Props, State> {
 		});
 	}
 
+	private clearAllFilters(): void {
+		this.setState(initialState);
+	}
+
 	public render(): ReactNode {
 		const contacts = this.props.contacts;
 
 		let renderContent;
 		if (contacts) {
-			const toolbar = this.renderToolbar();
+			const playerCharacterNames = isPlayerDungeonMaster(this.props.player)
+				? this.getAllPlayerCharacterNamesForDungeonMaster()
+				: this.props.player.characters ?? [];
+
+			const factions = this.getRepresentedFactions();
+
 			const view = this.renderContacts();
 			renderContent = (
 				<>
-					{toolbar}
+					<Toolbar
+						currentNameFilter={this.state.nameFilter}
+						onUpdateNameFilter={(newValue: string) => this.updateNameFilter(newValue)}
+						currentKnownBySelection={this.state.knownByFilter}
+						knownByOptions={playerCharacterNames}
+						onUpdateKnownBySelection={(newValue: string) =>
+							this.updateKnownByFilter(newValue)
+						}
+						currentFactionSelection={this.state.factionFilter}
+						factionOptions={factions}
+						onUpdateFactionSelection={(newValue: string) =>
+							this.updateFactionFilter(newValue)
+						}
+						onClearAllFilters={() => this.clearAllFilters()}
+					/>
 					<div
 						style={{
 							display: 'flex',
@@ -344,7 +359,7 @@ export class Contacts extends React.Component<Props, State> {
 						labelId="known-by-filter-label"
 						label="Known By"
 						value={this.state.knownByFilter}
-						onChange={(event) => this.setKnownByFilter(event.target.value as string)}
+						onChange={(event) => this.updateKnownByFilter(event.target.value as string)}
 						variant="outlined"
 					>
 						{knownByFilterOptions}
@@ -420,7 +435,7 @@ export class Contacts extends React.Component<Props, State> {
 						labelId="faction-filter-label"
 						label="Filter Affiliation"
 						value={this.state.factionFilter}
-						onChange={(event) => this.setFactionFilter(event.target.value as string)}
+						onChange={(event) => this.updateFactionFilter(event.target.value as string)}
 						variant="outlined"
 					>
 						{factionFilterOptions}
