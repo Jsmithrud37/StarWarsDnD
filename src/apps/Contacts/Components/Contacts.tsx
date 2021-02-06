@@ -59,20 +59,20 @@ interface State {
 	 * Any contact including a faction which exactly matches this will be matched.
 	 * empty string indicates that no filtering should be performed on factions.
 	 */
-	factionFilter?: string;
+	factionFilter: string;
 
 	/**
 	 * Filter for a particular player character.
 	 * The app will only show characters known by the specified character.
 	 * Unspecified means to show any character known by *any* of the player's characters.
 	 */
-	knownByFilter?: string;
+	knownByFilter: string;
 }
 
 const initialState: State = {
 	nameFilter: '',
-	factionFilter: undefined,
-	knownByFilter: undefined,
+	factionFilter: '',
+	knownByFilter: '',
 };
 
 export class Contacts extends React.Component<Props, State> {
@@ -192,7 +192,7 @@ export class Contacts extends React.Component<Props, State> {
 		});
 	}
 
-	private updateFactionFilter(newValue?: string): void {
+	private updateFactionFilter(newValue: string): void {
 		console.log(`Faction filter updated to: ${newValue}`);
 		this.setState({
 			...this.state,
@@ -200,7 +200,7 @@ export class Contacts extends React.Component<Props, State> {
 		});
 	}
 
-	private updateKnownByFilter(newValue?: string): void {
+	private updateKnownByFilter(newValue: string): void {
 		console.log(`Known-by filter updated to: ${newValue}`);
 		this.setState({
 			...this.state,

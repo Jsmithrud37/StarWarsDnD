@@ -19,12 +19,12 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
 type Props = WithWidth & {
-	currentNameFilter?: string;
+	currentNameFilter: string;
 	onUpdateNameFilter: (newValue: string) => void;
-	currentKnownBySelection?: string;
+	currentKnownBySelection: string;
 	knownByOptions: string[];
 	onUpdateKnownBySelection: (newKnownBySelection: string) => void;
-	currentFactionSelection?: string;
+	currentFactionSelection: string;
 	factionOptions: string[];
 	onUpdateFactionSelection: (newFactionSelection: string) => void;
 	onClearAllFilters: () => void;
@@ -128,12 +128,16 @@ class NarrowToolbar extends React.Component<Props, NarrowToolbarState> {
 				style={{
 					width: '100%',
 					display: 'flex',
-					flexDirection: 'row-reverse',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
 				}}
 			>
 				{this.renderOptionsModal()}
 				<IconButton onClick={() => this.toggleFilterMenuState(!this.state.filterMenuOpen)}>
 					<FilterListIcon />
+				</IconButton>
+				<IconButton onClick={() => this.props.onClearAllFilters()}>
+					<RefreshIcon />
 				</IconButton>
 			</div>
 		);
@@ -219,7 +223,7 @@ class NarrowToolbar extends React.Component<Props, NarrowToolbarState> {
  * @param onUpdateNameFilter - Callback to invoke when the filter value is updated
  */
 function renderNameFilterBox(
-	currentNameFilter: string | undefined,
+	currentNameFilter: string,
 	onUpdateNameFilter: (newValue: string) => void,
 ): React.ReactElement {
 	return (
@@ -258,7 +262,7 @@ function renderNameFilterBox(
  * @param onUpdateKnownBySelection - Callback to invoke when the known-by selection changes
  */
 function renderKnownByFilterDropDown(
-	currentKnownBySelection: string | undefined,
+	currentKnownBySelection: string,
 	knownByOptions: string[] | undefined,
 	onUpdateKnownBySelection: (newValue: string) => void,
 ): React.ReactNode {
@@ -284,7 +288,7 @@ function renderKnownByFilterDropDown(
  * @param onUpdateFactionSelection - Callback to invoke when the faction selection changes
  */
 function renderFactionFilterDropDown(
-	currentFactionSelection: string | undefined,
+	currentFactionSelection: string,
 	factionOptions: string[],
 	onUpdateFactionSelection: (newValue: string) => void,
 ): React.ReactElement {
