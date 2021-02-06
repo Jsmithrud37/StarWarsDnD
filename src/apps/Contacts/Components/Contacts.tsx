@@ -1,20 +1,11 @@
-import React, { ReactNode, ChangeEvent } from 'react';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 // import RefreshIcon from '@material-ui/icons/Refresh';
 import { executeBackendFunction, QueryResult } from '../../../utilities/NetlifyUtilities';
 import { Actions } from '../Actions';
 import { AppState } from '../State';
-import {
-	Grid,
-	// IconButton,
-	TextField,
-	AppBar,
-	Select,
-	MenuItem,
-	InputLabel,
-	FormControl,
-} from '@material-ui/core';
-import { background2, background3 } from '../../../Theming';
+import { Grid } from '@material-ui/core';
+import { background2 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { ContactCard } from './ContactCard';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
@@ -212,7 +203,7 @@ export class Contacts extends React.Component<Props, State> {
 		this.setState(initialState);
 	}
 
-	public render(): ReactNode {
+	public render(): React.ReactNode {
 		const contacts = this.props.contacts;
 
 		let renderContent;
@@ -274,178 +265,7 @@ export class Contacts extends React.Component<Props, State> {
 		);
 	}
 
-	private renderToolbar(): React.ReactNode {
-		return (
-			<AppBar
-				id="contacts-toolbar"
-				position="static"
-				style={{
-					backgroundColor: background3,
-					padding: '3px',
-				}}
-			>
-				<div
-					id="contacts-toolbar-div"
-					style={{
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-					}}
-				>
-					<div
-						id="contacts-toolbar-filters"
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-						}}
-					>
-						{this.renderNameFilterBox()}
-						{this.renderKnownByFilterDropDown()}
-						{this.renderFactionFilterDropDown()}
-					</div>
-					{/* <IconButton
-						id="refresh-contacts"
-						onClick={() => this.refreshContacts()}
-						disabled={this.props.contacts === undefined}
-					>
-						<RefreshIcon />
-					</IconButton> */}
-				</div>
-			</AppBar>
-		);
-	}
-
-	private renderKnownByFilterDropDown(): ReactNode {
-		const playerCharacterNames = isPlayerDungeonMaster(this.props.player)
-			? this.getAllPlayerCharacterNamesForDungeonMaster()
-			: this.props.player.characters;
-
-		// If the player has no characters, do not show filter menu
-		if (!playerCharacterNames) {
-			return React.Fragment;
-		}
-
-		const knownByFilterOptions: React.ReactNodeArray = [
-			<MenuItem key={`known-by-filter-option-all`} value={undefined}>
-				<em>All Characters</em>
-			</MenuItem>,
-		];
-		playerCharacterNames.forEach((characterName) => {
-			knownByFilterOptions.push(
-				<MenuItem key={`known-by-filter-option-${characterName}`} value={characterName}>
-					{characterName}
-				</MenuItem>,
-			);
-		});
-
-		return (
-			<div
-				style={{
-					height: '100%',
-					minWidth: '130px', // For the little carrot
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'space-around',
-					paddingLeft: '5px',
-					paddingRight: '5px',
-					textAlign: 'left',
-				}}
-			>
-				<FormControl variant="outlined" size="small">
-					<InputLabel id="known-by-filter-label">Known By</InputLabel>
-					<Select
-						id="known-by-filter-select"
-						labelId="known-by-filter-label"
-						label="Known By"
-						value={this.state.knownByFilter}
-						onChange={(event) => this.updateKnownByFilter(event.target.value as string)}
-						variant="outlined"
-					>
-						{knownByFilterOptions}
-					</Select>
-				</FormControl>
-			</div>
-		);
-	}
-
-	private renderNameFilterBox(): ReactNode {
-		return (
-			<div
-				style={{
-					height: '100%',
-					minWidth: '100px',
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'space-around',
-					paddingLeft: '5px',
-					paddingRight: '5px',
-					textAlign: 'left',
-				}}
-			>
-				<TextField
-					type="search"
-					value={this.state.nameFilter}
-					label={`Filter Name`}
-					id={`name_filter`}
-					variant="outlined"
-					multiline={false}
-					size="small"
-					onChange={(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-						this.updateNameFilter(event.target.value?.toLocaleLowerCase())
-					}
-				/>
-			</div>
-		);
-	}
-
-	private renderFactionFilterDropDown(): ReactNode {
-		const representedFactions = this.getRepresentedFactions();
-		// TODO: base options off of name filter?
-		const factionFilterOptions: React.ReactNodeArray = [
-			<MenuItem key={`faction-filter-option-none`} value={undefined}>
-				<em>All Factions</em>
-			</MenuItem>,
-		];
-		representedFactions.forEach((faction) => {
-			factionFilterOptions.push(
-				<MenuItem key={`faction-filter-option-${faction}`} value={faction}>
-					{faction}
-				</MenuItem>,
-			);
-		});
-
-		return (
-			<div
-				style={{
-					height: '100%',
-					minWidth: '160px', // For the little carrot icon
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'space-around',
-					paddingLeft: '5px',
-					paddingRight: '5px',
-					textAlign: 'left',
-				}}
-			>
-				<FormControl variant="outlined" size="small">
-					<InputLabel id="faction-filter-label">Filter Affiliation</InputLabel>
-					<Select
-						id="faction-filter-select"
-						labelId="faction-filter-label"
-						label="Filter Affiliation"
-						value={this.state.factionFilter}
-						onChange={(event) => this.updateFactionFilter(event.target.value as string)}
-						variant="outlined"
-					>
-						{factionFilterOptions}
-					</Select>
-				</FormControl>
-			</div>
-		);
-	}
-
-	private renderLoadingScreen(): ReactNode {
+	private renderLoadingScreen(): React.ReactNode {
 		return <LoadingScreen text="Loading contacts..." />;
 	}
 
@@ -453,7 +273,7 @@ export class Contacts extends React.Component<Props, State> {
 	 * Renders the Contacts app view.
 	 * Displays information about the selected contact.
 	 */
-	public renderContacts(): ReactNode {
+	public renderContacts(): React.ReactNode {
 		const filteredContacts = this.getFilteredContacts();
 
 		return (
