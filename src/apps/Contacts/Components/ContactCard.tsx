@@ -5,9 +5,10 @@ import { createContentColorForLevel } from '../../../Theming';
 import { Contact, getContactCardColor } from '../Contact';
 import { ContactDetails } from './ContactDetails';
 import {
+	CharacterImageOptions,
+	CharacterImageVariant,
 	ImageContainerShape,
-	ImageOptions,
-	renderContactImage,
+	renderCharacterImage,
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
 import { getMaybeFirstFactionAffiliation } from '../../../characters';
@@ -66,10 +67,11 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		const name = this.renderNameAndTitle();
 		const maxImageDimensionInPixels = 75;
 
-		const imageOptions: ImageOptions = {
+		const imageOptions: CharacterImageOptions = {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
+			variant: CharacterImageVariant.Profile,
 		};
 
 		// TODO: When attempting to render faction, it gets spinner indefinitely until
@@ -82,7 +84,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 			? maybeFaction
 				? renderFactionEmblem(maybeFaction, imageOptions)
 				: React.Fragment
-			: renderContactImage(this.props.contact.name, imageOptions);
+			: renderCharacterImage(this.props.contact.name, imageOptions);
 
 		const burgerButton = (
 			<HamburgerSqueeze

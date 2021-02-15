@@ -1,11 +1,15 @@
+import React from 'react';
 import { AppBar, Tab, Tabs, Modal } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
 import PeopleIcon from '@material-ui/icons/People';
 import SwipeableViews from 'react-swipeable-views';
-import React from 'react';
-import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import {
+	CharacterImageVariant,
+	ImageContainerShape,
+	renderCharacterImage,
+} from '../../../utilities/ImageUtilities';
 import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createContentColorForLevel } from '../../../Theming';
@@ -184,10 +188,11 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderBasicsTab(): React.ReactNode {
 		const maxImageDimensionInPixels = 150;
-		const contactImage = renderContactImage(this.props.contact.name, {
+		const contactImage = renderCharacterImage(this.props.contact.name, {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
+			variant: CharacterImageVariant.Profile,
 		});
 
 		return (
@@ -241,10 +246,11 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 						transform: 'translate(-50%, -50%)',
 					}}
 				>
-					{renderContactImage(this.props.contact.name, {
+					{renderCharacterImage(this.props.contact.name, {
 						maxWidthInPixels: maxWidth,
 						maxHeightInPixels: maxHeight,
 						containerShape: ImageContainerShape.RoundedRectangle,
+						variant: CharacterImageVariant.Full,
 					})}
 				</div>
 			</Modal>

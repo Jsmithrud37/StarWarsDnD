@@ -17,7 +17,11 @@ import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { PlayerCharacter } from '../../../characters';
 import Scrollbars from 'react-custom-scrollbars';
-import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import {
+	CharacterImageVariant,
+	ImageContainerShape,
+	renderCharacterImage,
+} from '../../../utilities/ImageUtilities';
 import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
 import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
 import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
@@ -183,10 +187,12 @@ export class Profile extends React.Component<Props> {
 
 	// TODO: size image dynamically
 	private renderImage(character: PlayerCharacter): React.ReactElement {
-		const image = renderContactImage(character.name, {
+		const image = renderCharacterImage(character.name, {
 			maxHeightInPixels: tileHeightInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
+			variant: CharacterImageVariant.Profile,
 		});
+
 		return this.renderGridItem(image);
 	}
 
