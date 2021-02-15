@@ -312,6 +312,7 @@ export class Contacts extends React.Component<Props, State> {
 											this.props.selectContact(contact._id);
 										}
 									}}
+									player={this.props.player}
 								/>
 							</Grid>
 						);

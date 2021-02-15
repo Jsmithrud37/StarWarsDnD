@@ -11,6 +11,7 @@ import {
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
 import { getMaybeFirstFactionAffiliation } from '../../../characters';
+import { Player } from '../../Datapad/Player';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 450;
@@ -19,6 +20,7 @@ export interface ContactCardProps {
 	contact: Contact;
 	selected: boolean;
 	onToggleSelection: () => void;
+	player: Player;
 }
 
 export class ContactCard extends React.Component<ContactCardProps> {
@@ -53,6 +55,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 						<ContactDetails
 							contact={this.props.contact}
 							heightInPixels={contactCardBodyHeightInPixels}
+							player={this.props.player}
 						/>
 					</CardContent>
 				</Collapse>

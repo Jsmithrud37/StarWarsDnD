@@ -5,6 +5,13 @@ export interface Player {
 	userName: string;
 	playerKind: PlayerKind;
 	characters?: string[];
+
+	/**
+	 * Notes taken by the player for particular contacts.
+	 * Key: contact name
+	 * Value: notes
+	 */
+	contactNotes?: Record<string, string>;
 }
 
 /**

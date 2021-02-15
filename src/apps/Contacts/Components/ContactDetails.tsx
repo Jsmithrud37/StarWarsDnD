@@ -1,10 +1,10 @@
+import React from 'react';
 import { AppBar, Tab, Tabs, Modal } from '@material-ui/core';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
 import PeopleIcon from '@material-ui/icons/People';
 import SwipeableViews from 'react-swipeable-views';
-import React from 'react';
 import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
 import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -12,6 +12,9 @@ import { createContentColorForLevel } from '../../../Theming';
 import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
 import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
 import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
+import NoteIcon from '@material-ui/icons/Note';
+import { Player } from '../../Datapad/Player';
+import { ContactNotes } from './ContactNotes';
 
 /**
  * Tabs in the contact card view
@@ -20,6 +23,7 @@ enum DetailsTab {
 	GeneralInfo,
 	Affiliations,
 	Bio,
+	Notes,
 }
 
 const tabDivStyle = {
@@ -38,6 +42,8 @@ function stringFromTabType(tabType: DetailsTab): string {
 			return 'Affiliations';
 		case DetailsTab.Bio:
 			return 'Bio';
+		case DetailsTab.Notes:
+			return 'Notes';
 		default:
 			throw new Error(`Unrecognized DetailsTab value: ${tabType}`);
 	}
@@ -46,6 +52,7 @@ function stringFromTabType(tabType: DetailsTab): string {
 export interface ContactCardProps {
 	contact: Contact;
 	heightInPixels: number;
+	player: Player;
 }
 
 interface State {
@@ -84,20 +91,17 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	public render(): React.ReactNode {
-		const contact = this.props.contact;
-
-		const hasBio: boolean = contact.bio !== undefined;
-
 		const basicsTab = this.renderBasicsTab();
 		const affiliationsTab = this.renderAffiliationsTab();
-		const bioTab = hasBio ? this.renderBioTab() : <></>;
+		const bioTab = this.renderBioTab();
+		const notesTab = this.renderNotesTab();
 
 		const headerHeightInPixels = 48; // Seems to match the height of the buttons
 		const bodyHeightInPixels = this.props.heightInPixels - headerHeightInPixels;
 
 		const tabPanelStyle = {
 			height: `${bodyHeightInPixels}px`,
-			padding: '5px',
+			padding: '0px',
 		};
 
 		const tabPanels: React.ReactNodeArray = [
@@ -115,17 +119,20 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			>
 				{affiliationsTab}
 			</TabPanel>,
-			hasBio ? (
-				<TabPanel
-					key={DetailsTab.Bio}
-					value={stringFromTabType(DetailsTab.Bio)}
-					style={tabPanelStyle}
-				>
-					{bioTab}
-				</TabPanel>
-			) : (
-				<div style={tabPanelStyle} key={DetailsTab.Bio} />
-			),
+			<TabPanel
+				key={DetailsTab.Bio}
+				value={stringFromTabType(DetailsTab.Bio)}
+				style={tabPanelStyle}
+			>
+				{bioTab}
+			</TabPanel>,
+			<TabPanel
+				key={DetailsTab.Notes}
+				value={stringFromTabType(DetailsTab.Notes)}
+				style={tabPanelStyle}
+			>
+				{notesTab}
+			</TabPanel>,
 		];
 		return (
 			<div
@@ -146,27 +153,31 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 						}}
 					>
 						<Tabs
-							centered
 							indicatorColor="primary"
-							variant="fullWidth"
+							variant="scrollable"
+							scrollButtons="auto"
 							onChange={(event, newSelection) => this.onTabSelection(newSelection)}
 							value={this.state.selectedTab}
 						>
 							<Tab
-								label={<PersonIcon />}
+								icon={<PersonIcon color={'inherit'} />}
 								color="inherit"
 								value={DetailsTab.GeneralInfo}
 							/>
 							<Tab
-								label={<PeopleIcon color={'inherit'} />}
+								icon={<PeopleIcon color={'inherit'} />}
 								color="inherit"
 								value={DetailsTab.Affiliations}
 							/>
 							<Tab
-								label={<DescriptionIcon color={hasBio ? 'inherit' : 'disabled'} />}
+								icon={<DescriptionIcon color={'inherit'} />}
 								color="inherit"
 								value={DetailsTab.Bio}
-								disabled={!hasBio}
+							/>
+							<Tab
+								icon={<NoteIcon color={'inherit'} />}
+								color="inherit"
+								value={DetailsTab.Notes}
 							/>
 						</Tabs>
 					</AppBar>
@@ -225,6 +236,10 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 				/>
 			</Scrollbars>
 		);
+	}
+
+	private renderNotesTab(): React.ReactNode {
+		return <ContactNotes contact={this.props.contact} player={this.props.player} />;
 	}
 
 	private renderContactModal(): React.ReactNode {
