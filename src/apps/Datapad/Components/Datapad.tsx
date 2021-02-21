@@ -1,4 +1,3 @@
-import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -10,31 +9,18 @@ import Timeline, { reducers as timelineReducers } from '../../Timeline';
 import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from '../Actions';
 import AppId from '../AppId';
 import { AppState } from '../State';
-import {
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
-	Drawer,
-	Divider,
-	IconButton,
-	Paper,
-} from '@material-ui/core';
-import MapIcon from '@material-ui/icons/Map';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import PeopleIcon from '@material-ui/icons/People';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import TimelineIcon from '@material-ui/icons/Timeline';
+import { Drawer, IconButton, Paper } from '@material-ui/core';
+
 import MenuIcon from '@material-ui/icons/Menu';
-import CloseIcon from '@material-ui/icons/Close';
 import { background1 } from '../../../Theming';
-import { Player, PlayerKind } from '../Player';
+import { Player } from '../Player';
 import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import {
 	ViewPortAwareComponent,
 	ViewPortAwareState,
 } from '../../../shared-components/ViewPortAwareComponent';
+import { DatapadMenu } from './Menu';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';
@@ -272,6 +258,13 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 	 * Renders the Datapad main menu
 	 */
 	private renderMenu(): ReactNode {
+		const player = this.props.signedInPlayer;
+		if (!player) {
+			throw new Error(
+				'Player data not loaded yet. Cannot render menu until data is available.',
+			);
+		}
+
 		return (
 			<Drawer
 				id={menuId}
@@ -280,197 +273,14 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 				}}
 				open={!this.props.isMenuCollapsed}
 			>
-				<List
-					component="nav"
-					disablePadding={true}
-					style={{
-						width: `225px`,
-						height: '100%',
-						backgroundColor: background1,
-					}}
-				>
-					{this.renderWelcome()}
-					{this.renderUserRole()}
-					{this.renderCharacters()}
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					{this.renderAppsList()}
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					{this.renderMenuMisc()}
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					<Divider orientation="horizontal" />
-					{this.renderMenuFooter()}
-				</List>
+				<DatapadMenu
+					player={player}
+					appSelection={this.props.appSelection}
+					onAppSelectionChange={(newSelection) => this.props.changeApp(newSelection)}
+					onMenuCollapse={() => this.props.collapseMenu()}
+					logoutFunction={() => this.props.logoutFunction()}
+				/>
 			</Drawer>
-		);
-	}
-
-	private renderWelcome(): React.ReactNode {
-		const userName: string = this.props.userName;
-
-		return (
-			<ListItem>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'space-around',
-					}}
-				>
-					<div style={this.menuTextContainerStyle}>
-						<h5>{`Welcome ${userName}!`}</h5>
-					</div>
-					<div>
-						<IconButton onClick={() => this.props.collapseMenu()}>
-							<CloseIcon />
-						</IconButton>
-					</div>
-				</div>
-			</ListItem>
-		);
-	}
-
-	private renderUserRole(): React.ReactNode {
-		const player = this.props.signedInPlayer;
-
-		if (!player) {
-			throw new Error('No player set. Cannot render datapad menu.');
-		}
-
-		return (
-			<div style={this.menuTextContainerStyle}>
-				<h6>
-					<b>Role: </b>
-					{player.playerKind}
-				</h6>
-			</div>
-		);
-	}
-
-	private renderCharacters(): React.ReactNode {
-		const player = this.props.signedInPlayer;
-
-		if (!player) {
-			throw new Error('No player set. Cannot render datapad menu.');
-		}
-
-		const userIsDungeonMaster = player.playerKind === PlayerKind.DungeonMaster;
-
-		const playerCharactersListRender = (
-			<ul>
-				<li>
-					{userIsDungeonMaster ? (
-						<b>all</b>
-					) : (
-						player.characters?.map((character) => {
-							return <li key={character}>{character}</li>;
-						})
-					)}
-				</li>
-			</ul>
-		);
-
-		return (
-			<div style={this.menuTextContainerStyle}>
-				<h6>
-					<b>Characters:</b>
-				</h6>
-				{playerCharactersListRender}
-			</div>
-		);
-	}
-
-	private renderAppsList(): React.ReactNode {
-		return (
-			<div>
-				<div style={this.menuTextContainerStyle}>
-					<h5>Applications:</h5>
-				</div>
-				{/* TODO: user details */}
-				{/* <Divider orientation="horizontal"></Divider> */}
-				{this.createMenuItem('My Profiles', <AccountCircleIcon />, AppId.Profile)}
-				{this.createMenuItem('Galaxy Map', <MapIcon />, AppId.GalaxyMap)}
-				{this.createMenuItem('Shops', <ShoppingCartIcon />, AppId.Shops)}
-				{this.createMenuItem('Contacts', <PeopleIcon />, AppId.Contacts)}
-				{this.createMenuItem('Timeline', <TimelineIcon />, AppId.Timeline)}
-			</div>
-		);
-	}
-
-	private renderMenuMisc(): React.ReactNode {
-		return (
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					float: 'inline-end',
-					padding: '10px',
-				}}
-			>
-				<h5>Other Resources</h5>
-				<ListItem>
-					<a href="https://sw5e.com/" target="_blank" rel="noopener noreferrer">
-						SW5e
-					</a>
-				</ListItem>
-				<ListItem>
-					<a
-						href="https://drive.google.com/drive/folders/0B0DnV-NrBZTZbHNZb0QzNXRNdE0?usp=sharing"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Drive
-					</a>
-				</ListItem>
-				<ListItem>
-					<a
-						href="https://app.roll20.net/campaigns/details/3130121/starships-and-krayt-dragons-legends-of-the-fallen"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Roll20
-					</a>
-				</ListItem>
-			</div>
-		);
-	}
-
-	private renderMenuFooter(): React.ReactNode {
-		return (
-			<ListItem>
-				<div
-					style={{
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'start',
-						padding: '10px',
-					}}
-				>
-					<Button variant="contained" onClick={() => this.props.logoutFunction()}>
-						Log Out
-					</Button>
-				</div>
-			</ListItem>
-		);
-	}
-
-	private createMenuItem(text: string, icon: React.ReactElement, appId: AppId): React.ReactNode {
-		return (
-			<ListItem
-				button
-				selected={appId === this.props.appSelection}
-				onClick={() => this.props.changeApp(appId)}
-				key={appId}
-			>
-				<ListItemIcon>{icon}</ListItemIcon>
-				<ListItemText primary={text} />
-			</ListItem>
 		);
 	}
 }
