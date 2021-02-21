@@ -41,37 +41,6 @@ function renderApp(): ReactNode {
 	);
 }
 
-// TODO: better tests than text only
-test('Menu contains expected buttons', () => {
-	const { getByText } = render(<>{renderApp()}</>);
-
-	const expectedTextElement = [/Profile/, /Galaxy Map/, /Shops/, /Contacts/, /Timeline/];
-
-	for (const query of expectedTextElement) {
-		const element = getByText(query);
-		expect(element).toBeInTheDocument();
-	}
-});
-
-test('Menu contains welcome for user', () => {
-	const { getByText } = render(<>{renderApp()}</>);
-
-	const element = getByText(`Welcome ${userName}!`);
-	expect(element).toBeInTheDocument();
-});
-
-test('Menu contains Google Drive link', () => {
-	const { getByText } = render(<>{renderApp()}</>);
-
-	const element = getByText(`Drive`);
-	expect(element).toBeInTheDocument();
-	expect(element).toHaveAttribute('href');
-});
-
-test('Menu contains SW5e link', () => {
-	const { getByText } = render(<>{renderApp()}</>);
-
-	const element = getByText(`SW5e`);
-	expect(element).toBeInTheDocument();
-	expect(element).toHaveAttribute('href', 'https://sw5e.com/');
+test('Datapad smoke test', () => {
+	render(<>{renderApp()}</>);
 });
