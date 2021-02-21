@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { cleanName } from '../ImageUtilities';
 
 test('cleanName - Correctly handles string with many spaces', () => {
