@@ -11,6 +11,7 @@ import {
 	Grid,
 	Container,
 	Divider,
+	Modal,
 } from '@material-ui/core';
 import { background2, background3 } from '../../../Theming';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
@@ -26,6 +27,7 @@ import { CharacterBasics } from '../../../shared-components/CharacterComponents/
 import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
 import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
 import { CharacterPhysicalAttributes } from '../../../shared-components/CharacterComponents/CharacterPhysicalAttributes';
+import { CharacterImageForModal } from '../../../shared-components/CharacterComponents/CharacterImageModal';
 
 /**
  * Externally specified props
@@ -47,11 +49,21 @@ type Parameters = AppState & InputProps;
  */
 type Props = Actions & Parameters;
 
+interface LocalState {
+	/**
+	 * Whether or not the image modal should be displayed
+	 */
+	imageModal: boolean;
+}
+
 const tileHeightInPixels = 350;
 
-export class Profile extends React.Component<Props> {
+export class Profile extends React.Component<Props, LocalState> {
 	public constructor(props: Props) {
 		super(props);
+		this.state = {
+			imageModal: false,
+		};
 	}
 
 	private isSelected(character: PlayerCharacter): boolean {
@@ -104,6 +116,13 @@ export class Profile extends React.Component<Props> {
 		]);
 	}
 
+	toggleImageModal(shouldDisplay: boolean): void {
+		this.setState({
+			...this.state,
+			imageModal: shouldDisplay,
+		});
+	}
+
 	public render(): React.ReactNode {
 		const characters = this.props.characters;
 
@@ -139,6 +158,7 @@ export class Profile extends React.Component<Props> {
 		const view = this.renderProfile();
 		return (
 			<>
+				{this.renderContactModal()}
 				{toolbar}
 				<div
 					style={{
@@ -193,7 +213,9 @@ export class Profile extends React.Component<Props> {
 			variant: CharacterImageVariant.Profile,
 		});
 
-		return this.renderGridItem(image);
+		const imageWithOnClick = <div onClick={() => this.toggleImageModal(true)}>{image}</div>;
+
+		return this.renderGridItem(imageWithOnClick);
 	}
 
 	private renderBasics(character: PlayerCharacter): React.ReactElement {
@@ -250,6 +272,15 @@ export class Profile extends React.Component<Props> {
 			<Grid item xs={12} md={6} xl={4}>
 				{child}
 			</Grid>
+		);
+	}
+
+	private renderContactModal(): React.ReactNode {
+		const character = this.getSelectedCharacter();
+		return (
+			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
+				<CharacterImageForModal character={character} />
+			</Modal>
 		);
 	}
 
