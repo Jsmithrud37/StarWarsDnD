@@ -200,7 +200,7 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderBasicsTab(): React.ReactNode {
 		const maxImageDimensionInPixels = 150;
-		const contactImage = renderCharacterImage(this.props.contact.name, {
+		const contactImage = renderCharacterImage(this.props.contact, {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,

@@ -87,7 +87,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 			? maybeFaction
 				? renderFactionEmblem(maybeFaction, imageOptions)
 				: React.Fragment
-			: renderCharacterImage(this.props.contact.name, imageOptions);
+			: renderCharacterImage(this.props.contact, imageOptions);
 
 		const burgerButton = (
 			<HamburgerSqueeze
