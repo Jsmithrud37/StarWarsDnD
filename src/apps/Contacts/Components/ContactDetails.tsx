@@ -16,6 +16,7 @@ import { createContentColorForLevel } from '../../../Theming';
 import { CharacterBasics } from '../../../shared-components/CharacterComponents/CharacterBasics';
 import { CharacterAffiliations } from '../../../shared-components/CharacterComponents/CharacterAffiliations';
 import { CharacterBio } from '../../../shared-components/CharacterComponents/CharacterBio';
+import { CharacterImageForModal } from '../../../shared-components/CharacterComponents/CharacterImageModal';
 
 /**
  * Tabs in the contact card view
@@ -233,26 +234,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderContactModal(): React.ReactNode {
-		const scalar = 0.85;
-		const maxWidth = scalar * window.innerWidth;
-		const maxHeight = scalar * window.innerHeight;
 		return (
 			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
-				<div
-					style={{
-						position: 'absolute',
-						left: '50%',
-						top: '50%',
-						transform: 'translate(-50%, -50%)',
-					}}
-				>
-					{renderCharacterImage(this.props.contact.name, {
-						maxWidthInPixels: maxWidth,
-						maxHeightInPixels: maxHeight,
-						containerShape: ImageContainerShape.RoundedRectangle,
-						variant: CharacterImageVariant.Full,
-					})}
-				</div>
+				<CharacterImageForModal character={this.props.contact} />
 			</Modal>
 		);
 	}
