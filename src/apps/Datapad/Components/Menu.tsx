@@ -140,8 +140,8 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 		const userIsDungeonMaster = player.playerKind === PlayerKind.DungeonMaster;
 
 		const playerCharactersListRender = (
-			<ul>
-				<li>
+			<List>
+				<ListItem>
 					{userIsDungeonMaster ? (
 						<b>all</b>
 					) : (
@@ -149,8 +149,8 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 							return <li key={character}>{character}</li>;
 						})
 					)}
-				</li>
-			</ul>
+				</ListItem>
+			</List>
 		);
 
 		return (
