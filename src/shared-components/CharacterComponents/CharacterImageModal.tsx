@@ -30,7 +30,7 @@ export function CharacterImageForModal(props: CharacterImageModalProps): React.R
 				transform: 'translate(-50%, -50%)',
 			}}
 		>
-			{renderCharacterImage(props.character.name, {
+			{renderCharacterImage(props.character, {
 				maxWidthInPixels: maxWidth,
 				maxHeightInPixels: maxHeight,
 				containerShape: ImageContainerShape.RoundedRectangle,

@@ -207,7 +207,7 @@ export class Profile extends React.Component<Props, LocalState> {
 
 	// TODO: size image dynamically
 	private renderImage(character: PlayerCharacter): React.ReactElement {
-		const image = renderCharacterImage(character.name, {
+		const image = renderCharacterImage(character, {
 			maxHeightInPixels: tileHeightInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 			variant: CharacterImageVariant.Profile,

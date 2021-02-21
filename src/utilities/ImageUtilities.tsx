@@ -5,6 +5,7 @@
 import React from 'react';
 import { Img as ReactImage } from 'react-image';
 import { CircularProgress } from '@material-ui/core';
+import { Character, getImageResourceBaseName } from '../characters';
 
 const baseImageUrl = 'https://datapadassets.blob.core.windows.net';
 
@@ -105,10 +106,11 @@ export function renderFactionEmblem(
  * the `missing contact` image.
  */
 export function renderCharacterImage(
-	characterName: string,
+	character: Character,
 	options: CharacterImageOptions,
 ): React.ReactElement {
-	const cleanedName = cleanName(characterName);
+	const resourceBaseName = getImageResourceBaseName(character);
+	const cleanedName = cleanName(resourceBaseName);
 	const contactImageUrls = getSizedCharacterUrl(
 		`${baseImageUrl}/contacts/${cleanedName}`,
 		options,

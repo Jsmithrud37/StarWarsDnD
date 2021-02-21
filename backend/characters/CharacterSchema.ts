@@ -28,6 +28,7 @@ export const characterBaseSchemaInnards = {
 	knownBy: { type: [String], required: false },
 	titles: { type: [String], required: false },
 	physicalAttributes: { type: [physicalAttributeSchema], required: false },
+	imageResourceName: { type: String, required: false },
 };
 
 /**
@@ -52,4 +53,5 @@ export interface CharacterBase {
 	knownBy?: string[];
 	titles?: string[];
 	physicalAttributes?: PhysicalAttribute[];
+	imageResourceName?: string;
 }
