@@ -17,12 +17,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const dataStore = createStore(reducers);
 
-const profileEnabled = true;
-const galaxyMapEnabled = true;
-const shopsEnabled = true;
-const contactsEnabled = true;
-const timelineEnabled = true;
-
 class AppComponent extends React.Component<WithAuth0Props> {
 	public constructor(props: WithAuth0Props) {
 		super(props);
@@ -53,11 +47,6 @@ class AppComponent extends React.Component<WithAuth0Props> {
 						<Datapad
 							userName={userName}
 							logoutFunction={() => this.props.auth0.logout()}
-							profileEnabled={profileEnabled}
-							galaxyMapEnabled={galaxyMapEnabled}
-							shopsEnabled={shopsEnabled}
-							contactsEnabled={contactsEnabled}
-							timelineEnabled={timelineEnabled}
 						/>
 					</MuiThemeProvider>
 				</Provider>

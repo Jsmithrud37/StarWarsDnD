@@ -53,31 +53,6 @@ interface InputProps {
 	 * Function for signing the user out of the application.
 	 */
 	logoutFunction: () => void;
-
-	/**
-	 * Profile app will be enabled iff true or undefined.
-	 */
-	profileEnabled?: boolean;
-
-	/**
-	 * Galaxy Map app will be enabled iff true or undefined.
-	 */
-	galaxyMapEnabled?: boolean;
-
-	/**
-	 * Shops app will be enabled iff true or undefined.
-	 */
-	shopsEnabled?: boolean;
-
-	/**
-	 * Contacts app will be enabled iff true or undefined.
-	 */
-	contactsEnabled?: boolean;
-
-	/**
-	 * Timeline app will be enabled iff true or undefined.
-	 */
-	timelineEnabled?: boolean;
 }
 
 /**
@@ -418,36 +393,11 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 				</div>
 				{/* TODO: user details */}
 				{/* <Divider orientation="horizontal"></Divider> */}
-				{this.createMenuItem(
-					'My Profiles',
-					<AccountCircleIcon />,
-					AppId.Profile,
-					this.props.profileEnabled ?? true,
-				)}
-				{this.createMenuItem(
-					'Galaxy Map',
-					<MapIcon />,
-					AppId.GalaxyMap,
-					this.props.galaxyMapEnabled ?? true,
-				)}
-				{this.createMenuItem(
-					'Shops',
-					<ShoppingCartIcon />,
-					AppId.Shops,
-					this.props.shopsEnabled ?? true,
-				)}
-				{this.createMenuItem(
-					'Contacts',
-					<PeopleIcon />,
-					AppId.Contacts,
-					this.props.contactsEnabled ?? true,
-				)}
-				{this.createMenuItem(
-					'Timeline',
-					<TimelineIcon />,
-					AppId.Timeline,
-					this.props.timelineEnabled ?? true,
-				)}
+				{this.createMenuItem('My Profiles', <AccountCircleIcon />, AppId.Profile)}
+				{this.createMenuItem('Galaxy Map', <MapIcon />, AppId.GalaxyMap)}
+				{this.createMenuItem('Shops', <ShoppingCartIcon />, AppId.Shops)}
+				{this.createMenuItem('Contacts', <PeopleIcon />, AppId.Contacts)}
+				{this.createMenuItem('Timeline', <TimelineIcon />, AppId.Timeline)}
 			</div>
 		);
 	}
@@ -510,19 +460,13 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 		);
 	}
 
-	private createMenuItem(
-		text: string,
-		icon: React.ReactElement,
-		appId: AppId,
-		enabled: boolean,
-	): React.ReactNode {
+	private createMenuItem(text: string, icon: React.ReactElement, appId: AppId): React.ReactNode {
 		return (
 			<ListItem
 				button
 				selected={appId === this.props.appSelection}
 				onClick={() => this.props.changeApp(appId)}
 				key={appId}
-				disabled={!enabled}
 			>
 				<ListItemIcon>{icon}</ListItemIcon>
 				<ListItemText primary={text} />
