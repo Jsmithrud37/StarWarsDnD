@@ -5,7 +5,11 @@ import PersonIcon from '@material-ui/icons/Person';
 import DescriptionIcon from '@material-ui/icons/Description';
 import PeopleIcon from '@material-ui/icons/People';
 import SwipeableViews from 'react-swipeable-views';
-import { ImageContainerShape, renderContactImage } from '../../../utilities/ImageUtilities';
+import {
+	CharacterImageVariant,
+	ImageContainerShape,
+	renderCharacterImage,
+} from '../../../utilities/ImageUtilities';
 import { Contact, getContactCardColor } from '../Contact';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createContentColorForLevel } from '../../../Theming';
@@ -15,6 +19,7 @@ import { CharacterBio } from '../../../shared-components/CharacterComponents/Cha
 import NoteIcon from '@material-ui/icons/Note';
 import { Player } from '../../Datapad/Player';
 import { ContactNotes } from './ContactNotes';
+import { CharacterImageForModal } from '../../../shared-components/CharacterComponents/CharacterImageModal';
 
 /**
  * Tabs in the contact card view
@@ -195,10 +200,11 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderBasicsTab(): React.ReactNode {
 		const maxImageDimensionInPixels = 150;
-		const contactImage = renderContactImage(this.props.contact.name, {
+		const contactImage = renderCharacterImage(this.props.contact.name, {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
+			variant: CharacterImageVariant.Profile,
 		});
 
 		return (
@@ -243,25 +249,9 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 	}
 
 	private renderContactModal(): React.ReactNode {
-		const scalar = 0.85;
-		const maxWidth = scalar * window.innerWidth;
-		const maxHeight = scalar * window.innerHeight;
 		return (
 			<Modal open={this.state.imageModal} onClose={() => this.toggleImageModal(false)}>
-				<div
-					style={{
-						position: 'absolute',
-						left: '50%',
-						top: '50%',
-						transform: 'translate(-50%, -50%)',
-					}}
-				>
-					{renderContactImage(this.props.contact.name, {
-						maxWidthInPixels: maxWidth,
-						maxHeightInPixels: maxHeight,
-						containerShape: ImageContainerShape.RoundedRectangle,
-					})}
-				</div>
+				<CharacterImageForModal character={this.props.contact} />
 			</Modal>
 		);
 	}
