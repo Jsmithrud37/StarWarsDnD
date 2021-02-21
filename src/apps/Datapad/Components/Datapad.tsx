@@ -2,14 +2,14 @@ import { Button } from '@material-ui/core';
 import React, { ReactNode } from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
-import ProfileApp, { reducers as profileReducers } from '../Profile';
-import ContactsApp, { reducers as contactsReducers } from '../Contacts';
-import GalaxyMap from '../GalaxyMap';
-import ShopsApp, { reducers as shopReducers } from '../Shop';
-import Timeline, { reducers as timelineReducers } from '../Timeline';
-import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from './Actions';
-import AppId from './AppId';
-import { AppState } from './State';
+import ProfileApp, { reducers as profileReducers } from '../../Profile';
+import ContactsApp, { reducers as contactsReducers } from '../../Contacts';
+import GalaxyMap from '../../GalaxyMap';
+import ShopsApp, { reducers as shopReducers } from '../../Shop';
+import Timeline, { reducers as timelineReducers } from '../../Timeline';
+import { Actions, changeApp, collapseMenu, expandMenu, setPlayer } from '../Actions';
+import AppId from '../AppId';
+import { AppState } from '../State';
 import {
 	List,
 	ListItem,
@@ -27,14 +27,14 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
-import { background1 } from '../../Theming';
-import { Player, PlayerKind } from './Player';
-import { executeBackendFunction } from '../../utilities/NetlifyUtilities';
-import LoadingScreen from '../../shared-components/LoadingScreen';
+import { background1 } from '../../../Theming';
+import { Player, PlayerKind } from '../Player';
+import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
+import LoadingScreen from '../../../shared-components/LoadingScreen';
 import {
 	ViewPortAwareComponent,
 	ViewPortAwareState,
-} from '../../shared-components/ViewPortAwareComponent';
+} from '../../../shared-components/ViewPortAwareComponent';
 
 const appId = 'datpad';
 const viewId = 'datapad-view';

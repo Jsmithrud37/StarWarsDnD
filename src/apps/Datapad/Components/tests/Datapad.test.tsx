@@ -1,11 +1,9 @@
 import { render } from '@testing-library/react';
 import React, { ReactNode } from 'react';
-import { changeApp, collapseMenu, expandMenu, setPlayer } from '../Actions';
-import AppId from '../AppId';
+import { changeApp, collapseMenu, expandMenu, setPlayer } from '../../Actions';
+import AppId from '../../AppId';
 import { DatapadComponent } from '../Datapad';
-import { Player, PlayerKind } from '../Player';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Player, PlayerKind } from '../../Player';
 
 const userName = 'test-user';
 const character = 'test-character';
