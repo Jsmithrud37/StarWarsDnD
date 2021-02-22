@@ -41,7 +41,8 @@ export const reducer: Reducer<AppState, ContactsActionTypes> = (
 			const characters = action.characters;
 			const maybeSelectedCharacter = action.initialCharacterSelection;
 
-			let characterSelection = undefined;
+			let characterSelection =
+				characters === undefined || characters.length === 0 ? undefined : characters[0]._id;
 			if (maybeSelectedCharacter && characters) {
 				for (const character of characters) {
 					if (character.name === maybeSelectedCharacter) {
