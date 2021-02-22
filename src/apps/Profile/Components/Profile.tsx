@@ -71,7 +71,7 @@ export class Profile extends React.Component<Props, LocalState> {
 	}
 
 	private getSelectedCharacter(): PlayerCharacter {
-		if (!this.props.characters || !this.props.selectCharacter) {
+		if (!this.props.characters || !this.props.characterSelection) {
 			throw new Error('Characters not yet loaded. Cannot query for selected character.');
 		}
 		for (const character of this.props.characters) {
