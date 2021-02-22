@@ -57,7 +57,7 @@ export async function getCharacters<
 				});
 			}
 			filter = {
-				$or: filterList,
+				$or: [{ knownBy: { $exists: false } }, { $or: filterList }],
 			};
 		}
 
