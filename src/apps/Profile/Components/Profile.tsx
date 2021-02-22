@@ -92,12 +92,17 @@ export class Profile extends React.Component<Props, LocalState> {
 			: await this.fetchOwnedPlayerCharacters();
 
 		if (results) {
-			this.props.loadCharacters(
-				results.characters,
-				// Set the character selection to the first in the player's list
-				// This is generally their active character
-				this.props.player.characters ? this.props.player.characters[0] : undefined,
-			);
+			if (results.characters.length !== 0) {
+				this.props.loadCharacters(
+					results.characters,
+					// Set the character selection to the first in the player's list
+					// This is generally their active character
+					this.props.player.characters ? this.props.player.characters[0] : undefined,
+				);
+			} else {
+				// TODO: error state with handling for this case.
+				throw new Error(`No player characters found for the signed-in player.`);
+			}
 		} else {
 			throw new Error('Failed to load characters from the server.');
 		}
