@@ -92,17 +92,12 @@ export class Profile extends React.Component<Props, LocalState> {
 			: await this.fetchOwnedPlayerCharacters();
 
 		if (results) {
-			if (results.characters.length !== 0) {
-				this.props.loadCharacters(
-					results.characters,
-					// Set the character selection to the first in the player's list
-					// This is generally their active character
-					this.props.player.characters ? this.props.player.characters[0] : undefined,
-				);
-			} else {
-				// TODO: error state with handling for this case.
-				throw new Error(`No player characters found for the signed-in player.`);
-			}
+			this.props.loadCharacters(
+				results.characters,
+				// Set the character selection to the first in the player's list
+				// This is generally their active character
+				this.props.player.characters ? this.props.player.characters[0] : undefined,
+			);
 		} else {
 			throw new Error('Failed to load characters from the server.');
 		}
@@ -132,11 +127,13 @@ export class Profile extends React.Component<Props, LocalState> {
 		const characters = this.props.characters;
 
 		let renderContent;
-		if (characters !== undefined) {
-			renderContent = this.renderLoaded();
-		} else {
+		if (characters === undefined) {
 			this.fetchPlayerCharacters();
 			renderContent = this.renderLoading();
+		} else if (characters.length === 0) {
+			renderContent = this.renderPlayerHasNoCharacters();
+		} else {
+			renderContent = this.renderLoaded();
 		}
 
 		return (
@@ -156,6 +153,22 @@ export class Profile extends React.Component<Props, LocalState> {
 
 	private renderLoading(): React.ReactNode {
 		return <LoadingScreen text="Loading character profiles..." />;
+	}
+
+	private renderPlayerHasNoCharacters(): React.ReactNode {
+		return (
+			<div
+				style={{
+					height: '100%',
+					width: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+				}}
+			>
+				No player characters found. If this is an error, talk to your DM 😉.
+			</div>
+		);
 	}
 
 	private renderLoaded(): React.ReactNode {

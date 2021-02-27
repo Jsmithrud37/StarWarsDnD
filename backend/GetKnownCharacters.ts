@@ -26,26 +26,29 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 
 	try {
 		const player: Player = await getPlayer(parameters.userName);
-		const userCharacters = player.characters;
 
-		let knownPlayerCharacters: PlayerCharacter[];
-		let knownNonPlayerCharacters: NonPlayerCharacter[];
-		if (userCharacters && userCharacters.length > 0) {
-			// Get known player characters
-			knownPlayerCharacters = await getCharacters<
-				PlayerCharacter,
-				typeof playerCharacterSchema
-			>(pcCollectionName, playerCharacterSchema, userCharacters);
+		// If there is no player associated with the username, then they are a guest.
+		// Only load characters known by everyone (pass empty knownBy list)
+		const userCharacters = player?.characters ?? [];
 
-			// Get known non-player characters
-			knownNonPlayerCharacters = await getCharacters<
-				NonPlayerCharacter,
-				typeof nonPlayerCharacterSchema
-			>(npcCollectionName, nonPlayerCharacterSchema, userCharacters);
-		} else {
-			knownPlayerCharacters = [];
-			knownNonPlayerCharacters = [];
-		}
+		// Get known player characters
+		const knownPlayerCharacters = await getCharacters<
+			PlayerCharacter,
+			typeof playerCharacterSchema
+		>(pcCollectionName, playerCharacterSchema, userCharacters);
+
+		// Get known non-player characters
+		const knownNonPlayerCharacters = await getCharacters<
+			NonPlayerCharacter,
+			typeof nonPlayerCharacterSchema
+		>(npcCollectionName, nonPlayerCharacterSchema, userCharacters);
+
+		console.log(
+			`Found ${knownPlayerCharacters.length} player characters known by the user's characters.`,
+		);
+		console.log(
+			`Found ${knownNonPlayerCharacters.length} NPCs known by the user's characters.`,
+		);
 
 		const resultBody = {
 			playerCharacters: knownPlayerCharacters,

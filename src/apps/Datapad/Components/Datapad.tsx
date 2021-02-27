@@ -13,7 +13,7 @@ import { Drawer, IconButton, Paper } from '@material-ui/core';
 
 import MenuIcon from '@material-ui/icons/Menu';
 import { background1 } from '../../../Theming';
-import { Player } from '../Player';
+import { Player, PlayerKind } from '../Player';
 import { executeBackendFunction } from '../../../utilities/NetlifyUtilities';
 import LoadingScreen from '../../../shared-components/LoadingScreen';
 import {
@@ -103,14 +103,22 @@ export class DatapadComponent extends ViewPortAwareComponent<Props, ViewPortAwar
 			getPlayerFunction,
 			getPlayerParameters,
 		);
+
+		let player: Player;
 		if (response) {
-			// TODO: is this check needed?
-			const player = response.player;
-			this.props.setPlayer(player);
+			player = response.player;
 		} else {
-			throw new Error(
-				`Player associated with user "${this.props.userName}" not found. Talk to your DM 😉`,
-			);
+			player = {
+				userName: this.props.userName,
+				playerKind: PlayerKind.Guest,
+				characters: undefined,
+			};
+		}
+		this.props.setPlayer(player);
+		if (player.playerKind === PlayerKind.Guest) {
+			// If the user is a guest, we don't want to show them the Profiles app.
+			// Instead, set selection to GalaxyMap
+			this.props.changeApp(AppId.GalaxyMap);
 		}
 	}
 
