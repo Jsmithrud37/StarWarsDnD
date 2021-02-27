@@ -189,19 +189,33 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 
 	private renderBasicsTab(): React.ReactNode {
 		const maxImageDimensionInPixels = 150;
-		const contactImage = renderCharacterImage(this.props.contact, {
+
+		const contact = this.props.contact;
+
+		const contactImage = renderCharacterImage(contact, {
 			maxWidthInPixels: maxImageDimensionInPixels,
 			maxHeightInPixels: maxImageDimensionInPixels,
 			containerShape: ImageContainerShape.RoundedRectangle,
 			variant: CharacterImageVariant.Profile,
 		});
 
+		const fullNameRender = contact.shortName ? <h5>{contact.name}</h5> : React.Fragment;
+		const summaryRender = contact.summary ? (
+			<h6>{contact.summary}</h6>
+		) : contact.titles && contact.titles.length !== 0 ? (
+			contact.titles[0]
+		) : (
+			React.Fragment
+		);
+
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
 				<div style={tabDivStyle} onClick={() => this.toggleImageModal(true)}>
 					{contactImage}
 				</div>
-				<CharacterBasics character={this.props.contact} />
+				{fullNameRender}
+				{summaryRender}
+				<CharacterBasics character={contact} />
 			</Scrollbars>
 		);
 	}

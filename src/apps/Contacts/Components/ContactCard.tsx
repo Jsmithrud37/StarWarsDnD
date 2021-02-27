@@ -14,7 +14,7 @@ import {
 import { getMaybeFirstFactionAffiliation } from '../../../characters';
 
 const contactCardHeaderHeightInPixels = 100;
-const contactCardBodyHeightInPixels = 450;
+const contactCardBodyHeightInPixels = 470;
 
 export interface ContactCardProps {
 	contact: Contact;
