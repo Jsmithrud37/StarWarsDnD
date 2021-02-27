@@ -96,6 +96,20 @@ export class ContactCard extends React.Component<ContactCardProps> {
 			/>
 		);
 
+		const burgerButtonDiv = (
+			<div
+				style={{
+					height: maxImageDimensionInPixels,
+					width: maxImageDimensionInPixels,
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+				}}
+			>
+				{burgerButton}
+			</div>
+		);
+
 		return (
 			<CardHeader
 				avatar={
@@ -109,7 +123,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 					</div>
 				}
 				title={name}
-				action={burgerButton}
+				action={burgerButtonDiv}
 				style={{
 					height: `${contactCardHeaderHeightInPixels}px`,
 				}}
