@@ -11,7 +11,7 @@ import {
 	renderCharacterImage,
 	renderFactionEmblem,
 } from '../../../utilities/ImageUtilities';
-import { getMaybeFirstFactionAffiliation } from '../../../characters';
+import { getMaybeFirstFactionAffiliation, getSummaryOrTitle } from '../../../characters';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 470;
@@ -133,7 +133,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 				}}
 			>
 				{this.renderName()}
-				{this.renderTitle()}
+				{this.renderSummary()}
 			</div>
 		);
 	}
@@ -153,9 +153,9 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		);
 	}
 
-	private renderTitle(): React.ReactNode {
-		const titles = this.props.contact.titles;
-		if (titles && titles.length != 0) {
+	private renderSummary(): React.ReactNode {
+		const summaryString = getSummaryOrTitle(this.props.contact);
+		if (summaryString) {
 			return (
 				<h6
 					style={{
@@ -164,7 +164,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 						textOverflow: 'ellipsis',
 					}}
 				>
-					{titles[0]}
+					{summaryString}
 				</h6>
 			);
 		}

@@ -66,3 +66,16 @@ export function getMaybeFirstFactionAffiliation(character: Character): string | 
 export function getImageResourceBaseName(character: Character): string {
 	return character.imageResourceName ? character.imageResourceName : character.name;
 }
+
+/**
+ * Gets the summary for the given character, if it has one.
+ * Otherwise, returns the first title if the character has titles.
+ * Otherwise returns undefined;
+ */
+export function getSummaryOrTitle(character: Character): string | undefined {
+	return character.summary
+		? character.summary
+		: character.titles && character.titles.length !== 0
+		? character.titles[0]
+		: undefined;
+}

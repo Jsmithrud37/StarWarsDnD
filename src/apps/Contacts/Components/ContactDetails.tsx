@@ -199,14 +199,8 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 			variant: CharacterImageVariant.Profile,
 		});
 
+		// Render the character's full name if a short name was displayed in the header
 		const fullNameRender = contact.shortName ? <h5>{contact.name}</h5> : React.Fragment;
-		const summaryRender = contact.summary ? (
-			<h6>{contact.summary}</h6>
-		) : contact.titles && contact.titles.length !== 0 ? (
-			contact.titles[0]
-		) : (
-			React.Fragment
-		);
 
 		return (
 			<Scrollbars autoHide={true} autoHeight={false} style={{ height: '100%' }}>
@@ -214,7 +208,6 @@ export class ContactDetails extends React.Component<ContactCardProps, State> {
 					{contactImage}
 				</div>
 				{fullNameRender}
-				{summaryRender}
 				<CharacterBasics character={contact} />
 			</Scrollbars>
 		);
