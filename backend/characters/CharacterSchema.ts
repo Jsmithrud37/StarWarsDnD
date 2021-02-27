@@ -29,6 +29,7 @@ export const characterBaseSchemaInnards = {
 	titles: { type: [String], required: false },
 	physicalAttributes: { type: [physicalAttributeSchema], required: false },
 	imageResourceName: { type: String, required: false },
+	summary: { type: String, required: false },
 };
 
 /**
@@ -54,4 +55,5 @@ export interface CharacterBase {
 	titles?: string[];
 	physicalAttributes?: PhysicalAttribute[];
 	imageResourceName?: string;
+	summary?: string;
 }

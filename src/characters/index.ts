@@ -29,6 +29,7 @@ export interface Character {
 	titles?: string[]; // undefined === no titles
 	physicalAttributes?: PhysicalAttribute[]; // undefined === no attributes
 	imageResourceName?: string; // undefined === use `name` as image resource base name
+	summary?: string; // undefined === no summary
 }
 
 // TODO: get from schema
