@@ -85,8 +85,27 @@ export interface CharacterImageOptions {
 }
 
 /**
+ * Renders the emblem for the first faction in the specified list for which an image exists.
+ */
+export function renderFirstFactionEmblem(
+	factionNames: string[],
+	options: ImageOptions,
+): React.ReactElement {
+	const cleanedNames = factionNames.map((factionName) => cleanName(factionName));
+
+	const factionImageUrls: string[] = [];
+	cleanedNames.forEach((cleanedName) => {
+		const urls = getSizedFactionUrls(`${baseImageUrl}/factions/${cleanedName}`, options);
+		factionImageUrls.push(...urls);
+	});
+
+	const key = cleanedNames.reduce((aggregate, current) => `${aggregate}-${current}`);
+
+	return loadAndRenderImage(factionImageUrls, options, `${key}-image`);
+}
+
+/**
  * Renders the faction image for the specified faction.
- * Assumes that one exists, if it doesn't, this will fail to converge.
  */
 export function renderFactionEmblem(
 	factionName: string,
