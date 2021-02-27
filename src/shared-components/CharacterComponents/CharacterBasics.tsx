@@ -25,13 +25,13 @@ export class CharacterBasics extends React.Component<CharacterBasicsProps> {
 		);
 	}
 
-	private renderSpecies(contact: Character): React.ReactNode {
+	private renderSpecies(character: Character): React.ReactNode {
 		return (
 			<TableRow>
 				<TableCell>
 					<b>Species: </b>
 				</TableCell>
-				<TableCell>{renderSpeciesLink(contact)}</TableCell>
+				<TableCell>{renderSpeciesLink(character)}</TableCell>
 			</TableRow>
 		);
 	}
