@@ -1,6 +1,5 @@
 import { render } from '@testing-library/react';
 import React, { ReactNode } from 'react';
-import { changeApp, collapseMenu, expandMenu, setPlayer } from '../../Actions';
 import AppId from '../../AppId';
 import { DatapadMenu } from '../Menu';
 import { Player, PlayerKind } from '../../Player';
