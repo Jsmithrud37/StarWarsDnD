@@ -49,6 +49,10 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 		super(props);
 	}
 
+	private isUserAGuest(): boolean {
+		return this.props.player.playerKind === PlayerKind.Guest;
+	}
+
 	public render(): React.ReactNode {
 		return (
 			<List
@@ -144,10 +148,12 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 				<ListItem>
 					{userIsDungeonMaster ? (
 						<b>all</b>
-					) : (
-						player.characters?.map((character) => {
-							return <li key={character}>{character}</li>;
+					) : player.characters ? (
+						player.characters.map((character) => {
+							return <ListItem key={character}>{character}</ListItem>;
 						})
+					) : (
+						<b>None</b>
 					)}
 				</ListItem>
 			</List>
@@ -164,6 +170,7 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 	}
 
 	private renderAppsList(): React.ReactNode {
+		const userIsGuest = this.isUserAGuest();
 		return (
 			<div>
 				<div style={this.menuTextContainerStyle}>
@@ -171,9 +178,14 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 				</div>
 				{/* TODO: user details */}
 				{/* <Divider orientation="horizontal"></Divider> */}
-				{this.createMenuItem('My Profiles', <AccountCircleIcon />, AppId.Profile)}
+				{this.createMenuItem(
+					'My Profiles',
+					<AccountCircleIcon />,
+					AppId.Profile,
+					userIsGuest,
+				)}
 				{this.createMenuItem('Galaxy Map', <MapIcon />, AppId.GalaxyMap)}
-				{this.createMenuItem('Shops', <ShoppingCartIcon />, AppId.Shops)}
+				{this.createMenuItem('Shops', <ShoppingCartIcon />, AppId.Shops, userIsGuest)}
 				{this.createMenuItem('Contacts', <PeopleIcon />, AppId.Contacts)}
 				{this.createMenuItem('Timeline', <TimelineIcon />, AppId.Timeline)}
 			</div>
@@ -238,13 +250,19 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 		);
 	}
 
-	private createMenuItem(text: string, icon: React.ReactElement, appId: AppId): React.ReactNode {
+	private createMenuItem(
+		text: string,
+		icon: React.ReactElement,
+		appId: AppId,
+		disabled?: boolean,
+	): React.ReactNode {
 		return (
 			<ListItem
 				button
 				selected={appId === this.props.appSelection}
 				onClick={() => this.props.onAppSelectionChange(appId)}
 				key={appId}
+				disabled={disabled}
 			>
 				<ListItemIcon>{icon}</ListItemIcon>
 				<ListItemText primary={text} />
