@@ -17,9 +17,14 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 		return errorResponse(new Error('Caller did not specify `userName` parameter in query.'));
 	}
 
-	const player: Player = await getPlayer(parameters.userName);
-
 	try {
+		const player: Player | undefined = await getPlayer(parameters.userName);
+		if (!player) {
+			return errorResponse(
+				new Error('No player found associated with the specified username.'),
+			);
+		}
+
 		const resultBody = {
 			player,
 		};
@@ -33,7 +38,7 @@ async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
 /**
  * Gets the player associated with the specified user name.
  */
-export async function getPlayer(userName: string): Promise<Player> {
+export async function getPlayer(userName: string): Promise<Player | undefined> {
 	const player = await withDbConnection(databaseName, async (db: Connection) => {
 		const model = db.model('Player', playerSchema, collectionName);
 
@@ -41,8 +46,9 @@ export async function getPlayer(userName: string): Promise<Player> {
 		console.log('Querying for results...');
 		const players: Player[] = await model.find({ userName: userName });
 
-		if (!players) {
-			throw new Error('Specified player not found.');
+		if (!players || players.length === 0) {
+			console.log('No player found associated with the specified username.');
+			return undefined;
 		}
 
 		if (players.length > 1) {
