@@ -64,7 +64,6 @@ export class ContactCard extends React.Component<ContactCardProps> {
 	private renderContactCardHeader(): React.ReactNode {
 		const isSelected = this.props.selected;
 
-		const name = this.renderNameAndTitle();
 		const maxImageDimensionInPixels = 75;
 
 		const imageOptions: CharacterImageOptions = {
@@ -110,6 +109,8 @@ export class ContactCard extends React.Component<ContactCardProps> {
 			</div>
 		);
 
+		const summary = getSummaryOrTitle(this.props.contact);
+
 		return (
 			<CardHeader
 				avatar={
@@ -122,61 +123,16 @@ export class ContactCard extends React.Component<ContactCardProps> {
 						{maybeAvatarImage}
 					</div>
 				}
-				title={name}
+				title={this.props.contact.name}
+				titleTypographyProps={{
+					variant: 'h5',
+				}}
+				subheader={summary}
 				action={burgerButtonDiv}
 				style={{
 					height: `${contactCardHeaderHeightInPixels}px`,
 				}}
 			></CardHeader>
 		);
-	}
-
-	private renderNameAndTitle(): React.ReactNode {
-		return (
-			<div
-				style={{
-					minWidth: 100,
-					whiteSpace: 'normal',
-					overflow: 'hidden',
-					textOverflow: 'ellipsis',
-				}}
-			>
-				{this.renderName()}
-				{this.renderSummary()}
-			</div>
-		);
-	}
-
-	private renderName(): React.ReactNode {
-		const nameToRender = this.props.contact.shortName ?? this.props.contact.name;
-		return (
-			<h5
-				style={{
-					whiteSpace: 'normal',
-					overflow: 'hidden',
-					textOverflow: 'ellipsis',
-				}}
-			>
-				{nameToRender}
-			</h5>
-		);
-	}
-
-	private renderSummary(): React.ReactNode {
-		const summaryString = getSummaryOrTitle(this.props.contact);
-		if (summaryString) {
-			return (
-				<h6
-					style={{
-						whiteSpace: 'normal',
-						overflow: 'hidden',
-						textOverflow: 'ellipsis',
-					}}
-				>
-					{summaryString}
-				</h6>
-			);
-		}
-		return React.Fragment;
 	}
 }
