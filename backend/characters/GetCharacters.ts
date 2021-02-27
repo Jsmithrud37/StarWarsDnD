@@ -50,15 +50,21 @@ export async function getCharacters<
 		let filter: FilterQuery<any> = {};
 
 		if (knownByCharacterNames) {
-			const filterList = [];
-			for (const knownByFilter of knownByCharacterNames) {
-				filterList.push({
-					knownBy: knownByFilter,
-				});
+			if (knownByCharacterNames.length === 0) {
+				filter = {
+					knownBy: { $exists: false },
+				};
+			} else {
+				const filterList = [];
+				for (const knownByFilter of knownByCharacterNames) {
+					filterList.push({
+						knownBy: knownByFilter,
+					});
+				}
+				filter = {
+					$or: [{ knownBy: { $exists: false } }, { $or: filterList }],
+				};
 			}
-			filter = {
-				$or: [{ knownBy: { $exists: false } }, { $or: filterList }],
-			};
 		}
 
 		const contacts = await model.find(filter).sort({ name: 1 });
