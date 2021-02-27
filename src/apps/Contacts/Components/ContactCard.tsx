@@ -74,9 +74,6 @@ export class ContactCard extends React.Component<ContactCardProps> {
 			variant: CharacterImageVariant.Profile,
 		};
 
-		// TODO: When attempting to render faction, it gets spinner indefinitely until
-		// retrying to render the same emblem again...
-
 		// Display the contact image when not selected, the faction emblem when selected
 		const maybeAvatarImage = isSelected
 			? this.props.contact.affiliations
