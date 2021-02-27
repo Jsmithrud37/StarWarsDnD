@@ -9,9 +9,9 @@ import {
 	CharacterImageVariant,
 	ImageContainerShape,
 	renderCharacterImage,
-	renderFactionEmblem,
+	renderFirstFactionEmblem,
 } from '../../../utilities/ImageUtilities';
-import { getMaybeFirstFactionAffiliation, getSummaryOrTitle } from '../../../characters';
+import { getSummaryOrTitle } from '../../../characters';
 
 const contactCardHeaderHeightInPixels = 100;
 const contactCardBodyHeightInPixels = 470;
@@ -77,12 +77,10 @@ export class ContactCard extends React.Component<ContactCardProps> {
 		// TODO: When attempting to render faction, it gets spinner indefinitely until
 		// retrying to render the same emblem again...
 
-		const maybeFaction = getMaybeFirstFactionAffiliation(this.props.contact);
-
 		// Display the contact image when not selected, the faction emblem when selected
 		const maybeAvatarImage = isSelected
-			? maybeFaction
-				? renderFactionEmblem(maybeFaction, imageOptions)
+			? this.props.contact.affiliations
+				? renderFirstFactionEmblem(this.props.contact.affiliations, imageOptions)
 				: React.Fragment
 			: renderCharacterImage(this.props.contact, imageOptions);
 
