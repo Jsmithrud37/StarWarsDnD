@@ -56,7 +56,7 @@ interface LocalState {
 	imageModal: boolean;
 }
 
-const tileHeightInPixels = 350;
+const tileHeightInPixels = 300;
 
 export class Profile extends React.Component<Props, LocalState> {
 	public constructor(props: Props) {
@@ -211,6 +211,7 @@ export class Profile extends React.Component<Props, LocalState> {
 						padding: '10px',
 					}}
 				>
+					{this.renderName(selectedCharacter)}
 					<Grid container justify="space-around" alignItems="flex-start" spacing={3}>
 						{this.renderImage(selectedCharacter)}
 						{this.renderBasics(selectedCharacter)}
@@ -220,6 +221,15 @@ export class Profile extends React.Component<Props, LocalState> {
 					</Grid>
 				</div>
 			</Scrollbars>
+		);
+	}
+
+	private renderName(character: PlayerCharacter): React.ReactElement {
+		return (
+			<div style={{ padding: '10px' }}>
+				<h2>{character.name}</h2>
+				<Divider />
+			</div>
 		);
 	}
 
