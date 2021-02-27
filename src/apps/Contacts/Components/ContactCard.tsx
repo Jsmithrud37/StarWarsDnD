@@ -103,6 +103,7 @@ export class ContactCard extends React.Component<ContactCardProps> {
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'center',
+					marginLeft: '16px', // Match weird margin on right of avatar component
 				}}
 			>
 				{burgerButton}
