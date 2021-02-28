@@ -17,8 +17,11 @@ import {
 import { background3 } from '../../../Theming';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import { SortBy } from './SortingAndFiltering';
 
 type Props = WithWidth & {
+	currentSortBy: SortBy;
+	onUpdateSortBy: (newValue: SortBy) => void;
 	currentNameFilter: string;
 	onUpdateNameFilter: (newValue: string) => void;
 	currentKnownBySelection: string;
@@ -36,7 +39,7 @@ class Toolbar extends React.Component<Props> {
 	}
 
 	public render(): React.ReactNode {
-		const useNarrowView = this.props.width === 'xs';
+		const useNarrowView = this.props.width === 'sm';
 		return (
 			<AppBar
 				id="contacts-toolbar"
@@ -79,6 +82,7 @@ class WideToolbar extends React.Component<Props> {
 						flexDirection: 'row',
 					}}
 				>
+					{renderSortByDropDown(this.props.currentSortBy, this.props.onUpdateSortBy)}
 					{renderNameFilterBox(
 						this.props.currentNameFilter,
 						this.props.onUpdateNameFilter,
@@ -188,12 +192,17 @@ class NarrowToolbar extends React.Component<Props, NarrowToolbarState> {
 							</div>
 							<List>
 								<ListItem>
+									{renderSortByDropDown(
+										this.props.currentSortBy,
+										this.props.onUpdateSortBy,
+									)}
+								</ListItem>
+								<ListItem>
 									{renderNameFilterBox(
 										this.props.currentNameFilter,
 										this.props.onUpdateNameFilter,
 									)}
 								</ListItem>
-
 								<ListItem>
 									{renderKnownByFilterDropDown(
 										this.props.currentKnownBySelection,
@@ -215,6 +224,25 @@ class NarrowToolbar extends React.Component<Props, NarrowToolbarState> {
 			</Modal>
 		);
 	}
+}
+
+/**
+ * Renders a drop-down selection for sorting the characters
+ * @param currentSortBySelection - Currently selected sorting option
+ * @param onUpdateSortBySelection - Callback to invoke when the sort-by selection changes
+ */
+function renderSortByDropDown(
+	currentSortBySelection: SortBy,
+	onUpdateSortBySelection: (newValue: SortBy) => void,
+): React.ReactNode {
+	return renderDropDown(
+		currentSortBySelection,
+		Object.values(SortBy),
+		onUpdateSortBySelection,
+		'Sort By',
+		undefined, // No "all" option for this drop-down
+		'sort-by-filter',
+	);
 }
 
 /**
@@ -257,7 +285,7 @@ function renderNameFilterBox(
 
 /**
  * Renders a drop-down selection filter for characters known by the player's character
- * @param currentKnownBySelection - Currently selected faction
+ * @param currentKnownBySelection - Currently selected character for known-by filter
  * @param knownByOptions - Known-by options for the drop-down
  * @param onUpdateKnownBySelection - Callback to invoke when the known-by selection changes
  */
@@ -308,15 +336,16 @@ function renderFactionFilterDropDown(
  * @param options - Options for the drop-down
  * @param onUpdateSelection - Callback to invoke when the selection changes
  * @param label - Label to display on the drop-down UI element
- * @param allOptionString - Label to display for the "all" option
+ * @param allOptionString - Label to display for the "all" option.
+ * If list does not have an "all" option, specify undefined.
  * @param keyPreamble - Value to preface all option keys with
  */
-function renderDropDown(
-	currentSelection: string | undefined,
-	options: string[],
-	onUpdateSelection: (newValue: string) => void,
+function renderDropDown<T extends string>(
+	currentSelection: T | undefined,
+	options: T[],
+	onUpdateSelection: (newValue: T) => void,
 	label: string,
-	allOptionString: string,
+	allOptionString: string | undefined,
 	keyPreamble: string,
 ): React.ReactElement {
 	if (currentSelection && !options.includes(currentSelection)) {
@@ -325,11 +354,16 @@ function renderDropDown(
 		);
 	}
 
-	const filterOptions: React.ReactNodeArray = [
-		<MenuItem key={`${keyPreamble}-option-none`} value={undefined}>
-			<em>{allOptionString}</em>
-		</MenuItem>,
-	];
+	const filterOptions: React.ReactNodeArray = [];
+
+	if (allOptionString) {
+		filterOptions.push(
+			<MenuItem key={`${keyPreamble}-option-none`} value={undefined}>
+				<em>{allOptionString}</em>
+			</MenuItem>,
+		);
+	}
+
 	options.forEach((option) => {
 		filterOptions.push(
 			<MenuItem key={`${keyPreamble}-option-${option}`} value={option}>
@@ -360,7 +394,7 @@ function renderDropDown(
 					labelId={labelId}
 					label={label}
 					value={currentSelection}
-					onChange={(event) => onUpdateSelection(event.target.value as string)}
+					onChange={(event) => onUpdateSelection(event.target.value as T)}
 					variant="outlined"
 					style={{
 						backgroundColor: background3,

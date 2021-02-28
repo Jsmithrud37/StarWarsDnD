@@ -10,8 +10,9 @@ import LoadingScreen from '../../../shared-components/LoadingScreen';
 import { ContactCard } from './ContactCard';
 import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { Contact, getPlayerCharacters } from '../Contact';
-import { NonPlayerCharacter, PlayerCharacter } from '../../../characters';
+import { getShortNameOrName, NonPlayerCharacter, PlayerCharacter } from '../../../characters';
 import Toolbar from './Toolbar';
+import { SortBy } from './SortingAndFiltering';
 
 /**
  * Externally specified props
@@ -38,6 +39,11 @@ type Props = Actions & Parameters;
  */
 interface State {
 	/**
+	 * Sort order for the contacts
+	 */
+	sorting: SortBy;
+
+	/**
 	 * Filter for contact names.
 	 * This filter is based on sub-string matching, as it is backed by a text entry field.
 	 * Any contact name including this string will be matched.
@@ -61,6 +67,7 @@ interface State {
 }
 
 const initialState: State = {
+	sorting: SortBy.NameAscending,
 	nameFilter: '',
 	factionFilter: '',
 	knownByFilter: '',
@@ -77,12 +84,19 @@ export class Contacts extends React.Component<Props, State> {
 		return contact._id === this.props.contactSelection;
 	}
 
-	private getFilteredContacts(): Contact[] {
-		const contacts = this.props.contacts;
-		if (contacts === undefined) {
+	private getSortedAndFilteredContacts(): Contact[] {
+		const rawContacts = this.props.contacts;
+
+		if (rawContacts === undefined) {
 			throw new Error('Contacts not loaded yet.');
 		}
 
+		const filteredContacts = this.filterContacts(rawContacts);
+		const sortedContacts = this.sortContacts(filteredContacts, this.state.sorting);
+		return sortedContacts;
+	}
+
+	private filterContacts(contacts: Contact[]): Contact[] {
 		let filteredContacts = contacts;
 
 		// Filter based on name
@@ -112,6 +126,38 @@ export class Contacts extends React.Component<Props, State> {
 		// TODO: apply other filters as needed
 
 		return filteredContacts;
+	}
+
+	private sortContacts(contacts: Contact[], sorting: SortBy): Contact[] {
+		return contacts.sort((a, b) => {
+			const aName = getShortNameOrName(a);
+			const bName = getShortNameOrName(b);
+
+			const aIsPlayerCharacter = a.isPlayerCharacter;
+			const bIsPlayerCharacter = b.isPlayerCharacter;
+			switch (sorting) {
+				case SortBy.NameAscending:
+					return aName.localeCompare(bName);
+				case SortBy.NameDescending:
+					return -aName.localeCompare(bName);
+				case SortBy.NPCsFirst:
+					if (aIsPlayerCharacter === bIsPlayerCharacter) {
+						return aName.localeCompare(bName);
+					} else if (aIsPlayerCharacter) {
+						return 1;
+					}
+					return -1;
+				case SortBy.PCsFirst:
+					if (aIsPlayerCharacter === bIsPlayerCharacter) {
+						return aName.localeCompare(bName);
+					} else if (aIsPlayerCharacter) {
+						return -1;
+					}
+					return 1;
+				default:
+					throw new Error(`Unrecognized SortBy value: '${sorting}'.`);
+			}
+		});
 	}
 
 	/**
@@ -176,6 +222,13 @@ export class Contacts extends React.Component<Props, State> {
 		]);
 	}
 
+	private updateSorting(newValue: SortBy): void {
+		this.setState({
+			...this.state,
+			sorting: newValue,
+		});
+	}
+
 	private updateNameFilter(newValue: string): void {
 		this.setState({
 			...this.state,
@@ -218,6 +271,8 @@ export class Contacts extends React.Component<Props, State> {
 			renderContent = (
 				<>
 					<Toolbar
+						currentSortBy={this.state.sorting}
+						onUpdateSortBy={(newValue: SortBy) => this.updateSorting(newValue)}
 						currentNameFilter={this.state.nameFilter}
 						onUpdateNameFilter={(newValue: string) => this.updateNameFilter(newValue)}
 						currentKnownBySelection={this.state.knownByFilter}
@@ -274,7 +329,7 @@ export class Contacts extends React.Component<Props, State> {
 	 * Displays information about the selected contact.
 	 */
 	public renderContacts(): React.ReactNode {
-		const filteredContacts = this.getFilteredContacts();
+		const contacts = this.getSortedAndFilteredContacts();
 
 		return (
 			<Scrollbars
@@ -298,7 +353,7 @@ export class Contacts extends React.Component<Props, State> {
 						padding: 25,
 					}}
 				>
-					{filteredContacts.map((contact) => {
+					{contacts.map((contact) => {
 						const isSelected = this.isSelected(contact);
 						return (
 							<Grid item key={contact.name} xs={12} sm={9} md={6} lg={4} xl={4}>
