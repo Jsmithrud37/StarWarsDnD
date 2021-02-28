@@ -104,8 +104,10 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 						alignItems: 'space-around',
 					}}
 				>
-					<div style={this.menuTextContainerStyle}>
-						<h5>{`Welcome ${player.userName}!`}</h5>
+					<div>
+						<h5>
+							Welcome <b>{player.userName}</b>!
+						</h5>
 					</div>
 					<div>
 						<IconButton onClick={() => this.props.onMenuCollapse()}>
@@ -143,21 +145,34 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 
 		const userIsDungeonMaster = player.playerKind === PlayerKind.DungeonMaster;
 
-		const playerCharactersListRender = (
-			<List>
-				<ListItem>
-					{userIsDungeonMaster ? (
-						<b>all</b>
-					) : player.characters ? (
+		let playerCharactersListRender: React.ReactElement;
+		if (userIsDungeonMaster) {
+			playerCharactersListRender = (
+				<List disablePadding dense>
+					<ListItem>
+						<ListItemText>All</ListItemText>
+					</ListItem>
+				</List>
+			);
+		} else {
+			playerCharactersListRender = (
+				<List disablePadding dense>
+					{player.characters ? (
 						player.characters.map((character) => {
-							return <ListItem key={character}>{character}</ListItem>;
+							return (
+								<ListItem key={character}>
+									<ListItemText>- {character}</ListItemText>
+								</ListItem>
+							);
 						})
 					) : (
-						<b>None</b>
+						<ListItem key={'none'}>
+							<ListItemText>None</ListItemText>
+						</ListItem>
 					)}
-				</ListItem>
-			</List>
-		);
+				</List>
+			);
+		}
 
 		return (
 			<div style={this.menuTextContainerStyle}>
