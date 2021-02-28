@@ -17,13 +17,15 @@ import {
 import { background3 } from '../../../Theming';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import { SortBy } from './SortingAndFiltering';
+import { CharacterKindFilter, SortBy } from './SortingAndFiltering';
 
 type Props = WithWidth & {
 	currentSortBy: SortBy;
 	onUpdateSortBy: (newValue: SortBy) => void;
 	currentNameFilter: string;
 	onUpdateNameFilter: (newValue: string) => void;
+	currentCharacterKindSelection: CharacterKindFilter;
+	onUpdateCharacterKindSelection: (newValue: CharacterKindFilter) => void;
 	currentKnownBySelection: string;
 	knownByOptions: string[];
 	onUpdateKnownBySelection: (newKnownBySelection: string) => void;
@@ -39,7 +41,7 @@ class Toolbar extends React.Component<Props> {
 	}
 
 	public render(): React.ReactNode {
-		const useNarrowView = this.props.width === 'sm';
+		const useNarrowView = this.props.width === 'xs' || this.props.width === 'sm';
 		return (
 			<AppBar
 				id="contacts-toolbar"
@@ -86,6 +88,10 @@ class WideToolbar extends React.Component<Props> {
 					{renderNameFilterBox(
 						this.props.currentNameFilter,
 						this.props.onUpdateNameFilter,
+					)}
+					{renderCharacterKindDropDown(
+						this.props.currentCharacterKindSelection,
+						this.props.onUpdateCharacterKindSelection,
 					)}
 					{renderKnownByFilterDropDown(
 						this.props.currentKnownBySelection,
@@ -204,6 +210,12 @@ class NarrowToolbar extends React.Component<Props, NarrowToolbarState> {
 									)}
 								</ListItem>
 								<ListItem>
+									{renderCharacterKindDropDown(
+										this.props.currentCharacterKindSelection,
+										this.props.onUpdateCharacterKindSelection,
+									)}
+								</ListItem>
+								<ListItem>
 									{renderKnownByFilterDropDown(
 										this.props.currentKnownBySelection,
 										this.props.knownByOptions,
@@ -280,6 +292,25 @@ function renderNameFilterBox(
 				}
 			/>
 		</div>
+	);
+}
+
+/**
+ * Renders a drop-down selection for filtering contacts by the kind of character
+ * @param currentCharacterKindSelection - Currently selected filter option
+ * @param onUpdateCharacterKindSelection - Callback to invoke when the selection changes
+ */
+function renderCharacterKindDropDown(
+	currentCharacterKindSelection: CharacterKindFilter,
+	onUpdateCharacterKindSelection: (newValue: CharacterKindFilter) => void,
+): React.ReactNode {
+	return renderDropDown(
+		currentCharacterKindSelection,
+		Object.values(CharacterKindFilter),
+		onUpdateCharacterKindSelection,
+		'Character Type',
+		undefined, // All option already represented by enum
+		'character-kind-filter',
 	);
 }
 

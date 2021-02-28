@@ -12,7 +12,7 @@ import { isPlayerDungeonMaster, Player } from '../../Datapad/Player';
 import { Contact, getPlayerCharacters } from '../Contact';
 import { getShortNameOrName, NonPlayerCharacter, PlayerCharacter } from '../../../characters';
 import Toolbar from './Toolbar';
-import { SortBy } from './SortingAndFiltering';
+import { CharacterKindFilter, SortBy } from './SortingAndFiltering';
 
 /**
  * Externally specified props
@@ -51,6 +51,11 @@ interface State {
 	nameFilter: string;
 
 	/**
+	 * Kind of character to filter by
+	 */
+	characterKindFilter: CharacterKindFilter;
+
+	/**
 	 * Filter to faction.
 	 * This filter is based on an exact match, as it is backed by a drop-down menu.
 	 * Any contact including a faction which exactly matches this will be matched.
@@ -69,6 +74,7 @@ interface State {
 const initialState: State = {
 	sorting: SortBy.NameAscending,
 	nameFilter: '',
+	characterKindFilter: CharacterKindFilter.All,
 	factionFilter: '',
 	knownByFilter: '',
 };
@@ -105,6 +111,24 @@ export class Contacts extends React.Component<Props, State> {
 			filteredContacts = contacts.filter((contact) =>
 				contact.name.toLocaleLowerCase().includes(nameFilter.toLocaleLowerCase()),
 			);
+		}
+
+		// Filter based on character kind
+		const characterKindFilter = this.state.characterKindFilter;
+		if (characterKindFilter !== CharacterKindFilter.All) {
+			filteredContacts = filteredContacts.filter((contact) => {
+				switch (characterKindFilter) {
+					// Cannot be `All` per check above
+					case CharacterKindFilter.NPCs:
+						return !contact.isPlayerCharacter;
+					case CharacterKindFilter.PCs:
+						return contact.isPlayerCharacter;
+					default:
+						throw new Error(
+							`Unrecognized CharacterKindFilter value: '${characterKindFilter}'.`,
+						);
+				}
+			});
 		}
 
 		// Filter based on faction
@@ -236,6 +260,13 @@ export class Contacts extends React.Component<Props, State> {
 		});
 	}
 
+	private updateCharacterKindFilter(newValue: CharacterKindFilter): void {
+		this.setState({
+			...this.state,
+			characterKindFilter: newValue,
+		});
+	}
+
 	private updateFactionFilter(newValue: string): void {
 		console.log(`Faction filter updated to: ${newValue}`);
 		this.setState({
@@ -275,6 +306,10 @@ export class Contacts extends React.Component<Props, State> {
 						onUpdateSortBy={(newValue: SortBy) => this.updateSorting(newValue)}
 						currentNameFilter={this.state.nameFilter}
 						onUpdateNameFilter={(newValue: string) => this.updateNameFilter(newValue)}
+						currentCharacterKindSelection={this.state.characterKindFilter}
+						onUpdateCharacterKindSelection={(newValue: CharacterKindFilter) =>
+							this.updateCharacterKindFilter(newValue)
+						}
 						currentKnownBySelection={this.state.knownByFilter}
 						knownByOptions={playerCharacterNames}
 						onUpdateKnownBySelection={(newValue: string) =>
