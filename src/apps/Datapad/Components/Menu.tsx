@@ -105,9 +105,7 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 					}}
 				>
 					<div>
-						<h5>
-							Welcome <b>{player.userName}</b>!
-						</h5>
+						<h5>Welcome {player.userName}!</h5>
 					</div>
 					<div>
 						<IconButton onClick={() => this.props.onMenuCollapse()}>
