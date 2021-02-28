@@ -304,7 +304,7 @@ function renderKnownByFilterDropDown(
 		knownByOptions,
 		onUpdateKnownBySelection,
 		'Known By',
-		'All Contacts',
+		'All Characters',
 		'known-by-filter',
 	);
 }
