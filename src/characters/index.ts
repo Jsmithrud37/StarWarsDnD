@@ -79,3 +79,10 @@ export function getSummaryOrTitle(character: Character): string | undefined {
 		? character.titles[0]
 		: undefined;
 }
+
+/**
+ * Gets the character's short name if it has one, otherwise the full name
+ */
+export function getShortNameOrName(character: Character): string {
+	return character.shortName ?? character.name;
+}
