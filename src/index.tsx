@@ -13,6 +13,7 @@ import * as serviceWorker from './serviceWorker';
 import './index.css';
 
 // TODO: some current styling depends on this. Should refactor to remove the need for it...
+// In particular: seems to change some text font aspects
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const dataStore = createStore(reducers);
