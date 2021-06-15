@@ -39,7 +39,7 @@ class AppComponent extends React.Component<WithAuth0Props> {
 			if (!this.props.auth0.user) {
 				throw new Error('Authentication failed to provide user data.');
 			}
-			const userName = this.props.auth0.user.nickname;
+			const userName = this.props.auth0.user.nickname as string;
 
 			return (
 				<Provider store={dataStore}>

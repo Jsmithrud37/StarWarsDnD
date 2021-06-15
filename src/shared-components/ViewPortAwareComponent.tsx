@@ -24,7 +24,7 @@ export abstract class ViewPortAwareComponent<
 	P = {},
 	S extends ViewPortAwareState = ViewPortAwareState,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	SS = any
+	SS = any,
 > extends React.Component<P, S, SS> {
 	protected constructor(props: P) {
 		super(props);
