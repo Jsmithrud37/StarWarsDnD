@@ -33,7 +33,7 @@ export const npcCollectionName = 'non-player-characters';
 export async function getCharacters<
 	TCharacter extends CharacterBase,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	TCharacterSchema extends Schema<Document<any>, Model<Document<any>>>
+	TCharacterSchema extends Schema<Document<any>, Model<Document<any>>>,
 >(
 	collectionName: string,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
