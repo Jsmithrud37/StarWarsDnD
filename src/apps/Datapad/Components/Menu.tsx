@@ -222,6 +222,11 @@ export class DatapadMenu extends React.Component<DatapadMenuProps> {
 					</a>
 				</ListItem>
 				<ListItem>
+					<a href="http://swlotf.wikidot.com/" target="_blank" rel="noopener noreferrer">
+						Wiki
+					</a>
+				</ListItem>
+				<ListItem>
 					<a
 						href="https://drive.google.com/drive/folders/0B0DnV-NrBZTZbHNZb0QzNXRNdE0?usp=sharing"
 						target="_blank"
